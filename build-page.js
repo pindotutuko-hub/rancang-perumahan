@@ -14,4 +14,8 @@ const head = `<!doctype html>
 `;
 fs.mkdirSync(path.join(__dirname, 'src'), { recursive: true });
 fs.writeFileSync(path.join(__dirname, 'src', 'index.html'), head + body + '\n</body>\n</html>\n');
-console.log('src/index.html written');
+// Versi web untuk menu Tools pindotutuko.id: tombol kembali ke Beranda (pt-back.js) dan izin koneksi ke situs sendiri.
+const webHead = head.replace("connect-src 'none'", "connect-src 'self'");
+fs.mkdirSync(path.join(__dirname, 'web'), { recursive: true });
+fs.writeFileSync(path.join(__dirname, 'web', 'index.html'), webHead + body + '\n<script src="/wp-content/themes/pindotutuko/assets/pt-back.js?v=7" defer></script>\n</body>\n</html>\n');
+console.log('src/index.html + web/index.html written');
