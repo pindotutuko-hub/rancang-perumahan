@@ -90,7 +90,9 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .styles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .style{border:1.5px solid var(--line);border-radius:10px;padding:8px;cursor:pointer;background:var(--sheet);text-align:left}
 .style[aria-pressed="true"]{border-color:var(--warm);box-shadow:0 0 0 2px var(--warm-soft)}
-.style svg{width:100%;height:auto;display:block}
+.style svg{width:100%;height:auto;display:block}.style img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-radius:7px;background:var(--paper)}
+.v3d{border-radius:10px;overflow:hidden;background:#cfdce6;min-height:260px}.v3d canvas{display:block;width:100%!important;height:auto!important}
+.v3bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}.v3bar .seg{display:inline-flex;gap:4px}.v3bar [aria-pressed="true"],.v3bar .on{background:var(--ink);color:var(--sheet)}.v3h,.v3c{display:inline-flex;align-items:center;gap:6px;font-size:13px}.v3h input{width:120px}
 .style b{display:block;font-size:13px;margin-top:4px}.style small{font-size:11.5px;color:var(--muted)}
 .ref li{margin:0 0 10px}.ref .tag{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-left:6px}
 .ref .tag.as{background:var(--warm-soft);color:var(--warm)}
@@ -170,6 +172,8 @@ const CREDIT = [
 const ASUMSI = [
   'KDB, KLB, KDH, dan garis sempadan bangunan ditetapkan RDTR/peraturan zonasi setempat; nilai awal di aplikasi hanya contoh.',
   'Satu kepala keluarga dihitung 4 jiwa (dapat diubah) untuk memperkirakan penduduk pendukung sarana.',
+  'Daftar gaya fasad dan tipe rumah merangkum gaya yang banyak ditawarkan pengembang perumahan di Indonesia saat ini (pengamatan pasar, bukan regulasi); faktor biaya gaya hanyalah perkiraan.',
+  'Tampak 3D dibuat secara prosedural dari ukuran tipe (lebar kavling, kedalaman bangunan, jumlah lantai) untuk studi massa, material, dan bayangan; bukan gambar kerja atau visual pemasaran yang mengikat.',
   'Biaya per m² (konstruksi, jalan, saluran, RTH) dan faktor biaya gaya fasad adalah perkiraan awal; ganti dengan harga satuan setempat atau hasil RAB rinci.',
   'Cicilan KPR memakai rumus anuitas bulanan; bank dapat memakai metode lain (efektif/berjenjang). Uang muka KPR subsidi mengikuti ketentuan program dan bank penyalur.',
   'Batas cicilan terhadap penghasilan (rasio angsuran) adalah kebijakan bank; nilai awal 30% hanya asumsi.'
@@ -391,14 +395,36 @@ const RP = (()=>{
    Faktor biaya = perkiraan awal (asumsi), dapat diubah per tipe.
    =================================================================== */
 const STYLES = {
-  minimalis:{n:'Modern minimalis',d:'Atap datar berparapet, dinding putih, aksen kayu, kaca lebar berbingkai hitam.',f:1.00,roof:'flat',wall:'#f4f3ef',accent:'#a0714b',trim:'#2b2b2b',roofC:'#5b5f63',base:'#8d8a84'},
-  tropis:{n:'Tropis modern',d:'Atap perisai landai bertritisan lebar, kisi kayu vertikal, kaki batu alam.',f:1.08,roof:'hip',wall:'#efe9df',accent:'#8a5a34',trim:'#3a3a36',roofC:'#3e4a4a',base:'#6f6a60'},
-  industrial:{n:'Industrial',d:'Atap miring tunggal, bata ekspos/beton abu, kusen baja hitam.',f:1.05,roof:'shed',wall:'#b9b3ab',accent:'#9b5135',trim:'#1f1f1f',roofC:'#3b3d40',base:'#55585b'},
-  skandinavia:{n:'Skandinavia',d:'Atap pelana curam tanpa tritisan, dinding putih/abu muda, kayu terang.',f:1.06,roof:'gable-steep',wall:'#f7f7f5',accent:'#cfb38a',trim:'#2d2d2d',roofC:'#2f3236',base:'#c9c6c0'},
-  japandi:{n:'Japandi',d:'Atap pelana landai, kayu alami, kisi horizontal, warna netral krem.',f:1.07,roof:'gable-low',wall:'#ece4d6',accent:'#9a7652',trim:'#3d352c',roofC:'#4a4642',base:'#b8ad9b'},
-  kontemporer:{n:'Kontemporer kotak',d:'Bingkai kotak menjorok, dua warna, atap datar, kanopi kaca.',f:1.10,roof:'frame',wall:'#e9e7e3',accent:'#3c4a57',trim:'#1d2228',roofC:'#61666b',base:'#7e7f80'},
-  nusantara:{n:'Nusantara kontemporer',d:'Atap pelana tinggi dengan roster ventilasi, genteng tanah liat, teras dalam.',f:1.12,roof:'gable-tall',wall:'#f1e7d8',accent:'#a55a33',trim:'#4a3122',roofC:'#9c4a2b',base:'#7a5b45'}
+  minimalis:{n:'Modern minimalis',d:'Atap datar berparapet, dinding putih, aksen kayu, kaca lebar berbingkai hitam.',f:1.00,roof:'flat',wall:'#f4f3ef',accent:'#a0714b',trim:'#2b2b2b',roofC:'#5b5f63',base:'#8d8a84',
+    wallT:'plaster',accT:'wood',baseT:'stone',col:'steel',canopy:1,bigWin:1,sideLite:1},
+  tropis:{n:'Tropis modern',d:'Atap perisai landai bertritisan lebar, kisi kayu vertikal, kaki batu alam.',f:1.08,roof:'hip',wall:'#efe9df',accent:'#8a5a34',trim:'#3a3a36',roofC:'#3e4a4a',base:'#6f6a60',
+    wallT:'plaster',roofT:'ctile',baseT:'stone',col:'wood',slats:1,ov:1.1,pitch:27,soffit:'#b98d62'},
+  industrial:{n:'Industrial',d:'Atap miring tunggal, bata ekspos/beton abu, kusen baja hitam.',f:1.05,roof:'shed',wall:'#b9b3ab',accent:'#9b5135',trim:'#1f1f1f',roofC:'#3b3d40',base:'#55585b',
+    wallT:'slab',roofT:'metal',accT:'brick',baseT:'slab',col:'steel',canopy:1,bigWin:1},
+  skandinavia:{n:'Skandinavia',d:'Atap pelana curam tanpa tritisan, dinding putih/abu muda, kayu terang.',f:1.06,roof:'gable-steep',wall:'#f7f7f5',accent:'#cfb38a',trim:'#2d2d2d',roofC:'#2f3236',base:'#c9c6c0',
+    wallT:'plaster',roofT:'metal',baseT:'slab',col:'wood',bigWin:1,door:'#cfb38a'},
+  japandi:{n:'Japandi',d:'Atap pelana landai, kayu alami, kisi horizontal, warna netral krem.',f:1.07,roof:'gable-low',wall:'#ece4d6',accent:'#9a7652',trim:'#3d352c',roofC:'#4a4642',base:'#b8ad9b',
+    wallT:'plaster',roofT:'ctile',baseT:'slab',col:'wood',slats:1,gableT:'wood',soffit:'#c9a77f'},
+  kontemporer:{n:'Kontemporer kotak',d:'Bingkai kotak menjorok, dua warna, atap datar, kanopi kaca.',f:1.10,roof:'frame',wall:'#e9e7e3',accent:'#3c4a57',trim:'#1d2228',roofC:'#61666b',base:'#7e7f80',
+    wallT:'plaster',baseT:'slab',col:'steel',canopy:1,bigWin:1,sideLite:1,accT:'stone'},
+  nusantara:{n:'Nusantara kontemporer',d:'Atap pelana tinggi dengan roster ventilasi, genteng tanah liat, teras dalam.',f:1.12,roof:'gable-tall',wall:'#f1e7d8',accent:'#a55a33',trim:'#4a3122',roofC:'#9c4a2b',base:'#7a5b45',
+    wallT:'plaster',roofT:'clay',baseT:'stone',col:'wood',gableT:'roster',soffit:'#a87b56'},
+  klasik:{n:'Modern klasik',d:'Atap perisai abu, pilar bulat & pedimen di pintu masuk, list profil, jendela berdaun krepyak.',f:1.15,roof:'hip',wall:'#f2efe9',accent:'#59636b',trim:'#ffffff',roofC:'#4d5560',base:'#cfc9bf',
+    wallT:'plaster',roofT:'ctile',baseT:'slab',col:'classic',shutter:1,lintel:1,pediment:1,cornice:1,dbl:1,balcony:1,door:'#4b3626',sill:'#ffffff',pitch:32,ov:.6},
+  mediterania:{n:'Mediterania modern',d:'Dinding stuko hangat, genteng tanah liat oranye, krepyak kayu, balkon pagar besi.',f:1.12,roof:'hip',wall:'#efe0c8',accent:'#6e7f5b',trim:'#3f3328',roofC:'#b85a32',base:'#a88b6a',
+    wallT:'stucco',roofT:'clay',baseT:'stone',col:'concrete',shutter:1,lintel:1,balcony:1,pitch:24,ov:.7,door:'#6b4a2e'},
+  farmhouse:{n:'Modern farmhouse',d:'Atap pelana curam metal hitam, dinding papan vertikal putih, kusen hitam, teras tiang kayu.',f:1.09,roof:'gable-steep',wall:'#f5f4f0',accent:'#b08a62',trim:'#1b1b1b',roofC:'#26282b',base:'#9a958c',
+    wallT:'batten',roofT:'metal',baseT:'slab',col:'wood',bigWin:1,door:'#b08a62'}
 };
+/* Tipe rumah yang umum dipasarkan pengembang (ukuran kavling standar; semua dapat diubah) */
+const TIPE = [
+  {n:'Tipe 30/60',lotW:5,lotD:12,LB:30,floors:1,beds:2,baths:1},
+  {n:'Tipe 36/72',lotW:6,lotD:12,LB:36,floors:1,beds:2,baths:1},
+  {n:'Tipe 45/90',lotW:7.5,lotD:12,LB:45,floors:1,beds:2,baths:1},
+  {n:'Tipe 54/105',lotW:7,lotD:15,LB:54,floors:1,beds:3,baths:1},
+  {n:'Tipe 60/72 · 2 lantai',lotW:6,lotD:12,LB:60,floors:2,beds:3,baths:2},
+  {n:'Tipe 90/120 · 2 lantai',lotW:8,lotD:15,LB:90,floors:2,beds:4,baths:3}
+];
 
 /* ---------- Proyek default (nilai contoh, dapat diubah semua) ---------- */
 function defaultProject(){
@@ -720,9 +746,18 @@ PAGES.rumah = sec => {
         <label class="f" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" data-tf="subsidi" ${t.subsidi?'checked':''}> Rumah umum / subsidi (cek Kepmen PKP 1722)</label>
       </div><div class="row" style="margin-top:10px"><button class="btn small" id="dupT">Gandakan tipe</button><button class="btn small" id="delT">Hapus tipe</button></div></div>
       <div class="card" id="hStat"></div></div>
+      <div class="card"><h2>Tipe rumah populer</h2><p class="note">Satu klik mengisi ukuran kavling, luas bangunan, lantai, dan kamar (harga jual tidak diubah).</p><div class="row" id="tipeP">${TIPE.map((p,i)=>`<button class="btn small" data-tp="${i}">${esc(p.n)}</button>`).join('')}</div></div>
       <div class="card"><h2>Gaya fasad terkini</h2><div class="styles" id="stl">${Object.entries(STYLES).map(([k,s])=>`<button class="style" data-st="${k}" aria-pressed="${t.style===k}">${isoSVG(Object.assign({},t,{style:k}),{small:1})}<b>${s.n}</b><small>${s.d}</small><small style="display:block;margin-top:2px">faktor biaya ×${fmt(s.f,2)} (asumsi)</small></button>`).join('')}</div></div>
-      <div class="grid g2"><div class="card"><h2>Tampak 3D — ${esc((STYLES[t.style]||STYLES.minimalis).n)}</h2><div class="svgbox" id="iso"></div></div>
-      <div class="card"><h2>Denah skematik lantai 1</h2><div class="svgbox" id="fp"></div><p class="note" id="fpNote"></p></div></div>`;
+      <div class="card"><h2>Tampak 3D realistis — ${esc((STYLES[t.style]||STYLES.minimalis).n)}</h2>
+        <div class="v3bar noprint"><span class="seg">${[['34','3/4'],['depan','Depan'],['samping','Samping'],['udara','Udara']].map(v=>`<button class="btn small" data-v3="${v[0]}" aria-pressed="${V3.view===v[0]}">${v[1]}</button>`).join('')}</span>
+          <button class="btn small" id="v3spin">⟳ Putar</button>
+          <label class="v3h">☀ Jam <input type="range" min="6" max="18" step="0.25" id="v3h" value="${V3.hour}"><b id="v3hv">${fmtHour(V3.hour)}</b></label>
+          <label class="v3c"><input type="checkbox" id="v3nb" ${V3.nb?'checked':''}> Tetangga & jalan</label>
+          <button class="btn small" id="v3png">⤓ Unduh gambar</button></div>
+        <div class="v3d" id="v3d"><p class="note" style="padding:16px">Memuat tampak 3D…</p></div>
+        <p class="note">Seret untuk memutar, gulir/cubit untuk zoom. Render prosedural untuk studi awal (massa, proporsi, material, bayangan), bukan gambar kerja.</p></div>
+      <div class="grid g2"><div class="card"><h2>Denah skematik lantai 1</h2><div class="svgbox" id="fp"></div><p class="note" id="fpNote"></p></div>
+      <div class="card"><h2>Tampak isometrik (skema)</h2><div class="svgbox" id="iso"></div></div></div>`;
     const upd=()=>{ const h=RP.house(t,P.rules), sf=styleFactor(t), cost=(+t.LB)*(+P.cost.buildM2)*sf;
       $('#hStat',sec).innerHTML=`<h2>Indikator tipe</h2><div class="kpis">
         <div class="kpi"><span>Luas kavling</span><b>${fmt(h.LT,1)} m²</b><span>${fmt(t.lotW,1)} × ${fmt(t.lotD,1)} m</span></div>
@@ -731,10 +766,22 @@ PAGES.rumah = sec => {
         <div class="kpi"><span>Biaya konstruksi</span><b>${rp(cost)}</b><span>${rp(+P.cost.buildM2*sf)}/m² × ${fmt(t.LB)} m²</span></div>
         <div class="kpi"><span>Harga jual per m² bangunan</span><b>${rp((+t.price)/(+t.LB||1))}</b></div>
         <div class="kpi"><span>Selisih harga − konstruksi</span><b>${rp(+t.price-cost)}</b><span>belum termasuk tanah & PSU</span></div></div>`;
-      $('#iso',sec).innerHTML=isoSVG(t); $('#fp',sec).innerHTML=floorPlanSVG(t);
+      $('#iso',sec).innerHTML=isoSVG(t); $('#fp',sec).innerHTML=floorPlanSVG(t); sched3D();
       const fp=floorPlan(t); $('#fpNote',sec).textContent = (+t.floors>1? `Lantai 2: ${fp.upBeds} kamar tidur + ${fp.upBaths} kamar mandi. `:'')+`Lebar bangunan mengikuti lebar kavling (rumah deret/kopel); kedalaman bangunan ±${fmt(fp.bd,1)} m.`; };
     $$('[data-tf]',$('#tbody',sec)).forEach(el=>el.addEventListener(el.type==='checkbox'?'change':'input',()=>{ const f=el.dataset.tf; t[f]= el.type==='checkbox'? el.checked : el.type==='number'? (el.value===''? null : +el.value) : el.value; if(f==='name') $('#ttabs',sec).innerHTML=tabs(), bindTabs(); persist(); upd(); if(['lotW','lotD','LB','floors'].includes(f)) refreshStyles(); }));
-    const refreshStyles=()=>$$('[data-st]',sec).forEach(b=>{ b.firstElementChild.outerHTML=isoSVG(Object.assign({},t,{style:b.dataset.st}),{small:1}); });
+    const o3=()=>({t,st:STYLES[t.style]||STYLES.minimalis,fp:floorPlan(t),neighbors:V3.nb});
+    const fallback3=()=>{ const h=$('#v3d',sec); if(h) h.innerHTML=`<div class="svgbox">${isoSVG(t)}</div><p class="note">Tampak 3D (WebGL) tidak tersedia di perangkat ini — ditampilkan tampak isometrik.</p>`; };
+    let mounted=false, t3=0;
+    const sched3D=()=>{ if(!mounted) return; clearTimeout(t3); t3=setTimeout(()=>{ if(RP3D&&$('#v3d',sec)&&$('#v3d',sec).isConnected) RP3D.update(o3()); thumbs(); },220); };
+    const thumbs=()=>{ if(!RP3D) return; RP3D.thumbs(Object.keys(STYLES).map(k=>({id:k,key:[k,t.lotW,t.lotD,t.LB,t.floors,P.rules.gsb].join('|'),o:{t,st:STYLES[k],fp:floorPlan(Object.assign({},t,{style:k}))}})),(k,u)=>{ const b=$(`[data-st="${k}"]`,sec); if(b&&b.isConnected) b.firstElementChild.outerHTML=`<img src="${u}" alt="${esc(STYLES[k].n)}" loading="lazy">`; }); };
+    const refreshStyles=()=>{ if(RP3D) return; $$('[data-st]',sec).forEach(b=>{ b.firstElementChild.outerHTML=isoSVG(Object.assign({},t,{style:b.dataset.st}),{small:1}); }); };
+    load3D().then(R=>{ const h=$('#v3d',sec); if(!h||!h.isConnected) return; try{ R.mount(h,o3()); mounted=true; thumbs(); }catch(e){ fallback3(); } }).catch(fallback3);
+    $$('[data-v3]',sec).forEach(b=>b.onclick=()=>{ if(RP3D) RP3D.view(b.dataset.v3); $$('[data-v3]',sec).forEach(x=>x.setAttribute('aria-pressed',x===b)); });
+    $('#v3spin',sec).onclick=e=>{ if(!RP3D) return; const on=RP3D.spin(!RP3D.spinning()); e.currentTarget.classList.toggle('on',on); };
+    $('#v3h',sec).oninput=e=>{ const h=+e.target.value; $('#v3hv',sec).textContent=fmtHour(h); if(RP3D) RP3D.hour(h); else V3.hour=h; };
+    $('#v3nb',sec).onchange=e=>{ V3.nb=e.target.checked; if(RP3D&&mounted) RP3D.update(o3()); };
+    $('#v3png',sec).onclick=()=>{ const u=RP3D&&RP3D.png(); if(!u){ toast('Tampak 3D belum siap.'); return; } downloadURL(u,slug()+'-'+t.style+'.png'); };
+    $$('[data-tp]',sec).forEach(b=>b.onclick=()=>{ const p=TIPE[+b.dataset.tp]; const {n,...dim}=p; Object.assign(t,dim); t.name=n; persist(); render('rumah'); toast(n+' diterapkan'); });
     $$('[data-st]',sec).forEach(b=>b.addEventListener('click',()=>{ t.style=b.dataset.st; persist(); body(); }));
     $('#dupT',sec).onclick=()=>{ P.types.splice(selType+1,0,JSON.parse(JSON.stringify(Object.assign({},t,{name:t.name+' (salinan)'})))); selType++; persist(); render('rumah'); };
     $('#delT',sec).onclick=e=>{ if(P.types.length<2){ toast('Minimal satu tipe.'); return; } confirmArm(e.currentTarget,()=>{ P.types.splice(selType,1); selType=Math.max(0,selType-1); persist(); render('rumah'); },'Klik lagi untuk hapus'); };
@@ -851,9 +898,232 @@ PAGES.sumber = sec => {
     <li>NPV = Σ CF<sub>t</sub> / (1 + r<sub>b</sub>)<sup>t</sup>, r<sub>b</sub> = (1 + diskonto tahunan)<sup>1/12</sup> − 1.</li>
     <li>IRR: tingkat bulanan yang membuat NPV = 0 (metode bagi dua), dilaporkan sebagai tingkat tahunan efektif.</li>
     <li>KDB = luas lantai dasar / luas kavling; KLB = luas lantai total / luas kavling.</li></ul></div>
+  <div class="card"><h2>Perangkat lunak pihak ketiga</h2><p>three.js r171 (© 2010–2024 three.js authors, MIT License) — mesin grafis WebGL untuk tampak 3D, disertakan lokal tanpa CDN. <a href="https://github.com/mrdoob/three.js" target="_blank" rel="noopener">https://github.com/mrdoob/three.js</a></p></div>
   <div class="card"><h2>Tentang</h2><p>Rancang Perumahan — alat bantu arsitek dan pengembang untuk studi tapak, desain tipe rumah, kelayakan bisnis, dan pembiayaan. <b>Dibuat oleh Pindo Tutuko</b>, Universitas Merdeka Malang, 2026.</p></div>`;
 };
 
+/* ---------- Tampak 3D realistis (three.js r171, MIT, di-vendor lokal — tanpa CDN) ----------
+   Rumah prosedural dari ukuran tipe: material bertekstur (plester, bata, kayu, batu, genteng),
+   bayangan matahari menurut jam, pantulan lingkungan, tetangga deret, jalan & saluran. */
+let RP3D=null, rp3dP=null;
+const V3={hour:9.5, nb:true, view:'34'};
+function load3D(){
+  if(rp3dP) return rp3dP;
+  rp3dP=(async()=>{
+    const src=id=>{ const e=document.getElementById(id); return e? e.textContent : ''; };
+    const core=src('vx-three-core'), mod=src('vx-three'), env=src('vx-three-env');
+    if(!core||!mod||!env) throw new Error('vendor three.js tidak ada');
+    const url=s=>URL.createObjectURL(new Blob([s],{type:'text/javascript'}));
+    const cu=url(core), mu=url(mod.split('./three.core.min.js').join(cu)), eu=url(env.replace(/from\s*['"]three['"]/g,`from '${mu}'`));
+    const THREE=await import(mu), E=await import(eu);
+    RP3D=make3D(THREE,E.RoomEnvironment); return RP3D;
+  })();
+  rp3dP.catch(()=>{});
+  return rp3dP;
+}
+function make3D(THREE, RoomEnvironment){
+  const V=(x,y,z)=>new THREE.Vector3(x,y,z), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), DS=THREE.DoubleSide;
+  let rnd=Math.random; const seed=k=>{ let s=0; for(const ch of String(k)) s=(s*31+ch.charCodeAt(0))|0; rnd=()=>{ s=s+0x6D2B79F5|0; let t=Math.imul(s^s>>>15,1|s); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; };
+  const hx=h=>{ h=String(h).replace('#',''); return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)); };
+  const sh=(h,f,a=1)=>{ const c=hx(h).map(v=>clamp(Math.round(v*f),0,255)); return `rgba(${c[0]},${c[1]},${c[2]},${a})`; };
+  const noise=(g,s,n,c,amp,sz)=>{ for(let i=0;i<n;i++){ g.fillStyle=sh(c,1+(rnd()-.5)*amp,.35); const r=sz*(.5+rnd()); g.fillRect(rnd()*s,rnd()*s,r,r); } };
+  /* tekstur kanvas prosedural (meter → ulang per 'tile' meter) */
+  const TX={};
+  function tex(key,tile,draw,size=512){ if(TX[key]) return TX[key]; seed(key); const c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'); draw(g,size);
+    const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; t.repeat.set(1/tile,1/tile); return TX[key]=t; }
+  const T={
+    plaster:c=>tex('pl'+c,2,(g,s)=>{ g.fillStyle=c; g.fillRect(0,0,s,s); noise(g,s,9000,c,.1,1.5); }),
+    stucco:c=>tex('st'+c,2,(g,s)=>{ g.fillStyle=c; g.fillRect(0,0,s,s); for(let i=0;i<600;i++){ g.fillStyle=sh(c,1+(rnd()-.5)*.16,.2); g.beginPath(); g.arc(rnd()*s,rnd()*s,4+rnd()*18,0,7); g.fill(); } noise(g,s,7000,c,.16,1.5); }),
+    brick:c=>tex('br'+c,1,(g,s)=>{ g.fillStyle='#cbc4b8'; g.fillRect(0,0,s,s); const rows=14,bh=s/rows,bw=s/4; for(let r=0;r<rows;r++){ const off=(r%2)*bw/2; for(let k=-1;k<5;k++){ g.fillStyle=sh(c,.78+rnd()*.42); g.fillRect(k*bw+off+3,r*bh+3,bw-6,bh-6); } } noise(g,s,6000,c,.3,1.2); }),
+    batten:c=>tex('bt'+c,1.2,(g,s)=>{ g.fillStyle=c; g.fillRect(0,0,s,s); noise(g,s,3000,c,.05,1.5); for(let i=0;i<3;i++){ const x=i*s/3; g.fillStyle=sh(c,.72); g.fillRect(x,0,5,s); g.fillStyle=sh(c,1.05); g.fillRect(x+5,0,20,s); g.fillStyle=sh(c,.84); g.fillRect(x+25,0,4,s); } }),
+    wood:c=>tex('wd'+c,1,(g,s)=>{ const n=10,pw=s/n; for(let i=0;i<n;i++){ g.fillStyle=sh(c,.82+rnd()*.32); g.fillRect(i*pw,0,pw,s); for(let k=0;k<14;k++){ g.strokeStyle=sh(c,.68,.3); g.lineWidth=1; g.beginPath(); const x=i*pw+rnd()*pw; g.moveTo(x,0); g.bezierCurveTo(x+rnd()*6-3,s*.3,x+rnd()*6-3,s*.6,x+rnd()*4-2,s); g.stroke(); } g.fillStyle='rgba(25,15,8,.7)'; g.fillRect(i*pw,0,3,s); } }),
+    stone:c=>tex('sn'+c,1.2,(g,s)=>{ g.fillStyle=sh(c,.45); g.fillRect(0,0,s,s); let y=0; while(y<s){ const h=30+rnd()*50; let x=-rnd()*60; while(x<s){ const w=50+rnd()*110; g.fillStyle=sh(c,.72+rnd()*.55); g.fillRect(x+3,y+3,w-6,h-6); x+=w; } y+=h; } noise(g,s,7000,c,.4,2); }),
+    clay:c=>tex('cl'+c,1.2,(g,s)=>{ const rows=5,rh=s/rows,cw=s/7; for(let r=0;r<rows;r++) for(let k=0;k<7;k++){ const gr=g.createLinearGradient(k*cw,0,(k+1)*cw,0), f=.85+rnd()*.25; gr.addColorStop(0,sh(c,f*.6)); gr.addColorStop(.45,sh(c,f*1.1)); gr.addColorStop(1,sh(c,f*.68)); g.fillStyle=gr; g.fillRect(k*cw,r*rh,cw,rh); g.fillStyle='rgba(0,0,0,.38)'; g.fillRect(k*cw,r*rh,cw,6); } }),
+    ctile:c=>tex('ct'+c,1,(g,s)=>{ const rows=3,rh=s/rows,cw=s/3; for(let r=0;r<rows;r++) for(let k=-1;k<4;k++){ const x=k*cw+(r%2)*cw/2, gr=g.createLinearGradient(0,r*rh,0,(r+1)*rh), f=.9+rnd()*.16; gr.addColorStop(0,sh(c,f*.72)); gr.addColorStop(.25,sh(c,f*1.05)); gr.addColorStop(1,sh(c,f*.92)); g.fillStyle=gr; g.fillRect(x+1,r*rh,cw-2,rh); g.fillStyle=sh(c,.55); g.fillRect(x,r*rh,2,rh); } noise(g,s,4000,c,.18,1.5); }),
+    metal:c=>tex('mt'+c,.9,(g,s)=>{ g.fillStyle=c; g.fillRect(0,0,s,s); for(let i=0;i<2;i++){ const x=i*s/2; g.fillStyle=sh(c,1.7); g.fillRect(x,0,5,s); g.fillStyle=sh(c,.55); g.fillRect(x+5,0,6,s); } noise(g,s,1500,c,.08,1); }),
+    slab:c=>tex('sl'+c,2,(g,s)=>{ g.fillStyle=c; g.fillRect(0,0,s,s); noise(g,s,12000,c,.22,1.5); }),
+    roster:c=>tex('ro'+c,.6,(g,s)=>{ g.fillStyle=c; g.fillRect(0,0,s,s); const n=3,b=s/n; for(let r=0;r<n;r++) for(let k=0;k<n;k++){ g.fillStyle='rgba(28,18,10,.88)'; g.beginPath(); g.arc(k*b+b/2,r*b+b/2,b*.3,0,7); g.fill(); g.fillStyle=sh(c,1.08); g.fillRect(k*b+b/2-3,r*b+6,6,b-12); } noise(g,s,3000,c,.15,1.5); }),
+    grass:()=>tex('gr',3,(g,s)=>{ g.fillStyle='#587a35'; g.fillRect(0,0,s,s); for(let i=0;i<26000;i++){ g.strokeStyle=sh('#69903f',.65+rnd()*.65,.6); g.beginPath(); const x=rnd()*s,y=rnd()*s; g.moveTo(x,y); g.lineTo(x+rnd()*2-1,y-3-rnd()*4); g.stroke(); } }),
+    asphalt:()=>tex('as',4,(g,s)=>{ g.fillStyle='#3b3c3e'; g.fillRect(0,0,s,s); noise(g,s,30000,'#3b3c3e',.7,1.2); }),
+    paving:()=>tex('pv',1,(g,s)=>{ g.fillStyle='#7d7972'; g.fillRect(0,0,s,s); const n=5,b=s/n; for(let r=0;r<n;r++) for(let k=0;k<n;k++){ g.fillStyle=sh('#b9b4ab',.86+rnd()*.2); g.fillRect(k*b+2,r*b+2,b-4,b-4); } noise(g,s,4000,'#b0aba2',.2,1.5); }),
+    floor:()=>tex('fl',1.2,(g,s)=>{ g.fillStyle='#8f8a82'; g.fillRect(0,0,s,s); const n=2,b=s/n; for(let r=0;r<n;r++) for(let k=0;k<n;k++){ g.fillStyle=sh('#d8d2c6',.94+rnd()*.08); g.fillRect(k*b+2,r*b+2,b-4,b-4); } noise(g,s,3000,'#d8d2c6',.06,2); })
+  };
+  const MC={}; const M=(key,mk)=>MC[key]||(MC[key]=mk());
+  const std=(map,o={})=>new THREE.MeshStandardMaterial(Object.assign({map,bumpMap:map,bumpScale:1,roughness:.88,metalness:0},o));
+  const flat=(c,r=.7,m=0)=>M('c'+c+r+m,()=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m}));
+  const GLASS=M('glass',()=>new THREE.MeshPhysicalMaterial({color:'#2b3c48',roughness:.04,metalness:.35,envMapIntensity:1.8,clearcoat:1,clearcoatRoughness:.02}));
+  const POLY=M('poly',()=>new THREE.MeshPhysicalMaterial({color:'#dfe9ee',roughness:.15,transmission:0,transparent:true,opacity:.42,side:DS}));
+  const wallMat=st=>{ const k=st.wallT||'plaster', c=st.wall; return M('w'+k+c,()=>std(T[k](c),{roughness:k==='brick'?.92:.86})); };
+  const roofMat=st=>{ const k=st.roofT||'ctile', c=st.roofC; return M('r'+k+c,()=>std(T[k](c),{side:DS,roughness:k==='metal'?.42:.82,metalness:k==='metal'?.55:0})); };
+  const texMat=(k,c,o={})=>M('t'+k+c+JSON.stringify(o),()=>std(T[k](c),o));
+
+  /* geometri: kotak dengan UV dalam meter; poligon datar dengan UV terproyeksi */
+  function box(gr,w,h,d,m,x,y,z){ const g=new THREE.BoxGeometry(w,h,d), uv=g.attributes.uv, dm=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];
+    for(let f=0;f<6;f++) for(let i=0;i<4;i++){ const k=f*4+i; uv.setXY(k,uv.getX(k)*dm[f][0],uv.getY(k)*dm[f][1]); }
+    const me=new THREE.Mesh(g,m); me.position.set(x+w/2,y+h/2,z+d/2); gr.add(me); return me; }
+  function poly(gr,pts,m){ const n=V().subVectors(pts[1],pts[0]).cross(V().subVectors(pts[2],pts[0])).normalize(); let U=V(0,1,0).cross(n); if(U.lengthSq()<1e-6) U.set(1,0,0); U.normalize(); const W=V().crossVectors(n,U);
+    const pos=[],uv=[]; for(let i=1;i<pts.length-1;i++) for(const p of [pts[0],pts[i],pts[i+1]]){ pos.push(p.x,p.y,p.z); uv.push(p.dot(U),p.dot(W)); }
+    const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); g.computeVertexNormals();
+    const me=new THREE.Mesh(g,m.side===DS?m:M(m.uuid+'ds',()=>{ const c=m.clone(); c.side=DS; return c; })); gr.add(me); return me; }
+  const strip=(gr,a,b,h,m)=>poly(gr,[a,b,V(b.x,b.y-h,b.z),V(a.x,a.y-h,a.z)],m);
+
+  /* jendela/pintu pada bidang z (s=+1 menghadap jalan, −1 menghadap belakang) */
+  function win(gr,x,y,w,h,z,s,st,o={}){ const fr=flat(st.trim,.45,.35), t=.06, zf=s>0? z : z-.09;
+    const gl=new THREE.Mesh(new THREE.PlaneGeometry(w,h),GLASS); gl.position.set(x+w/2,y+h/2,z+s*.012); if(s<0) gl.rotation.y=Math.PI; gr.add(gl);
+    box(gr,w+2*t,t,.09,fr,x-t,y+h,zf); box(gr,t,h,.09,fr,x-t,y,zf); box(gr,t,h,.09,fr,x+w,y,zf);
+    box(gr,w+.2,.05,.16,flat(st.sill||'#d9d6cf',.6),x-.1,y-.05,s>0?z:z-.16);
+    if(w>1.25){ const n=Math.max(1,Math.round(w/1.1)-1); for(let i=1;i<=n;i++) box(gr,.045,h,.07,fr,x+w*i/(n+1)-.022,y,zf); }
+    if(h>1.7) box(gr,w,.045,.07,fr,x,y+h*.78,zf);
+    if(o.shutter){ const sm=texMat('batten',st.accent,{roughness:.7}); box(gr,w*.5,h+.08,.05,sm,x-w*.5-.1,y-.04,zf); box(gr,w*.5,h+.08,.05,sm,x+w+.1,y-.04,zf); }
+    if(o.lintel) box(gr,w+.36,.16,.12,flat(st.sill||'#e9e6df',.6),x-.18,y+h+.06,s>0?z:z-.12);
+  }
+  function door(gr,x,y,w,h,z,st){ const wood=texMat('wood',st.door||st.accent,{roughness:.55}); const fr=flat(st.trim,.45,.35);
+    box(gr,w,h,.06,wood,x,y,z); box(gr,w+.12,.06,.1,fr,x-.06,y+h,z); box(gr,.06,h,.1,fr,x-.06,y,z); box(gr,.06,h,.1,fr,x+w,y,z);
+    box(gr,.03,.32,.05,flat('#c9c3b5',.25,.9),x+w-.15,y+h*.45,z+.06); }
+  function slats(gr,x0,x1,y0,y1,z,st,vert=true){ const m=texMat('wood',st.accent,{roughness:.6}); if(vert){ const n=Math.max(3,Math.round((x1-x0)/.14)); for(let i=0;i<n;i++) box(gr,.05,y1-y0,.07,m,x0+i*(x1-x0)/n,y0,z); }
+    else { const n=Math.max(3,Math.round((y1-y0)/.16)); for(let i=0;i<n;i++) box(gr,x1-x0,.05,.07,m,x0,y0+i*(y1-y0)/n,z); } }
+  function column(gr,x,z,y0,h,st){ const k=st.col||'concrete';
+    if(k==='classic'){ const m=flat('#f3f1ec',.5); const c=new THREE.Mesh(new THREE.CylinderGeometry(.11,.13,h-.3,20),m); c.position.set(x+.13,y0+.15+(h-.3)/2,z+.13); gr.add(c); box(gr,.3,.15,.3,m,x-.02,y0,z-.02); box(gr,.32,.15,.32,m,x-.03,y0+h-.15,z-.03); }
+    else if(k==='wood') box(gr,.16,h,.16,texMat('wood',st.accent,{roughness:.6}),x+.05,y0,z+.05);
+    else if(k==='steel') box(gr,.1,h,.1,flat('#1e1f21',.4,.7),x+.08,y0,z+.08);
+    else box(gr,.26,h,.26,wallMat(st),x,y0,z); }
+  function tree(gr,x,z,s){ const tr=new THREE.Mesh(new THREE.CylinderGeometry(.07*s,.12*s,2.2*s,7),flat('#5a4232',.9)); tr.position.set(x,1.1*s,z); gr.add(tr);
+    const L=['#3f6b2c','#4f7d33','#365f27'].map(c=>M('lf'+c,()=>new THREE.MeshStandardMaterial({color:c,roughness:.95,flatShading:true})));
+    for(let i=0;i<9;i++){ const r=(.45+rnd()*.45)*s, m=new THREE.Mesh(new THREE.IcosahedronGeometry(r,2),L[i%3]); m.position.set(x+(rnd()-.5)*1.3*s,2.2*s+rnd()*1.3*s,z+(rnd()-.5)*1.3*s); m.rotation.set(rnd()*3,rnd()*3,0); gr.add(m); } }
+  function shrub(gr,x,z,s){ const m=M('sh'+(rnd()>.5?1:0),()=>new THREE.MeshStandardMaterial({color:rnd()>.5?'#4a7a32':'#3a6a2b',roughness:.95,flatShading:true})); const b=new THREE.Mesh(new THREE.IcosahedronGeometry(s,1),m); b.scale.y=.75; b.position.set(x,s*.6,z); gr.add(b); }
+
+  /* rumah: x 0..w (muka kavling), z 0 = muka bangunan, −bd = belakang */
+  function house(o){ const t=o.t, st=o.st, fp=o.fp, g=new THREE.Group();
+    const w=fp.w, bd=fp.bd, fl=Math.max(1,+t.floors||1), FH=3.2, PL=.35, top=PL+FH*fl, ter=clamp(bd*.15,1.1,1.6), beds=Math.max(1,+t.beds||1);
+    const WM=wallMat(st), BM=texMat(st.baseT||'stone',st.base,{roughness:.9}), TR=flat(st.trim,.5,.3), BAND=flat(st.band||st.wall,.75);
+    box(g,w,PL,bd,BM,0,0,-bd); box(g,w-.02,.02,ter,texMat('floor','#d8d2c6',{roughness:.5}),.01,PL,-ter);
+    box(g,w,FH,bd-ter,WM,0,PL,-bd);
+    for(let i=1;i<fl;i++){ box(g,w,FH,bd,WM,0,PL+FH*i,-bd); box(g,w+.06,.2,bd+.06,BAND,-.03,PL+FH*i-.1,-bd-.03); }
+    if(fl===1) box(g,w,.32,ter,WM,0,top-.32,-ter);
+    // tiang teras
+    column(g,.1,-.38,PL,FH-(fl===1?.32:.1),st); column(g,w-.36,-.38,PL,FH-(fl===1?.32:.1),st);
+    // muka lantai 1 (di belakang teras)
+    const zg=-ter, dw=(st.dbl&&w>=7)?1.5:.9, dx=w>=6? .8 : .45, y1=PL;
+    const sx0=dx+dw+.45, ww=Math.min(st.bigWin?2.6:2.0,w-sx0-.5), wx=sx0+(w-sx0-.5-ww)/2;
+    if(st.accT==='wood'){ box(g,Math.min(w-.2,wx+ww+.35)-(wx-.35),FH-.1,.03,texMat('wood',st.accent,{roughness:.6}),wx-.35,PL,zg); }
+    if(st.accT==='brick'){ box(g,dx+dw+.25,FH-.1,.03,texMat('brick',st.accent),0,PL,zg); }
+    if(st.accT==='stone'){ box(g,dx+dw+.25,FH-.1,.03,texMat('stone',st.base),0,PL,zg); }
+    const zo=zg+(st.accT?.03:0);
+    door(g,dx,y1,dw,2.15,zg,st); if(st.sideLite) win(g,dx+dw+.12,y1+.05,.32,2.0,zg,1,st);
+    if(ww>.7) win(g,wx,st.bigWin?y1+.35:y1+.85,ww,st.bigWin?2.1:1.5,zo,1,st,{shutter:st.shutter,lintel:st.lintel});
+    if(st.slats&&fl===1&&ww>.7) slats(g,wx+ww*.45,Math.min(w-.15,wx+ww+.3),PL+.1,top-.35,-ter+.22,st);
+    // muka lantai atas
+    for(let i=1;i<fl;i++){ const yb=PL+FH*i; const a=Math.min(1.2,w*.24), b=Math.min(2.4,w*.4);
+      if(st.accT==='wood'){ box(g,a+.9,FH-.25,.03,texMat('wood',st.accent,{roughness:.6}),.15,yb+.05,0); }
+      win(g,.6,yb+.9,a,1.5,st.accT==='wood'?.03:0,1,st,{shutter:st.shutter,lintel:st.lintel}); win(g,w-.6-b,yb+(st.bigWin?.3:.9),b,st.bigWin?2.2:1.5,0,1,st,{shutter:st.shutter,lintel:st.lintel});
+      if(st.slats) slats(g,w-.6-b*.55,w-.2,yb+.1,yb+FH-.2,.18,st);
+      if(st.balcony){ const rm=flat(st.trim,.4,.5); box(g,b+.6,.05,.05,rm,w-.9-b,yb+1.0,.35); for(let k=0;k<=Math.round((b+.6)/.12);k++) box(g,.025,1.0,.025,rm,w-.9-b+k*.12,yb,.35); box(g,b+.6,.12,.4,BAND,w-.9-b,yb-.1,0); } }
+    // muka belakang
+    for(let i=0;i<fl;i++){ const yb=PL+FH*i; win(g,w*.18,yb+1.0,Math.min(1.2,w*.25),1.2,-bd,-1,st); win(g,w*.66,yb+1.7,.6,.6,-bd,-1,st); }
+    // pedimen klasik di atas pintu
+    if(st.pediment){ const cx=dx+dw/2, hw=Math.min(1.5,w*.28), yb=PL+FH-.02, m=flat('#f4f2ed',.55); poly(g,[V(cx-hw,yb,.04),V(cx+hw,yb,.04),V(cx,yb+.85,.04)],m); strip(g,V(cx-hw-.08,yb,.08),V(cx,yb+.92,.08),.12,m); strip(g,V(cx,yb+.92,.08),V(cx+hw+.08,yb,.08),.12,m); box(g,2*hw+.2,.14,.14,m,cx-hw-.1,yb-.12,-.04); }
+    if(st.cornice) box(g,w+.12,.18,bd+.12,flat('#f4f2ed',.55),-.06,top-.18,-bd-.06);
+    roof(g,o,w,bd,top,fl,ter);
+    // halaman depan: carport/jalur, perdu, pohon, pembatas
+    const gsb=Math.max(.6,fp.gsb);
+    if(fp.carport){ box(g,3,.03,gsb+ter,texMat('paving','#b9b4ab',{roughness:.8}),.25,0,-ter); if(st.canopy){ const sm=flat('#1e1f21',.4,.7), L=Math.min(gsb-.3,4.5); box(g,.08,.12,L,sm,.25,2.75,0); box(g,.08,.12,L,sm,3.17,2.75,0); poly(g,[V(.25,2.88,0),V(3.25,2.88,0),V(3.25,2.88,L),V(.25,2.88,L)],POLY); } }
+    else box(g,1.2,.03,gsb,texMat('paving','#b9b4ab',{roughness:.8}),dx-.15,0,0);
+    const gx0=fp.carport?3.5:dx+1.3; if(w-gx0>.8){ for(let x=gx0+.35;x<w-.3;x+=.75) shrub(g,x,.45+rnd()*.15,.32+rnd()*.12); if(gsb>=2.8&&w-gx0>1.8) tree(g,(gx0+w)/2,gsb*.62,.62+rnd()*.15); }
+    box(g,.1,.14,gsb,flat('#a9a59d',.85),0,0,0);
+    return g; }
+  function roof(g,o,w,bd,top,fl,ter){ const st=o.st, R=st.roof, RM=roofMat(st), TR=flat(st.trim,.5,.3), WM=wallMat(st), SOF=flat(st.soffit||'#e9e4da',.8);
+    if(R==='flat'||R==='frame'){ const PH=.75; box(g,w,.06,bd,texMat('slab','#8e8c88'),0,top,-bd);
+      box(g,w,PH,.15,WM,0,top,-.15); box(g,w,PH,.15,WM,0,top,-bd); box(g,.15,PH,bd-.3,WM,0,top,-bd+.15); box(g,.15,PH,bd-.3,WM,w-.15,top,-bd+.15);
+      box(g,w+.04,.05,.22,TR,-.02,top+PH,-.2);
+      if(R==='frame'){ const fm=flat(st.accent,.6), fx=w*.36, y0=top-FHof(fl)+.05, D=.65; box(g,w-fx,.32,D,fm,fx,top-.05,-.1); box(g,.3,top-y0,D,fm,w-.3,y0,-.1); box(g,.3,top-y0,D,fm,fx,y0,-.1); box(g,w-fx,.22,D,fm,fx,y0-.22,-.1); }
+      if(st.canopy&&!o.fp.carport){ const sm=flat('#1e1f21',.4,.7); box(g,2.2,.08,1.2,sm,.4,PL3+2.6,0); } return; }
+    const P=R==='gable-steep'?45:R==='gable-tall'?50:R==='gable-low'?22:R==='shed'?10:st.pitch||30, k=Math.tan(P*Math.PI/180);
+    if(R==='shed'){ const o2=.6, rise=Math.max(1.1,bd*k), yB=top, yF=top+rise, s=rise/bd, x0=-.3, x1=w+.3, z0=-bd-o2, z1=o2;
+      poly(g,[V(x0,yB-o2*s,z0),V(x1,yB-o2*s,z0),V(x1,yF+o2*s,z1),V(x0,yF+o2*s,z1)],RM);
+      poly(g,[V(0,top,0),V(0,yF,0),V(0,top,-bd)],WM); poly(g,[V(w,top,0),V(w,yF,0),V(w,top,-bd)],WM);
+      win(g,.35,top+.12,w-.7,rise-.3,0,1,st); strip(g,V(x0,yF+o2*s+.02,z1),V(x1,yF+o2*s+.02,z1),.22,TR); strip(g,V(x0,yB-o2*s+.02,z0),V(x1,yB-o2*s+.02,z0),.18,TR); return; }
+    if(R==='hip'){ const ov=st.ov||.9, yE=top-ov*k*.6, x0=-ov, x1=w+ov, z0=-bd-ov, z1=ov; const W=x1-x0, D=z1-z0;
+      if(D>=W){ const h=W/2, yR=yE+h*k, xc=(x0+x1)/2; poly(g,[V(x0,yE,z1),V(x0,yE,z0),V(xc,yR,z0+h),V(xc,yR,z1-h)],RM); poly(g,[V(x1,yE,z0),V(x1,yE,z1),V(xc,yR,z1-h),V(xc,yR,z0+h)],RM); poly(g,[V(x0,yE,z1),V(xc,yR,z1-h),V(x1,yE,z1)],RM); poly(g,[V(x1,yE,z0),V(xc,yR,z0+h),V(x0,yE,z0)],RM); box(g,.16,.1,Math.max(.1,D-2*h),flat(st.roofC,.7),xc-.08,yR-.02,z0+h); }
+      else { const h=D/2, yR=yE+h*k, zc=(z0+z1)/2; poly(g,[V(x0,yE,z1),V(x1,yE,z1),V(x1-h,yR,zc),V(x0+h,yR,zc)],RM); poly(g,[V(x1,yE,z0),V(x0,yE,z0),V(x0+h,yR,zc),V(x1-h,yR,zc)],RM); poly(g,[V(x0,yE,z0),V(x0,yE,z1),V(x0+h,yR,zc)],RM); poly(g,[V(x1,yE,z1),V(x1,yE,z0),V(x1-h,yR,zc)],RM); }
+      poly(g,[V(x0,yE-.01,z0),V(x1,yE-.01,z0),V(x1,yE-.01,z1),V(x0,yE-.01,z1)],SOF);
+      box(g,W,.2,.04,TR,x0,yE-.2,z1-.02); box(g,W,.2,.04,TR,x0,yE-.2,z0-.02); box(g,.04,.2,D,TR,x0-.02,yE-.2,z0); box(g,.04,.2,D,TR,x1-.02,yE-.2,z0);
+      if(yE<top) box(g,w,top-yE+.02,bd,WM,0,yE-.02,-bd); return; }
+    // pelana (ridge tegak lurus jalan → segitiga gevel menghadap jalan)
+    const ov=R==='gable-steep'?.18:.55, oz=R==='gable-steep'?.15:.6, yE=top-ov*k, x0=-ov, x1=w+ov, z0=-bd-oz, z1=oz, xc=w/2, yR=top+xc*k;
+    poly(g,[V(x0,yE,z1),V(x0,yE,z0),V(xc,yR,z0),V(xc,yR,z1)],RM); poly(g,[V(x1,yE,z0),V(x1,yE,z1),V(xc,yR,z1),V(xc,yR,z0)],RM);
+    const GM=st.gableT==='roster'?texMat('roster',st.accent):st.gableT==='wood'?texMat('wood',st.accent,{roughness:.6}):WM;
+    poly(g,[V(0,top,0),V(w,top,0),V(xc,yR,0)],GM); poly(g,[V(0,top,-bd),V(w,top,-bd),V(xc,yR,-bd)],WM);
+    if(st.gableT==='roster') box(g,w,.12,.1,TR,0,top-.06,-.02);
+    if(R!=='gable-steep'){ win(g,xc-.45,top+.35,.9,Math.max(.4,Math.min(1.1,(yR-top)*.45)),.01,1,st); }
+    strip(g,V(x0,yE+.02,z1),V(xc,yR+.02,z1),.22,TR); strip(g,V(xc,yR+.02,z1),V(x1,yE+.02,z1),.22,TR);
+    strip(g,V(x0,yE+.02,z0),V(xc,yR+.02,z0),.22,TR); strip(g,V(xc,yR+.02,z0),V(x1,yE+.02,z0),.22,TR);
+    box(g,.04,.2,z1-z0,TR,x0-.02,yE-.18,z0); box(g,.04,.2,z1-z0,TR,x1-.02,yE-.18,z0);
+    box(g,.18,.12,z1-z0,flat(st.roofC,.6),xc-.09,yR-.04,z0);
+    if(R==='gable-tall'){ const om=flat(st.trim,.6); box(g,.08,.6,.08,om,xc-.04,yR,z1-.04); box(g,.08,.6,.08,om,xc-.04,yR,z0-.04); }
+  }
+  const FHof=fl=>3.2, PL3=.35;
+
+  /* panggung (renderer + scene + cahaya) */
+  function skyTex(){ const c=document.createElement('canvas'); c.width=4; c.height=256; const g=c.getContext('2d'), gr=g.createLinearGradient(0,0,0,256); gr.addColorStop(0,'#5d93cc'); gr.addColorStop(.55,'#a8c8e4'); gr.addColorStop(1,'#e8eef0'); g.fillStyle=gr; g.fillRect(0,0,4,256); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t; }
+  function stage(opt={}){ const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true,powerPreference:'high-performance'});
+    renderer.setPixelRatio(opt.pr||Math.min(2,window.devicePixelRatio||1)); renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.02; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    const scene=new THREE.Scene(), pm=new THREE.PMREMGenerator(renderer); scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture; scene.environmentIntensity=.5; pm.dispose();
+    scene.background=skyTex(); scene.fog=new THREE.Fog(0xe2eaee,60,210);
+    const hemi=new THREE.HemisphereLight(0xdcebff,0x6d5d42,.85), sun=new THREE.DirectionalLight(0xfff1dc,3.2); sun.castShadow=true; sun.shadow.mapSize.set(opt.sm||2048,opt.sm||2048);
+    Object.assign(sun.shadow.camera,{left:-24,right:24,top:24,bottom:-24,near:1,far:140}); sun.shadow.bias=-.0003; sun.shadow.normalBias=.03; scene.add(hemi,sun,sun.target);
+    const camera=new THREE.PerspectiveCamera(34,1.6,.3,500), world=new THREE.Group(); scene.add(world);
+    return {renderer,scene,camera,sun,hemi,world,view:{th:.62,ph:.24,r:24},target:V(0,2,0),hour:V3.hour}; }
+  function clear(S){ S.world.traverse(m=>{ if(m.isMesh) m.geometry.dispose(); }); S.world.clear(); }
+  function build(S,o){ clear(S); seed(JSON.stringify([o.st.n,o.fp.w,o.fp.bd,o.t.floors])); const fp=o.fp, w=fp.w, gsb=Math.max(.6,fp.gsb), nb=o.neighbors?(o.nb??2):0, L=(2*nb+1)*w+80, G=S.world;
+    const gm=texMat('grass','',{roughness:.97,bumpScale:2}); const gr=box(G,L+60,.02,140,gm,-(L+60)/2,-.02,-90); gr.castShadow=false;
+    for(let k=-nb;k<=nb;k++){ const h=house(o); h.position.x=k*w-w/2; G.add(h); }
+    const lotBack=-(fp.d-gsb); box(G,(2*nb+1)*w,1.8,.12,wallMat({wallT:'plaster',wall:'#c9c5bd'}),-(2*nb+1)*w/2,0,lotBack-.12);
+    box(G,L,.06,.5,flat('#9d9a93',.9),-L/2,0,gsb); box(G,L,.065,.26,flat('#26282a',.95),-L/2,0,gsb+.12);
+    box(G,L,.04,6,texMat('asphalt','',{roughness:.95,bumpScale:1.5}),-L/2,0,gsb+.5); box(G,L,.16,.15,flat('#b3afa7',.85),-L/2,0,gsb+6.5);
+    for(let x=-L/2+4;x<L/2;x+=7.5) tree(G,x+rnd()*1.5,gsb+8.2+rnd()*1.2,.9+rnd()*.35);
+    const pm=flat('#2a2c2e',.5,.6); for(let k=-nb;k<=nb;k+=2){ const x=k*w-w/2+.15; box(G,.08,4.2,.08,pm,x,0,gsb+.3); box(G,.6,.08,.16,pm,x,4.15,gsb+.3); }
+    G.traverse(m=>{ if(m.isMesh&&m!==gr){ m.castShadow=true; m.receiveShadow=true; } }); gr.receiveShadow=true;
+    const fl=Math.max(1,+o.t.floors||1); S.target.set(0,(.35+3.2*fl)*.5+.4,-fp.bd*.42+gsb*.25); S.fit=Math.max(w*2.4,fp.bd*1.45,13)+(nb?3:0)+(fl-1)*6; }
+  function setSun(S,h){ S.hour=h; const a=(clamp(h,6,18)-6)/12*Math.PI, el=Math.sin(a); S.sun.position.set(S.target.x-Math.cos(a)*40,S.target.y+Math.max(2.5,el*46),S.target.z+16); S.sun.target.position.copy(S.target);
+    const warm=1-clamp(el*1.6,0,1); S.sun.color.setRGB(1,.95-.25*warm,.88-.45*warm); S.sun.intensity=.9+2.5*el; S.hemi.intensity=.45+.55*el; S.renderer.toneMappingExposure=.92+.12*el; }
+  function cam(S){ const v=S.view, c=S.camera, t=S.target; c.position.set(t.x+v.r*Math.sin(v.th)*Math.cos(v.ph),t.y+v.r*Math.sin(v.ph),t.z+v.r*Math.cos(v.th)*Math.cos(v.ph)); if(c.position.y<.5) c.position.y=.5; c.lookAt(t); }
+  const VIEWS={ '34':{th:.62,ph:.2,f:1}, depan:{th:0,ph:.07,f:.92}, udara:{th:.45,ph:.92,f:1.25}, samping:{th:1.2,ph:.18,f:1.05} };
+  function setView(S,k){ const p=VIEWS[k]||VIEWS['34']; S.view.th=p.th; S.view.ph=p.ph; S.view.r=S.fit*p.f; }
+
+  /* tampilan utama */
+  let MAIN=null, raf=0, cur=null, auto=false;
+  const frame=()=>{ raf=0; if(!MAIN||!MAIN.host||!MAIN.host.isConnected){ auto=false; return; } if(auto){ MAIN.view.th+=.0035; raf=requestAnimationFrame(frame); } cam(MAIN); MAIN.renderer.render(MAIN.scene,MAIN.camera); };
+  const draw=()=>{ if(!raf) raf=requestAnimationFrame(frame); };
+  function size(){ const el=MAIN.host, w=Math.max(260,el.clientWidth||640), h=clamp(Math.round(w*.6),260,620); MAIN.renderer.setSize(w,h); MAIN.camera.aspect=w/h; MAIN.camera.updateProjectionMatrix(); }
+  function controls(S){ const el=S.renderer.domElement; el.style.touchAction='none'; el.style.cursor='grab'; const pts=new Map(); let pinch=0;
+    el.addEventListener('pointerdown',e=>{ el.setPointerCapture(e.pointerId); pts.set(e.pointerId,[e.clientX,e.clientY]); auto=false; });
+    el.addEventListener('pointermove',e=>{ const p=pts.get(e.pointerId); if(!p) return; const dx=e.clientX-p[0], dy=e.clientY-p[1]; pts.set(e.pointerId,[e.clientX,e.clientY]);
+      if(pts.size===1){ S.view.th-=dx*.006; S.view.ph=clamp(S.view.ph+dy*.004,.02,1.4); } else { const a=[...pts.values()], d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]); if(pinch) S.view.r=clamp(S.view.r*pinch/d,5,90); pinch=d; } draw(); });
+    const up=e=>{ pts.delete(e.pointerId); if(pts.size<2) pinch=0; }; el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
+    el.addEventListener('wheel',e=>{ e.preventDefault(); S.view.r=clamp(S.view.r*(1+Math.sign(e.deltaY)*.08),5,90); draw(); },{passive:false}); }
+  /* thumbnail gaya: panggung kedua, kecil */
+  let TH=null, thGen=0; const thCache={};
+  return {
+    ok:true,
+    mount(host,o){ if(!MAIN){ MAIN=stage(); controls(MAIN); MAIN.ro=new ResizeObserver(()=>{ if(MAIN.host&&MAIN.host.isConnected){ size(); draw(); } }); }
+      MAIN.host=host; host.innerHTML=''; host.appendChild(MAIN.renderer.domElement); cur=o; build(MAIN,o); setSun(MAIN,V3.hour); setView(MAIN,V3.view); MAIN.ro.disconnect(); MAIN.ro.observe(host); size(); draw(); },
+    update(o){ if(!MAIN||!MAIN.host) return; const keep={...MAIN.view}; cur=o; build(MAIN,o); setSun(MAIN,V3.hour); MAIN.view=keep; draw(); },
+    view(k){ V3.view=k; if(MAIN){ setView(MAIN,k); draw(); } },
+    hour(h){ V3.hour=h; if(MAIN){ setSun(MAIN,h); draw(); } },
+    spin(on){ auto=on; draw(); return auto; },
+    spinning:()=>auto,
+    png(){ if(!MAIN) return null; cam(MAIN); MAIN.renderer.render(MAIN.scene,MAIN.camera); return MAIN.renderer.domElement.toDataURL('image/png'); },
+    thumbs(list,cb){ const gen=++thGen; if(!TH){ TH=stage({pr:1,sm:1024}); TH.renderer.setSize(360,240); TH.camera.aspect=1.5; TH.camera.updateProjectionMatrix(); }
+      let i=0; const next=()=>{ if(gen!==thGen||i>=list.length) return; const it=list[i++];
+        if(thCache[it.key]){ cb(it.id,thCache[it.key]); setTimeout(next,0); return; }
+        build(TH,Object.assign({},it.o,{neighbors:true,nb:1})); setSun(TH,10); setView(TH,'34'); TH.view.r*=.8; cam(TH); TH.renderer.render(TH.scene,TH.camera);
+        const u=TH.renderer.domElement.toDataURL('image/jpeg',.86); thCache[it.key]=u; cb(it.id,u); setTimeout(next,30); };
+      next(); }
+  };
+}
+
+const fmtHour=h=>String(Math.floor(h)).padStart(2,'0')+'.'+String(Math.round((h%1)*60)).padStart(2,'0');
+async function downloadURL(u,name){ if(window.rpDesktop&&window.rpDesktop.saveImage){ const ok=await window.rpDesktop.saveImage({name,data:u}); if(ok) toast('Tersimpan: '+name); return; } const a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
 /* ---------- Navigasi ---------- */
 function render(id){ cur=id; $$('#rail button[data-s]').forEach(b=>b.setAttribute('aria-current', b.dataset.s===id)); $$('section[data-sec]').forEach(s=>{ s.hidden = s.dataset.sec!==id; }); const sec=$(`section[data-sec="${id}"]`); PAGES[id](sec); try{ localStorage.setItem('rp.page',id); }catch(e){} window.scrollTo(0,0); }
 $$('#rail button[data-s]').forEach(b=>b.addEventListener('click',()=>render(b.dataset.s)));
@@ -874,7 +1144,7 @@ $('#title').value=P.title; $('#title').addEventListener('input',e=>{ P.title=e.t
 $('#bTheme').onclick=()=>{ const r=document.documentElement, dark= r.dataset.theme? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme= dark?'light':'dark'; try{ localStorage.setItem('rp.theme',r.dataset.theme); }catch(e){} if(cur) render(cur); };
 try{ const th=localStorage.getItem('rp.theme'); if(th) document.documentElement.dataset.theme=th; }catch(e){}
 
-window.RP=RP; window.RPstate=()=>P; window.RPcalc=calc; window.RPrender=render; window.RPstyles=STYLES; window.RPsvg={sitePlanSVG,isoSVG,floorPlanSVG,cashSVG};
+window.RP=RP; window.RPstate=()=>P; window.RPcalc=calc; window.RPrender=render; window.RPstyles=STYLES; window.RPtipe=TIPE; window.RPsvg={sitePlanSVG,isoSVG,floorPlanSVG,cashSVG};
 let start='lahan'; try{ start=localStorage.getItem('rp.page')||'lahan'; if(!PAGES[start]) start='lahan'; }catch(e){}
 render(start);
 </script>

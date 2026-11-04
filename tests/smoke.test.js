@@ -48,7 +48,14 @@ ok(isFinite(fe.irr), 'IRR terhitung');
 const h = RP.house({ lotW: 6, lotD: 10, LB: 30, floors: 1 }, st.rules); near(h.LT, 60, 1e-9, 'luas lahan 60');
 // 7) semua halaman tampil tanpa galat
 ['lahan', 'tapak', 'rumah', 'rab', 'biaya', 'ringkas', 'sumber'].forEach(p => { w.RPrender(p); ok(w.document.querySelector(`section[data-sec="${p}"]`).innerHTML.length > 500, 'halaman ' + p); });
-ok(w.document.querySelectorAll('section[data-sec="rumah"] .style').length === 7, '7 gaya fasad');
+ok(w.document.querySelectorAll('section[data-sec="rumah"] .style').length === 10, '10 gaya fasad');
+// 7b) tipe populer: angka "LB/LT" pada nama = luas bangunan & luas kavling; KDB ≤ batas contoh
+w.RPtipe.forEach(p => { const m = p.n.match(/(\d+)\/(\d+)/); ok(+m[1] === p.LB && Math.abs(p.lotW * p.lotD - +m[2]) < 1e-9, 'tipe ' + p.n); const hh = RP.house(p, st.rules); ok(hh.kdb * 100 <= +st.rules.kdbMax + 1e-6, 'KDB ' + p.n + ' ' + (hh.kdb * 100).toFixed(1)); ok(p.lotW >= 5, 'lebar muka ≥5 m ' + p.n); });
+ok(Object.values(w.RPstyles).every(s => s.n && s.roof && s.wall && s.trim && s.roofC && isFinite(s.f)), 'data gaya lengkap untuk 3D');
+// 7c) three.js r171 di-vendor (tanpa CDN) & CSP mengizinkan blob:
+ok(html.includes('id="vx-three-core"') && html.includes('id="vx-three-env"') && /script-src[^;]*blob:/.test(html) && !/<script[^>]+src="https?:/.test(html), 'three.js lokal + CSP blob');
+ok(w.document.querySelector('#v3d') !== null, 'wadah tampak 3D');
+w.RPrender('rumah'); w.document.querySelector('[data-tp="4"]').click(); ok(+w.RPstate().types[0].floors === 2 && +w.RPstate().types[0].LB === 60, 'terapkan tipe 2 lantai');
 ok(w.document.body.innerHTML.includes('Pindo Tutuko'), 'kredit');
 ok(!/NaN|undefined/.test(w.document.querySelector('section[data-sec="ringkas"]').textContent), 'ringkasan tanpa NaN/undefined');
 // 8) rujukan memuat Kepmen PKP 1722

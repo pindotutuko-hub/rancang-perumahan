@@ -26,6 +26,14 @@ ipcMain.handle('rp:save', async (e, { name, data, kind }) => {
   fs.writeFileSync(r.filePath, Buffer.from(String(data), 'utf8'));
   return true;
 });
+ipcMain.handle('rp:saveImage', async (e, { name, data }) => {
+  const win = BrowserWindow.fromWebContents(e.sender);
+  const m = /^data:image\/png;base64,(.+)$/.exec(String(data || '')); if (!m) return false;
+  const r = await dialog.showSaveDialog(win, { defaultPath: name, filters: [{ name: 'Gambar PNG', extensions: ['png'] }] });
+  if (r.canceled || !r.filePath) return false;
+  fs.writeFileSync(r.filePath, Buffer.from(m[1], 'base64'));
+  return true;
+});
 ipcMain.handle('rp:open', async (e) => {
   const win = BrowserWindow.fromWebContents(e.sender);
   const r = await dialog.showOpenDialog(win, { properties: ['openFile'], filters: FILTERS.json });
