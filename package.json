@@ -1,0 +1,31 @@
+{
+  "name": "rancang-perumahan",
+  "productName": "Rancang Perumahan",
+  "version": "0.1.0",
+  "description": "Studi tapak & kavling, desain tipe rumah, RAB, kelayakan bisnis, dan pembiayaan/KPR untuk arsitek dan pengembang perumahan",
+  "author": "Pindo Tutuko",
+  "license": "UNLICENSED",
+  "main": "main.js",
+  "scripts": {
+    "start": "node build-page.js && electron .",
+    "build": "node build-page.js",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "test": "node tests/smoke.test.js"
+  },
+  "devDependencies": {
+    "electron": "31.7.7",
+    "electron-builder": "24.13.3",
+    "jsdom": "^24.1.3"
+  },
+  "build": {
+    "appId": "id.ac.unmer.rancangperumahan",
+    "productName": "Rancang Perumahan",
+    "copyright": "Pindo Tutuko",
+    "files": ["main.js", "preload.js", "src/**/*"],
+    "directories": { "output": "dist", "buildResources": "build" },
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "zip", "arch": ["x64"] }], "icon": "build/icon.png" },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "shortcutName": "Rancang Perumahan" },
+    "mac": { "target": [{ "target": "dmg", "arch": ["universal"] }], "icon": "build/icon.png", "category": "public.app-category.productivity", "identity": "-" }
+  }
+}

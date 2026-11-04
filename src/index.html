@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Pindo Tutuko">
+<meta name="description" content="Rancang Perumahan — studi tapak, kavling, desain tipe rumah, RAB, kelayakan bisnis, dan KPR. Dibuat oleh Pindo Tutuko.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'">
+</head>
+<body>
+<title>Rancang Perumahan</title>
+<style>
+/* Layout mengikuti keluarga aplikasi Studio Keputusan: bilah atas, rel langkah di kiri, satu lembar kerja di kanan. Warna hanya lewat token CSS (mendukung mode gelap). */
+:root{
+  --paper:#f3f1ec; --sheet:#fffdf9; --ink:#22262c; --muted:#6b7079; --line:#ddd8cf;
+  --accent:#0f766e; --accent-soft:#dcefeb; --warm:#c2643a; --warm-soft:#f6e3d8; --ok:#2f7d4a; --ok-soft:#e1f1e6; --bad:#b4372f; --bad-soft:#f7dfdc;
+  --top-bg:#1f3b39; --top-ink:#f4f8f6; --top-muted:#b9cfc9; --top-line:#36605b; --top-control:#2a4c49;
+  --rail-bg:#e9e5dc; --rail-ink:#283036; --rail-muted:#6f7679; --rail-line:#d3cdc1; --rail-active:#f5e4d9;
+  --road:#a9a49b; --road-line:#f1ede4; --lot:#f2d9a8; --lot2:#e8c3a0; --lot3:#d9b8d8; --lot4:#bfd7ea; --rth:#9fcf8f; --fasum:#f0b36b; --makam:#c7c2b6; --sisa:#cfe6c4; --wall:#f5f2ec;
+  --f-display:"Segoe UI Variable Display","SF Pro Display",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --f-mono:ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#13171a; --sheet:#1a2024; --ink:#ecefee; --muted:#a3abad; --line:#2f383c;
+  --accent:#5fc7b7; --accent-soft:#163a36; --warm:#ec9a72; --warm-soft:#45291d; --ok:#7bd096; --ok-soft:#173825; --bad:#f08a80; --bad-soft:#4a211e;
+  --top-bg:#132826; --top-ink:#eef6f3; --top-muted:#9fbab3; --top-line:#29504b; --top-control:#1c3a37;
+  --rail-bg:#1b2124; --rail-ink:#e6eaea; --rail-muted:#9aa3a5; --rail-line:#2c3539; --rail-active:#3b2a22;
+  --road:#5b5d5f; --road-line:#7d7f80; --lot:#8a7240; --lot2:#86604a; --lot3:#6e5470; --lot4:#4c6475; --rth:#3f7a3a; --fasum:#9a6a32; --makam:#5f5c56; --sisa:#36583a; --wall:#d9d5cd; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#13171a; --sheet:#1a2024; --ink:#ecefee; --muted:#a3abad; --line:#2f383c;
+  --accent:#5fc7b7; --accent-soft:#163a36; --warm:#ec9a72; --warm-soft:#45291d; --ok:#7bd096; --ok-soft:#173825; --bad:#f08a80; --bad-soft:#4a211e;
+  --top-bg:#132826; --top-ink:#eef6f3; --top-muted:#9fbab3; --top-line:#29504b; --top-control:#1c3a37;
+  --rail-bg:#1b2124; --rail-ink:#e6eaea; --rail-muted:#9aa3a5; --rail-line:#2c3539; --rail-active:#3b2a22;
+  --road:#5b5d5f; --road-line:#7d7f80; --lot:#8a7240; --lot2:#86604a; --lot3:#6e5470; --lot4:#4c6475; --rth:#3f7a3a; --fasum:#9a6a32; --makam:#5f5c56; --sisa:#36583a; --wall:#d9d5cd; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--warm);outline-offset:2px}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:12px 20px;background:var(--top-bg);color:var(--top-ink);border-bottom:1px solid var(--top-line);position:sticky;top:0;z-index:7}
+.brand{font:700 19px/1 var(--f-display);display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
+.brand small{display:block;font:500 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--top-muted);margin-top:3px}
+#title{flex:1 1 220px;min-width:0;border:1px solid transparent;background:transparent;color:var(--top-ink);border-radius:6px;padding:6px 8px;font:600 16px var(--f-display)}
+#title:hover,#title:focus{border-color:var(--top-line);background:var(--top-control)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--line);background:var(--sheet);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:14px;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.btn.primary:hover{filter:brightness(1.08);color:var(--sheet)}
+.btn.small{padding:4px 9px;font-size:13px}
+.top .btn{border-color:var(--top-line);background:var(--top-control);color:var(--top-ink)}.top .btn:hover{border-color:var(--warm);color:#fff}
+.shell{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:calc(100% - 60px)}
+.rail{border-right:1px solid var(--rail-line);padding:16px 12px;display:flex;flex-direction:column;gap:3px;background:var(--rail-bg);color:var(--rail-ink)}
+.rail button{display:grid;grid-template-columns:28px 1fr;gap:1px 10px;align-items:center;text-align:left;border:0;background:transparent;border-radius:8px;padding:8px 10px;cursor:pointer}
+.rail .n{grid-row:span 2;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:600 12px var(--f-mono);border:1.5px solid var(--rail-line);color:var(--rail-muted)}
+.rail .t{font-weight:700;font-size:14px}.rail .s{font-size:12px;color:var(--rail-muted)}
+.rail button:hover{background:color-mix(in srgb,var(--rail-bg) 70%,var(--sheet))}
+.rail button[aria-current="true"]{background:var(--rail-active);box-shadow:inset 3px 0 0 var(--warm)}
+.rail button[aria-current="true"] .n{background:var(--warm);border-color:var(--warm);color:#fff}
+.rail .sep{height:1px;background:var(--rail-line);margin:8px 6px}
+.rail .credit{margin-top:auto;font-size:12px;color:var(--rail-muted);padding:10px 8px 0;line-height:1.4}
+main{padding:22px clamp(14px,3vw,38px) 70px;min-width:0}
+section{display:flex;flex-direction:column;gap:16px;max-width:1180px}
+h1{font:700 25px/1.15 var(--f-display);margin:0;letter-spacing:-.015em}
+h2{font:600 17px var(--f-display);margin:0 0 6px}
+h3{font:600 15px var(--f-display);margin:0 0 4px}
+.lede{color:var(--muted);margin:0;max-width:75ch}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.form{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px 14px}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--muted)}
+label.f input,label.f select{border:1px solid var(--line);background:var(--paper);border-radius:7px;padding:6px 8px;color:var(--ink);font:500 14px var(--f-body)}
+label.f input:focus,label.f select:focus{border-color:var(--accent);outline:none}
+label.f .u{font-size:11px;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.note{font-size:13px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+.kpi{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kpi b{display:block;font:700 19px/1.2 var(--f-display);margin-top:2px}
+.kpi span{font-size:12px;color:var(--muted)}
+.kpi.ok{border-color:var(--ok);background:var(--ok-soft)}.kpi.bad{border-color:var(--bad);background:var(--bad-soft)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:12.5px;background:var(--paper)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tbl{overflow:auto;max-height:440px;border:1px solid var(--line);border-radius:10px}
+.tbl table th{position:sticky;top:0}
+.chk{display:flex;gap:8px;align-items:flex-start;padding:7px 10px;border-radius:8px;font-size:13.5px}
+.chk.ok{background:var(--ok-soft)}.chk.bad{background:var(--bad-soft)}.chk.info{background:var(--accent-soft)}
+.chk i{font-style:normal;font-weight:700}
+.svgbox{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.svgbox svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12.5px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px;background:var(--c)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button{border:1px solid var(--line);background:var(--sheet);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13.5px}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--sheet)}
+.styles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.style{border:1.5px solid var(--line);border-radius:10px;padding:8px;cursor:pointer;background:var(--sheet);text-align:left}
+.style[aria-pressed="true"]{border-color:var(--warm);box-shadow:0 0 0 2px var(--warm-soft)}
+.style svg{width:100%;height:auto;display:block}
+.style b{display:block;font-size:13px;margin-top:4px}.style small{font-size:11.5px;color:var(--muted)}
+.ref li{margin:0 0 10px}.ref .tag{font-size:11px;padding:1px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-left:6px}
+.ref .tag.as{background:var(--warm-soft);color:var(--warm)}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--sheet);padding:8px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.on{opacity:.95}
+.armed{background:var(--bad)!important;border-color:var(--bad)!important;color:#fff!important}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}
+@media (max-width:820px){.shell{grid-template-columns:1fr}.rail{flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--rail-line)}.rail .s,.rail .credit,.rail .sep{display:none}.rail button{grid-template-columns:24px auto}}
+@media print{.top,.rail,.noprint{display:none!important}.shell{display:block}main{padding:0}section[hidden]{display:flex!important;page-break-after:always}.card{break-inside:avoid}}
+</style>
+
+<header class="top">
+  <div class="brand"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 15 16 4l13 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><rect x="7" y="14" width="18" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M14 28v-7h4v7" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="23" cy="9" r="2" fill="#ec9a72"/></svg><div>Rancang Perumahan<small>tapak · desain · bisnis · KPR</small></div></div>
+  <input id="title" aria-label="Nama proyek" value="Proyek perumahan baru">
+  <div class="actions">
+    <button class="btn" id="bNew" title="Mulai proyek baru dengan nilai contoh">Baru</button>
+    <button class="btn" id="bOpen">Buka</button>
+    <button class="btn" id="bSave">Simpan</button>
+    <button class="btn" id="bPrint">Cetak / PDF</button>
+    <button class="btn" id="bTheme" title="Mode terang/gelap">◐</button>
+  </div>
+</header>
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Langkah">
+    <button data-s="lahan"><span class="n">1</span><span class="t">Proyek & lahan</span><span class="s">Luas, harga tanah, aturan</span></button>
+    <button data-s="tapak"><span class="n">2</span><span class="t">Tapak & kavling</span><span class="s">Jalan, kavling, PSU/fasum</span></button>
+    <button data-s="rumah"><span class="n">3</span><span class="t">Tipe & desain rumah</span><span class="s">Gaya terkini, denah, tampak</span></button>
+    <button data-s="rab"><span class="n">4</span><span class="t">RAB & kelayakan</span><span class="s">Biaya, harga jual, laba, IRR</span></button>
+    <button data-s="biaya"><span class="n">5</span><span class="t">Pembiayaan & KPR</span><span class="s">Kredit konstruksi, cicilan</span></button>
+    <button data-s="ringkas"><span class="n">6</span><span class="t">Ringkasan & laporan</span><span class="s">Indikator, ekspor</span></button>
+    <div class="sep"></div>
+    <button data-s="sumber"><span class="n">§</span><span class="t">Sumber & Referensi</span><span class="s">Regulasi & asumsi</span></button>
+    <div class="credit">Dibuat oleh <b>Pindo Tutuko</b><br>Universitas Merdeka Malang · 2026</div>
+  </nav>
+  <main id="main">
+    <section data-sec="lahan"></section>
+    <section data-sec="tapak" hidden></section>
+    <section data-sec="rumah" hidden></section>
+    <section data-sec="rab" hidden></section>
+    <section data-sec="biaya" hidden></section>
+    <section data-sec="ringkas" hidden></section>
+    <section data-sec="sumber" hidden></section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="fileIn" accept=".json,application/json" hidden>
+
+<script>
+/* ===================================================================
+   Rancang Perumahan — mesin hitung (murni, dapat diuji) + antarmuka
+   Dibuat oleh Pindo Tutuko. Semua diagram SVG manual, tanpa pustaka.
+   =================================================================== */
+'use strict';
+
+/* ---------- Rujukan (wajib dapat diverifikasi) ---------- */
+const CREDIT = [
+  {k:'kepmen1722', t:'Keputusan Menteri Perumahan dan Kawasan Permukiman Nomor 1722/KPTS/M/2026 tentang Kriteria Rumah Umum Tapak dalam Fasilitasi Pemerintah Pusat (ditetapkan 6 Agustus 2026).',
+   d:'Luas lahan efektif 60–200 m², lebar muka kaveling paling kecil 5 m, luas lantai 21–36 m², jangka waktu KPR paling lama 40 tahun, suku bunga 5% per tahun (atau berjenjang sesuai kebijakan), batas harga jual per wilayah, bantuan uang muka Rp4 juta (Papua Rp10 juta). Mencabut Kepmen PUPR 689/KPTS/M/2023 dan 995/KPTS/M/2021.',
+   u:'https://jdih.pkp.go.id/produk-hukum/file/2026kptsmpkp1722_1786327915.pdf', tag:'dipakai: cek rumah umum, preset KPR subsidi'},
+  {k:'pp34', t:'Peraturan Pemerintah Nomor 34 Tahun 2016 tentang Pajak Penghasilan atas Penghasilan dari Pengalihan Hak atas Tanah dan/atau Bangunan, dan Perjanjian Pengikatan Jual Beli atas Tanah dan/atau Bangunan beserta Perubahannya.',
+   d:'Pasal 2 ayat (1): tarif PPh final 2,5% dari nilai bruto pengalihan; 1% untuk Rumah Sederhana/Rumah Susun Sederhana oleh wajib pajak yang usaha pokoknya pengalihan tanah/bangunan.',
+   u:'https://setkab.go.id/pp-no-342016-pph-pengalihanjual-beli-tanahbangunan-25-di-bawah-rp-60-juta-dikecualikan/', tag:'dipakai: PPh final penjualan'},
+  {k:'permendagri15', t:'Peraturan Menteri Dalam Negeri Nomor 15 Tahun 2026 tentang Penyerahan Prasarana, Sarana, dan Utilitas Umum Perumahan kepada Pemerintah Daerah Kabupaten/Kota (mencabut Permendagri Nomor 9 Tahun 2009).',
+   d:'Dasar penyerahan PSU dari pengembang kepada pemerintah daerah. Proporsi minimal PSU ditetapkan dalam peraturan daerah masing-masing.',
+   u:'https://peraturan.bpk.go.id/Details/126323/permendagri-no-9-tahun-2009', tag:'dasar PSU'},
+  {k:'perdaCimahi', t:'Contoh peraturan daerah: Peraturan Daerah Kota Cimahi Nomor 10 Tahun 2017 — pengembang wajib menyediakan lahan PSU paling sedikit 40% dari luas lahan perumahan.',
+   d:'Dipakai sebagai nilai awal "PSU minimal 40%". Angka ini berbeda antardaerah — cek Perda PSU kabupaten/kota lokasi proyek.',
+   u:'https://pasal.id/peraturan/perda/perda-kota-cimahi-10-2017', tag:'contoh daerah'},
+  {k:'pp14', t:'Peraturan Pemerintah Nomor 14 Tahun 2016 tentang Penyelenggaraan Perumahan dan Kawasan Permukiman, sebagaimana telah diubah dengan Peraturan Pemerintah Nomor 12 Tahun 2021.',
+   d:'Kerangka penyelenggaraan perumahan, termasuk kewajiban PSU dan hunian berimbang. Rincian angka mengikuti peraturan pelaksana.',
+   u:'https://peraturan.bpk.go.id/', tag:'kerangka'},
+  {k:'sni1733', t:'Badan Standardisasi Nasional. SNI 03-1733-2004 Tata cara perencanaan lingkungan perumahan di perkotaan. Jakarta: BSN, 2004.',
+   d:'Acuan kebutuhan sarana lingkungan berdasarkan jumlah penduduk pendukung. Aplikasi ini tidak menyalin tabel SNI; isi tabel sarana di langkah Tapak dengan nilai dari dokumen SNI yang Anda pegang.',
+   u:'https://perpus.petra.ac.id/catalog/site/detail?id=2300864', tag:'acuan sarana'}
+];
+/* Asumsi (bukan regulasi) — selalu dapat diubah pengguna */
+const ASUMSI = [
+  'KDB, KLB, KDH, dan garis sempadan bangunan ditetapkan RDTR/peraturan zonasi setempat; nilai awal di aplikasi hanya contoh.',
+  'Satu kepala keluarga dihitung 4 jiwa (dapat diubah) untuk memperkirakan penduduk pendukung sarana.',
+  'Biaya per m² (konstruksi, jalan, saluran, RTH) dan faktor biaya gaya fasad adalah perkiraan awal; ganti dengan harga satuan setempat atau hasil RAB rinci.',
+  'Cicilan KPR memakai rumus anuitas bulanan; bank dapat memakai metode lain (efektif/berjenjang). Uang muka KPR subsidi mengikuti ketentuan program dan bank penyalur.',
+  'Batas cicilan terhadap penghasilan (rasio angsuran) adalah kebijakan bank; nilai awal 30% hanya asumsi.'
+];
+
+/* ---------- Utilitas ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (v,d=0)=>isFinite(v)?Number(v).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';
+const rp = v => !isFinite(v)?'–':(Math.abs(v)>=1e9?'Rp '+fmt(v/1e9,2)+' M':Math.abs(v)>=1e6?'Rp '+fmt(v/1e6,1)+' jt':'Rp '+fmt(v));
+const rpFull = v => isFinite(v)?'Rp '+fmt(Math.round(v)):'–';
+const pct = (v,d=1)=>isFinite(v)?fmt(v*100,d)+'%':'–';
+
+/* ===================================================================
+   MESIN HITUNG
+   =================================================================== */
+const RP = (()=>{
+
+  /* Cicilan anuitas: P pokok, i bunga tahunan (desimal), n bulan */
+  function annuity(P,i,n){ if(n<=0) return 0; const r=i/12; return r===0? P/n : P*r/(1-Math.pow(1+r,-n)); }
+
+  /* Jadwal KPR dengan bunga tetap selama `fixY` tahun lalu bunga mengambang `iFloat` (anuitas dihitung ulang atas sisa pokok) */
+  function kpr({price,dpPct,i,years,fixY=0,iFloat=null,subsidy=0}){
+    const down=Math.max(0,price*dpPct-subsidy), P=Math.max(0,price-price*dpPct), n=Math.round(years*12);
+    let bal=P, rows=[], totI=0, pay=0, firstPay=0, laterPay=null;
+    const fixN = (iFloat==null||fixY<=0)? n : Math.min(n,Math.round(fixY*12));
+    for(let m=1;m<=n;m++){
+      const rate = m<=fixN? i : iFloat;
+      if(m===1||m===fixN+1) pay = annuity(bal, rate, n-m+1);
+      if(m===1) firstPay=pay; if(m===fixN+1) laterPay=pay;
+      const int=bal*rate/12, prin=Math.min(bal,pay-int); bal-=prin; totI+=int;
+      if(m%12===0||m===n) rows.push({year:Math.ceil(m/12), bal:Math.max(0,bal), totI});
+    }
+    return {down, principal:P, n, firstPay, laterPay, totalInterest:totI, totalPaid:P+totI, rows};
+  }
+
+  /* NPV arus kas bulanan dengan tingkat diskonto tahunan efektif */
+  function npv(flows, annualRate){ const r=Math.pow(1+annualRate,1/12)-1; return flows.reduce((a,f,t)=>a+f/Math.pow(1+r,t),0); }
+  /* IRR bulanan (bisection pada NPV) → dikembalikan tahunan efektif */
+  function irr(flows){
+    const f=r=>flows.reduce((a,v,t)=>a+v/Math.pow(1+r,t),0);
+    if(!flows.some(v=>v<0)||!flows.some(v=>v>0)) return NaN;
+    let lo=-0.99, hi=1, flo=f(lo), fhi=f(hi), k=0;
+    while(flo*fhi>0 && k<60){ hi*=2; fhi=f(hi); k++; } if(flo*fhi>0) return NaN;
+    for(let it=0;it<200;it++){ const mid=(lo+hi)/2, fm=f(mid); if(Math.abs(fm)<1e-7){lo=hi=mid;break} if(flo*fm<0){hi=mid;fhi=fm}else{lo=mid;flo=fm} }
+    const m=(lo+hi)/2; return Math.pow(1+m,12)-1;
+  }
+  const irrMonthly = flows => { const a=irr(flows); return isFinite(a)? Math.pow(1+a,1/12)-1 : NaN; };
+
+  /* -------- Tata letak tapak --------
+     Lahan persegi panjang W (lebar, sumbu x) × D (panjang/kedalaman, sumbu y), pintu masuk di y=0.
+     Lajur depan: RTH + fasum + makam (bila ada). Lalu blok: jalan lingkungan, 2 deret kavling saling membelakangi, jalan, ...
+     Jalan utama membujur (sumbu y) di tengah atau di tepi kiri. */
+  function layout(p, types){
+    const W=+p.W, D=+p.D, A=W*D, mainW=+p.mainW, lw=+p.localW, spine=p.spine||'tengah';
+    const out={W,D,A,roads:[],lots:[],rth:[],fasum:[],makam:[],sisa:[],blocks:[],warn:[]};
+    if(!(W>0&&D>0)) { out.warn.push('Ukuran lahan belum diisi.'); return finish(out,p); }
+    // lajur depan
+    const front = A*((+p.rthPct||0)+(+p.fasumPct||0)+(+p.makamPct||0))/100;
+    let fd = Math.min(D*0.6, front/W);
+        const parts=[['fasum',+p.fasumPct||0],['rth',+p.rthPct||0],['makam',+p.makamPct||0]].filter(q=>q[1]>0), tot=parts.reduce((a,q)=>a+q[1],0)||1;
+    // jalan utama memotong lajur depan sebagai jalan masuk
+    const sx = spine==='tengah'? (W-mainW)/2 : 0;
+    if(fd>0){
+      // bagi lebar lajur depan (dikurangi jalan masuk) sebanding porsi
+      const segs = spine==='tengah'? [[0,sx],[sx+mainW,W]] : [[mainW,W]];
+      const usable = segs.reduce((a,s)=>a+(s[1]-s[0]),0);
+      fd = Math.min(D*0.6, front/Math.max(1,usable));
+      let need = parts.map(q=>[q[0], usable*q[1]/tot]);
+      for(const s of segs){ let cx=s[0]; while(cx < s[1]-1e-6 && need.length){ const q=need[0]; const take=Math.min(q[1], s[1]-cx); out[q[0]].push({x:cx,y:0,w:take,h:fd}); cx+=take; q[1]-=take; if(q[1]<=1e-6) need.shift(); } }
+    }
+    const y0 = fd;
+    // jalan utama
+    out.roads.push({x:sx,y:0,w:mainW,h:D,kind:'utama'});
+    // panjang segmen deret
+    const segs = spine==='tengah'? [[0,sx],[sx+mainW,W]] : [[mainW,W]];
+    // blok berulang ke arah y
+    const shares = types.map(t=>Math.max(0,+t.share||0)); const sumShare = shares.reduce((a,b)=>a+b,0)||1;
+    const made = types.map(()=>0);
+    let y = y0, guard=0;
+    while(guard++<500){
+      // jalan lingkungan
+      if(y+lw > D) break;
+      out.roads.push({x:0,y,w:W,h:lw,kind:'lingkungan'}); y+=lw;
+      // pilih tipe dengan kekurangan terbesar terhadap porsinya
+      const totalMade = made.reduce((a,b)=>a+b,0)||0;
+      let best=-1, bestGap=-Infinity;
+      types.forEach((t,i)=>{ if(!(+t.lotW>0&&+t.lotD>0)||shares[i]<=0) return; const target=shares[i]/sumShare; const have=totalMade? made[i]/totalMade : 0; const gap=target-have; if(gap>bestGap){bestGap=gap;best=i} });
+      if(best<0){ out.warn.push('Belum ada tipe rumah dengan ukuran kavling & porsi > 0.'); break; }
+      const t=types[best], ld=+t.lotD, lwid=+t.lotW;
+      const room = D - y;
+      const rows = room >= 2*ld + lw ? 2 : (room >= 2*ld ? 2 : room >= ld ? 1 : 0);
+      if(rows===0){ break; }
+      const blk={y,h:rows*ld,type:best,rows};
+      for(let r=0;r<rows;r++){
+        const ry = y + r*ld;
+        for(const s of segs){
+          const L=s[1]-s[0], n=Math.floor((L+1e-6)/lwid);
+          for(let k=0;k<n;k++) out.lots.push({x:s[0]+k*lwid,y:ry,w:lwid,h:ld,type:best,face:r===0?'atas':'bawah'});
+          const rem = L - n*lwid; if(rem>0.01) out.sisa.push({x:s[0]+n*lwid,y:ry,w:rem,h:ld});
+          made[best]+=n;
+        }
+      }
+      out.blocks.push(blk); y += rows*ld;
+    }
+    if(y < D-0.01) out.sisa.push({x:0,y,w:W,h:D-y,end:true});
+    return finish(out,p);
+  }
+  function areaOf(arr){ return arr.reduce((a,r)=>a+r.w*r.h,0); }
+  function finish(o,p){
+    // luas jalan: jalan utama + jalan lingkungan − tumpang tindih
+    const main=o.roads.filter(r=>r.kind==='utama'), loc=o.roads.filter(r=>r.kind==='lingkungan');
+    let overlap=0; main.forEach(m=>loc.forEach(l=>{ const ox=Math.max(0,Math.min(m.x+m.w,l.x+l.w)-Math.max(m.x,l.x)), oy=Math.max(0,Math.min(m.y+m.h,l.y+l.h)-Math.max(m.y,l.y)); overlap+=ox*oy; }));
+    // jalan utama yang melewati lajur depan tetap dihitung jalan
+    // jalan utama di area blok: deret kavling tidak menempati jalur jalan utama, jadi luas = W×D kurang yang lain
+    const aRoad = areaOf(main)+areaOf(loc)-overlap;
+    const aLot = areaOf(o.lots), aRth=areaOf(o.rth), aFas=areaOf(o.fasum), aMak=areaOf(o.makam), aSisa=areaOf(o.sisa);
+    const aPsu = aRoad+aRth+aFas+aMak+aSisa;
+    o.area={road:aRoad,lot:aLot,rth:aRth,fasum:aFas,makam:aMak,sisa:aSisa,psu:aPsu,sum:aRoad+aLot+aRth+aFas+aMak+aSisa};
+    o.units=o.lots.length;
+    o.share={lot:aLot/o.A, psu:aPsu/o.A, road:aRoad/o.A, rth:(aRth+aSisa)/o.A, fasum:aFas/o.A, makam:aMak/o.A};
+    o.density = o.units/(o.A/1e4);
+    // panjang jalan (untuk saluran): sumbu terpanjang tiap ruas
+    o.roadLen = main.reduce((a,r)=>a+r.h,0) + loc.reduce((a,r)=>a+r.w,0) - loc.length*main.reduce((a,r)=>a+r.w,0);
+    return o;
+  }
+
+  /* -------- Tipe rumah -------- */
+  function house(t, rules){
+    const LT=(+t.lotW)*(+t.lotD), floors=Math.max(1,+t.floors||1), LB=+t.LB, foot=LB/floors;
+    const kdb = LT? foot/LT : NaN, klb = LT? LB/LT : NaN;
+    const gsb=+rules.gsb||0, back=+rules.backSet||0;
+    const maxDepth=(+t.lotD)-gsb-back, bw=Math.min(+t.lotW, foot/Math.max(1,Math.min(maxDepth,foot/Math.max(1,+t.lotW))));
+    const bd = foot/Math.max(0.1, +t.lotW); // rumah deret/kopel: lebar bangunan = lebar kavling
+    const fitDepth = bd <= maxDepth+1e-6;
+    const kdh = LT? Math.max(0, (LT - foot - (+t.lotW)*Math.min(gsb, +rules.paveFront||0))/LT) : NaN;
+    return {LT,LB,foot,floors,kdb,klb,kdh,bw:+t.lotW,bd,maxDepth,fitDepth};
+  }
+
+  /* -------- Biaya, pendapatan, arus kas -------- */
+  function feasibility(P, lay, styleFactor){
+    const s=P.site, c=P.cost, sale=P.sales, fin=P.fin, T=P.types;
+    const units = T.map((t,i)=>lay.lots.filter(l=>l.type===i).length);
+    const nU = units.reduce((a,b)=>a+b,0);
+    const revenueByType = T.map((t,i)=>units[i]*(+t.price||0));
+    const revenue = revenueByType.reduce((a,b)=>a+b,0);
+    const land = lay.A*(+s.landPrice||0)*(1+(+c.landTxPct||0)/100);
+    const prep = lay.A*(+c.prepM2||0);
+    const roads = lay.area.road*(+c.roadM2||0);
+    const drain = Math.max(0,lay.roadLen)*2*(+c.drainM||0);
+    const rth = (lay.area.rth+lay.area.sisa)*(+c.rthM2||0);
+    const fasum = lay.area.fasum*(+c.fasumM2||0) + lay.area.makam*(+c.makamM2||0);
+    const util = nU*(+c.utilUnit||0);
+    const infra = prep+roads+drain+rth+fasum+util;
+    const consByType = T.map((t,i)=>units[i]*(+t.LB||0)*(+c.buildM2||0)*(styleFactor(t)||1));
+    const cons = consByType.reduce((a,b)=>a+b,0);
+    const permits = (+c.permitLump||0) + nU*(+c.certUnit||0);
+    const contingency = (infra+cons)*(+c.contPct||0)/100;
+    const marketing = revenue*(+c.mktPct||0)/100;
+    const taxRate = (P.rules.simple? 1:2.5)/100;
+    const tax = revenue*taxRate;
+    const overhead = (land+infra+cons+permits)*(+c.ohPct||0)/100;
+    const total = land+infra+cons+permits+contingency+marketing+tax+overhead;
+    const profit = revenue-total;
+    const items=[['Lahan (termasuk biaya peralihan)',land],['Pematangan lahan',prep],['Jalan',roads],['Saluran drainase',drain],['RTH & taman',rth],['Fasum & makam',fasum],['Utilitas (air, listrik) per unit',util],['Konstruksi rumah',cons],['Perizinan & sertifikat',permits],['Cadangan tak terduga',contingency],['Pemasaran',marketing],['PPh final penjualan ('+fmt(taxRate*100,1)+'%)',tax],['Manajemen & umum',overhead]];
+
+    /* arus kas bulanan (sebelum pembiayaan) */
+    const H = Math.max(6, Math.round(+sale.horizon||48));
+    const flow = new Array(H+1).fill(0), inflow=new Array(H+1).fill(0), outflow=new Array(H+1).fill(0);
+    const add=(m,v)=>{ m=clamp(Math.round(m),0,H); if(v<0) outflow[m]+=-v; else inflow[m]+=v; flow[m]+=v; };
+    add(0,-land); add(0,-(+c.permitLump||0));
+    const infraM=Math.max(1,Math.round(+sale.infraMonths||6));
+    for(let m=1;m<=infraM;m++){ add(m,-(infra)/infraM); add(m,-(contingency*(infra/(infra+cons||1)))/infraM); }
+    const start=Math.max(0,Math.round(+sale.start||3)), rate=Math.max(0.1,+sale.perMonth||5), build=Math.max(1,Math.round(+sale.buildMonths||4)), dp=(+sale.dpPct||0)/100;
+    let left=units.slice(), sold=0, m=start, soldBy=[];
+    const avgPrice = nU? revenue/nU : 0;
+    while(sold<nU && m<=H){
+      let q=Math.min(rate, nU-sold);
+      // sebar per tipe sebanding sisa unit
+      const remTot = left.reduce((a,b)=>a+b,0)||1; let rev=0, cst=0;
+      T.forEach((t,i)=>{ const qi=q*left[i]/remTot; left[i]-=qi; rev+=qi*(+t.price||0); cst+=qi*(+t.LB||0)*(+c.buildM2||0)*(styleFactor(t)||1); });
+      sold+=q; soldBy.push([m,q]);
+      add(m, rev*dp); add(m, -rev*(+c.mktPct||0)/100);
+      for(let b=1;b<=build;b++){ add(m+b-1, -(cst+cst*(+c.contPct||0)/100)/build); add(m+b-1, -(cst*(+c.ohPct||0)/100)/build); }
+      add(m+build, rev*(1-dp)); add(m+build, -rev*taxRate); add(m+build, -(+c.certUnit||0)*q);
+      m++;
+    }
+    // overhead tanah/infra/izin dibayar merata selama masa infrastruktur
+    const ohBase=(land+infra+(+c.permitLump||0))*(+c.ohPct||0)/100; for(let k=1;k<=infraM;k++) add(k,-ohBase/infraM);
+    const sellMonths = nU? Math.ceil(nU/rate) : 0;
+    // pembiayaan pengembang
+    const loanCap = total*(+fin.loanPct||0)/100, iLoan=(+fin.loanRate||0)/100/12, sweep=(+fin.sweepPct||100)/100;
+    let debt=0, cash=0, peakDebt=0, totInt=0, equity=0; const eqFlow=new Array(H+1).fill(0), debtBy=[];
+    for(let t=0;t<=H;t++){
+      let cf=flow[t];
+      const int=debt*iLoan; totInt+=int; cf-=int;
+      if(cf<0){ const draw=Math.min(-cf, Math.max(0,loanCap-debt)); debt+=draw; cf+=draw; if(cf<0){ equity+=-cf; eqFlow[t]+=cf; cf=0; } }
+      else { const pay=Math.min(debt, cf*sweep); debt-=pay; cf-=pay; eqFlow[t]+=cf; }
+      peakDebt=Math.max(peakDebt,debt); debtBy.push(debt);
+    }
+    if(debt>0){ eqFlow[H]-=debt; }
+    let cum=0, peakNeg=0, payback=null; flow.forEach((v,t)=>{ cum+=v; peakNeg=Math.min(peakNeg,cum); if(payback===null && t>0 && cum>=0 && flow.slice(0,t).some(x=>x<0)) payback=t; });
+    const disc=(+fin.discPct||0)/100;
+    return {units,nU,revenue,revenueByType,items,total,profit,margin:revenue?profit/revenue:NaN, roi: total? profit/total : NaN,
+      land,infra,cons,permits,contingency,marketing,tax,overhead,
+      flow,inflow,outflow,H,sellMonths,soldBy,avgPrice,
+      npv:npv(flow,disc), irr:irr(flow), peakFunding:-peakNeg, payback,
+      loan:{cap:loanCap,peakDebt,totInt,equity,eqIrr:irr(eqFlow),eqFlow,debtBy, profitAfter: profit-totInt},
+      costPerUnit: nU? total/nU : NaN};
+  }
+
+  return {annuity,kpr,npv,irr,irrMonthly,layout,house,feasibility,areaOf};
+})();
+
+/* ===================================================================
+   GAYA RUMAH TERKINI (tampak SVG prosedural)
+   Faktor biaya = perkiraan awal (asumsi), dapat diubah per tipe.
+   =================================================================== */
+const STYLES = {
+  minimalis:{n:'Modern minimalis',d:'Atap datar berparapet, dinding putih, aksen kayu, kaca lebar berbingkai hitam.',f:1.00,roof:'flat',wall:'#f4f3ef',accent:'#a0714b',trim:'#2b2b2b',roofC:'#5b5f63',base:'#8d8a84'},
+  tropis:{n:'Tropis modern',d:'Atap perisai landai bertritisan lebar, kisi kayu vertikal, kaki batu alam.',f:1.08,roof:'hip',wall:'#efe9df',accent:'#8a5a34',trim:'#3a3a36',roofC:'#3e4a4a',base:'#6f6a60'},
+  industrial:{n:'Industrial',d:'Atap miring tunggal, bata ekspos/beton abu, kusen baja hitam.',f:1.05,roof:'shed',wall:'#b9b3ab',accent:'#9b5135',trim:'#1f1f1f',roofC:'#3b3d40',base:'#55585b'},
+  skandinavia:{n:'Skandinavia',d:'Atap pelana curam tanpa tritisan, dinding putih/abu muda, kayu terang.',f:1.06,roof:'gable-steep',wall:'#f7f7f5',accent:'#cfb38a',trim:'#2d2d2d',roofC:'#2f3236',base:'#c9c6c0'},
+  japandi:{n:'Japandi',d:'Atap pelana landai, kayu alami, kisi horizontal, warna netral krem.',f:1.07,roof:'gable-low',wall:'#ece4d6',accent:'#9a7652',trim:'#3d352c',roofC:'#4a4642',base:'#b8ad9b'},
+  kontemporer:{n:'Kontemporer kotak',d:'Bingkai kotak menjorok, dua warna, atap datar, kanopi kaca.',f:1.10,roof:'frame',wall:'#e9e7e3',accent:'#3c4a57',trim:'#1d2228',roofC:'#61666b',base:'#7e7f80'},
+  nusantara:{n:'Nusantara kontemporer',d:'Atap pelana tinggi dengan roster ventilasi, genteng tanah liat, teras dalam.',f:1.12,roof:'gable-tall',wall:'#f1e7d8',accent:'#a55a33',trim:'#4a3122',roofC:'#9c4a2b',base:'#7a5b45'}
+};
+
+/* ---------- Proyek default (nilai contoh, dapat diubah semua) ---------- */
+function defaultProject(){
+  return {
+    v:1, title:'Proyek perumahan baru',
+    site:{W:120,D:150,landPrice:450000,zone:1,psuMin:40},
+    plan:{mainW:10,localW:7,spine:'tengah',rthPct:10,fasumPct:5,makamPct:0,jiwaKK:4},
+    rules:{kdbMax:60,klbMax:1.2,kdhMin:10,gsb:3,backSet:1.5,paveFront:3,simple:false},
+    types:[
+      {name:'Tipe 36/72',lotW:6,lotD:12,LB:36,floors:1,beds:2,baths:1,style:'minimalis',price:330000000,share:50,subsidi:false,sf:null},
+      {name:'Tipe 45/90',lotW:7.5,lotD:12,LB:45,floors:1,beds:2,baths:1,style:'tropis',price:430000000,share:30,subsidi:false,sf:null},
+      {name:'Tipe 70/120',lotW:8,lotD:15,LB:70,floors:2,beds:3,baths:2,style:'japandi',price:780000000,share:20,subsidi:false,sf:null}
+    ],
+    sarana:[{n:'Taman bermain',jiwa:0,luas:0},{n:'Posyandu / balai warga',jiwa:0,luas:0},{n:'Musala',jiwa:0,luas:0}],
+    cost:{landTxPct:5,prepM2:35000,roadM2:280000,drainM:450000,rthM2:120000,fasumM2:2500000,makamM2:50000,utilUnit:9000000,buildM2:3800000,permitLump:350000000,certUnit:4500000,contPct:5,mktPct:3,ohPct:5},
+    sales:{start:3,perMonth:6,buildMonths:4,dpPct:20,infraMonths:6,horizon:48},
+    fin:{loanPct:40,loanRate:11,sweepPct:100,discPct:14},
+    kpr:{price:330000000,dpPct:10,rate:7.5,years:20,fixY:3,rateFloat:11,income:12000000,dsr:30,subsidy:0}
+  };
+}
+const ZONES = [
+  {z:1,n:'Sumatera (kecuali Kepri, Babel, Kep. Mentawai) & Jawa (kecuali DKI Jakarta, Tangerang, Bogor, Depok, Bekasi)',max:166000000},
+  {z:2,n:'Kepri (kecuali Anambas), Babel, Kep. Mentawai, Sulawesi',max:173000000},
+  {z:3,n:'Kalimantan (kecuali Murung Raya, Mahakam Ulu)',max:182000000},
+  {z:4,n:'DKI Jakarta, Bali, NTB, NTT, Maluku, Maluku Utara, Anambas, Tangerang, Bogor, Depok, Bekasi, Murung Raya, Mahakam Ulu',max:185000000},
+  {z:5,n:'Seluruh provinsi di Papua',max:240000000}
+];
+const RU = {lahanMin:60,lahanMax:200,lebarMin:5,lantaiMin:21,lantaiMax:36,tenorMax:40,bunga:5,buMuka:4000000,buMukaPapua:10000000};
+
+/* ---------- Status & penyimpanan ---------- */
+let P = load() || defaultProject();
+let cur = 'lahan', selType = 0;
+function load(){ try{ const s=localStorage.getItem('rp.project'); if(s){ const j=JSON.parse(s); if(j&&j.v===1) return migrate(j); } }catch(e){} return null; }
+function migrate(j){ const d=defaultProject(); for(const k of Object.keys(d)) if(j[k]==null) j[k]=d[k]; for(const k of ['site','plan','rules','cost','sales','fin','kpr']) j[k]=Object.assign({},d[k],j[k]); return j; }
+let saveT=0; function persist(){ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('rp.project',JSON.stringify(P)); }catch(e){} },300); }
+function toast(t){ const e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('on'),2200); }
+/* konfirmasi dua klik (tanpa confirm/alert) */
+function confirmArm(btn, fn, label){ if(btn.dataset.armed){ delete btn.dataset.armed; btn.classList.remove('armed'); btn.textContent=btn.dataset.lbl; fn(); return; } btn.dataset.lbl=btn.textContent; btn.dataset.armed=1; btn.classList.add('armed'); btn.textContent=label||'Klik lagi untuk yakin'; setTimeout(()=>{ if(btn.dataset.armed){ delete btn.dataset.armed; btn.classList.remove('armed'); btn.textContent=btn.dataset.lbl; } },3500); }
+
+const getPath=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+const setPath=(o,p,v)=>{ const ks=p.split('.'); let a=o; for(let i=0;i<ks.length-1;i++) a=a[ks[i]]; a[ks[ks.length-1]]=v; };
+const styleFactor = t => (t.sf!=null && t.sf!=='' && isFinite(+t.sf))? +t.sf : (STYLES[t.style]||STYLES.minimalis).f;
+function calc(){ const lay=RP.layout(Object.assign({},P.site,P.plan),P.types); const fe=RP.feasibility(P,lay,styleFactor); return {lay,fe}; }
+
+/* ---------- Komponen formulir ---------- */
+function F(path,label,unit,opt={}){
+  const v=getPath(P,path);
+  if(opt.sel) return `<label class="f">${label}<select data-k="${path}" ${opt.num?'data-num="1"':''}>${opt.sel.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(v)?'selected':''}>${esc(o[1])}</option>`).join('')}</select>${unit?`<span class="u">${unit}</span>`:''}</label>`;
+  if(opt.chk) return `<label class="f" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" data-k="${path}" ${v?'checked':''}> ${label}</label>`;
+  return `<label class="f">${label}<input type="number" step="${opt.step||'any'}" min="${opt.min??0}" data-k="${path}" value="${v==null?'':esc(v)}">${unit?`<span class="u">${unit}</span>`:''}</label>`;
+}
+function bindInputs(root, after){
+  $$('[data-k]',root).forEach(el=>{
+    const ev = el.tagName==='SELECT'||el.type==='checkbox'?'change':'input';
+    el.addEventListener(ev,()=>{
+      const p=el.dataset.k; let v = el.type==='checkbox'? el.checked : el.value;
+      if(el.type==='number' || el.dataset.num) v = v===''? '' : +v;
+      setPath(P,p,v); persist(); after&&after();
+    });
+  });
+}
+
+/* ===================================================================
+   GAMBAR SVG
+   =================================================================== */
+const TYPE_COLORS=['var(--lot)','var(--lot2)','var(--lot3)','var(--lot4)','var(--lot)','var(--lot2)'];
+function sitePlanSVG(lay, opt={}){
+  const W=lay.W, D=lay.D; if(!(W>0&&D>0)) return '<p class="note">Isi ukuran lahan.</p>';
+  const pad=Math.max(W,D)*0.04, vw=W+pad*2, vh=D+pad*2+Math.max(W,D)*0.05;
+  const s=(r,fill,extra='')=>`<rect x="${(r.x+pad).toFixed(2)}" y="${(r.y+pad).toFixed(2)}" width="${r.w.toFixed(2)}" height="${r.h.toFixed(2)}" fill="${fill}" ${extra}/>`;
+  const lw=Math.max(W,D)/600;
+  let g=`<svg viewBox="0 0 ${vw.toFixed(1)} ${vh.toFixed(1)}" role="img" aria-label="Rencana tapak">`;
+  g+=`<rect x="${pad}" y="${pad}" width="${W}" height="${D}" fill="var(--sheet)" stroke="var(--ink)" stroke-width="${lw*3}"/>`;
+  lay.rth.forEach(r=>g+=s(r,'var(--rth)'));
+  lay.sisa.forEach(r=>g+=s(r,'var(--sisa)'));
+  lay.fasum.forEach(r=>g+=s(r,'var(--fasum)'));
+  lay.makam.forEach(r=>g+=s(r,'var(--makam)'));
+  lay.roads.forEach(r=>g+=s(r,'var(--road)'));
+  // marka jalan
+  lay.roads.forEach(r=>{ const hz=r.w>r.h; const x1=r.x+pad+(hz?0:r.w/2), y1=r.y+pad+(hz?r.h/2:0), x2=hz?x1+r.w:x1, y2=hz?y1:y1+r.h; g+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--road-line)" stroke-width="${lw*1.5}" stroke-dasharray="${lw*8} ${lw*6}"/>`; });
+  lay.lots.forEach((l,i)=>{ g+=s(l,TYPE_COLORS[l.type%TYPE_COLORS.length],`stroke="var(--ink)" stroke-opacity=".55" stroke-width="${lw}"`);
+    // tapak bangunan (indikatif) di sisi muka jalan
+    const t=P.types[l.type]; if(t){ const foot=(+t.LB)/Math.max(1,+t.floors), bd=Math.min(l.h-(+P.rules.gsb)-0.5, foot/l.w), gsb=+P.rules.gsb; if(bd>0){ const by = l.face==='atas'? l.y+gsb : l.y+l.h-gsb-bd; g+=`<rect x="${(l.x+pad+0.4).toFixed(2)}" y="${(by+pad).toFixed(2)}" width="${(l.w-0.8).toFixed(2)}" height="${bd.toFixed(2)}" fill="var(--wall)" stroke="var(--ink)" stroke-opacity=".35" stroke-width="${lw}"/>`; } } });
+  if(opt.numbers && lay.lots.length<=400) lay.lots.forEach((l,i)=>{ g+=`<text x="${(l.x+pad+l.w/2).toFixed(2)}" y="${(l.y+pad+l.h/2+1).toFixed(2)}" font-size="${Math.min(l.w,l.h)*0.3}" text-anchor="middle" fill="var(--ink)" opacity=".75">${i+1}</text>`; });
+  // label zona depan
+  const lbl=(arr,t)=>arr.forEach(r=>{ if(r.w>W*0.06&&r.h>D*0.02) g+=`<text x="${r.x+pad+r.w/2}" y="${r.y+pad+r.h/2}" font-size="${Math.min(r.h*0.35,W*0.025)}" text-anchor="middle" dominant-baseline="middle" fill="var(--ink)">${t}</text>`; });
+  lbl(lay.rth,'RTH'); lbl(lay.fasum,'Fasum'); lbl(lay.makam,'Makam');
+  // pintu masuk & skala
+  const sx=lay.roads[0]? lay.roads[0].x+lay.roads[0].w/2+pad : pad;
+  g+=`<path d="M${sx} ${pad-pad*0.15} l${-pad*0.35} ${-pad*0.55} h${pad*0.7} z" fill="var(--warm)"/><text x="${sx+pad*0.5}" y="${pad*0.55}" font-size="${pad*0.45}" fill="var(--warm)">masuk</text>`;
+  const sb = W>200?50:W>80?20:10; const by=D+pad*1.6;
+  g+=`<rect x="${pad}" y="${by}" width="${sb}" height="${pad*0.18}" fill="var(--ink)"/><text x="${pad+sb+pad*0.2}" y="${by+pad*0.2}" font-size="${pad*0.45}" fill="var(--ink)">${sb} m</text>`;
+  g+=`<text x="${pad+W}" y="${by+pad*0.2}" font-size="${pad*0.45}" text-anchor="end" fill="var(--muted)">${fmt(W)} × ${fmt(D)} m · ${fmt(lay.units)} kavling</text>`;
+  return g+'</svg>';
+}
+
+/* Denah skematik satu lantai (rumah deret/kopel; lebar bangunan = lebar kavling) */
+function floorPlan(t){
+  const R=P.rules, w=+t.lotW, d=+t.lotD, floors=Math.max(1,+t.floors||1), foot=(+t.LB)/floors, gsb=+R.gsb, back=+R.backSet;
+  const bd=Math.max(3,Math.min(d-gsb-0.5, foot/w)), beds=Math.max(1,+t.beds||1), baths=Math.max(1,+t.baths||1);
+  const rooms=[]; const R1=(n,x,y,ww,hh,c)=>rooms.push({n,x,y,w:ww,h:hh,c});
+  // lantai 1: depan→belakang
+  const y0=gsb, x0=0, teras=Math.min(1.5,bd*0.15);
+  const bedsDown = floors>1? Math.max(0,beds-2) : beds, bathsDown= floors>1? 1 : baths;
+  const colL = bedsDown>0? Math.max(2.6, w*0.48) : w;
+  R1('Teras',x0,y0,w,teras,'var(--paper)');
+  const yR=y0+teras, hR=bd-teras;
+  if(bedsDown>0){
+    const kt=Math.min(3.2,hR/Math.max(1,bedsDown+0.6));
+    for(let i=0;i<bedsDown;i++) R1(i===0?'KT utama':'KT '+(i+1), colL, yR+i*kt, w-colL, kt, 'var(--accent-soft)');
+    const used=bedsDown*kt, kmH=Math.min(1.8, hR-used);
+    if(kmH>0.8) R1('KM',colL,yR+used,w-colL,kmH,'var(--lot4)');
+    const lvH=hR*0.62; R1(floors>1?'R. keluarga + tangga':'R. tamu & keluarga',x0,yR,colL,lvH,'var(--warm-soft)');
+    R1('Dapur & makan',x0,yR+lvH,colL,hR-lvH,'var(--lot)');
+    if(kmH<=0.8) R1('KM',x0+colL*0.6,yR+lvH,colL*0.4,hR-lvH,'var(--lot4)');
+  } else {
+    const lvH=hR*0.6; R1('R. keluarga + tangga',x0,yR,w,lvH,'var(--warm-soft)'); R1('Dapur & makan',x0,yR+lvH,w*0.65,hR-lvH,'var(--lot)'); R1('KM',x0+w*0.65,yR+lvH,w*0.35,hR-lvH,'var(--lot4)');
+  }
+  const carport = gsb>=2.5;
+  return {w,d,bd,gsb,back,rooms,carport,upBeds: floors>1? Math.min(beds,2):0, upBaths: floors>1? Math.max(1,baths-bathsDown):0};
+}
+function floorPlanSVG(t){
+  const fp=floorPlan(t), pad=1.2, vw=fp.w+pad*2+3.2, vh=fp.d+pad*2;
+  let g=`<svg viewBox="0 0 ${vw} ${vh}" role="img" aria-label="Denah skematik">`;
+  g+=`<rect x="${pad}" y="${pad}" width="${fp.w}" height="${fp.d}" fill="var(--rth)" opacity=".35" stroke="var(--muted)" stroke-width=".05" stroke-dasharray=".25 .2"/>`;
+  if(fp.carport) g+=`<rect x="${pad+0.2}" y="${pad+0.2}" width="${Math.min(3,fp.w-0.4)}" height="${fp.gsb-0.4}" fill="var(--road)" opacity=".5"/><text x="${pad+0.2+Math.min(3,fp.w-0.4)/2}" y="${pad+fp.gsb/2}" font-size=".42" text-anchor="middle" fill="var(--ink)">Carport</text>`;
+  fp.rooms.forEach(r=>{ g+=`<rect x="${(pad+r.x).toFixed(2)}" y="${(pad+r.y).toFixed(2)}" width="${r.w.toFixed(2)}" height="${r.h.toFixed(2)}" fill="${r.c}" stroke="var(--ink)" stroke-width=".1"/>`;
+    const fs=Math.min(.42, (r.w-0.2)/(r.n.length*0.56), r.h/2.4); g+=`<text x="${(pad+r.x+r.w/2).toFixed(2)}" y="${(pad+r.y+r.h/2).toFixed(2)}" font-size="${fs.toFixed(2)}" text-anchor="middle" dominant-baseline="middle" fill="var(--ink)">${esc(r.n)}</text>`;
+    if(r.w>1.6&&r.h>1.2) g+=`<text x="${(pad+r.x+r.w/2).toFixed(2)}" y="${(pad+r.y+r.h/2+fs*1.2).toFixed(2)}" font-size="${(fs*.75).toFixed(2)}" text-anchor="middle" fill="var(--muted)">${fmt(r.w*r.h,1)} m²</text>`; });
+  g+=`<rect x="${pad}" y="${pad+fp.gsb}" width="${fp.w}" height="${fp.bd}" fill="none" stroke="var(--ink)" stroke-width=".22"/>`;
+  // dimensi
+  g+=`<text x="${pad+fp.w/2}" y="${pad-0.35}" font-size=".45" text-anchor="middle" fill="var(--muted)">${fmt(fp.w,1)} m</text>`;
+  g+=`<text x="${pad+fp.w+0.3}" y="${pad+fp.d/2}" font-size=".45" fill="var(--muted)">${fmt(fp.d,1)} m</text>`;
+  g+=`<text x="${pad+fp.w+0.3}" y="${pad+fp.gsb/2}" font-size=".38" fill="var(--muted)">GSB ${fmt(fp.gsb,1)}</text>`;
+  g+=`<text x="${pad+fp.w+0.3}" y="${pad+0.45}" font-size=".4" fill="var(--warm)">← jalan</text>`;
+  return g+'</svg>';
+}
+
+/* Tampak isometrik prosedural per gaya */
+function isoSVG(t, opt={}){
+  const st=STYLES[t.style]||STYLES.minimalis, floors=Math.max(1,+t.floors||1), w=Math.max(3,+t.lotW||6), d=Math.max(4,Math.min(((+t.LB||36)/floors)/w, (+t.lotD||12)-(+P.rules.gsb||0)-0.5)), H=3.2*floors;
+  const k=opt.small? 6 : 10, c30=Math.cos(Math.PI/6), s30=0.5;
+  const pts=[]; const P3=(x,y,z)=>[(x-y)*c30*k, (x+y)*s30*k - z*k];
+  const poly=(arr,fill,stroke='rgba(0,0,0,.35)',sw=.6)=>`<polygon points="${arr.map(p=>{const q=P3(...p);pts.push(q);return q[0].toFixed(1)+','+q[1].toFixed(1)}).join(' ')}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+  // bangunan: x 0..w (lebar muka), y 0..d (kedalaman), muka menghadap +y
+  let g='';
+  // tanah & bayangan
+  g+=poly([[-1.5,-1,0],[w+1.5,-1,0],[w+1.5,d+3.2,0],[-1.5,d+3.2,0]],'var(--rth)','none');
+  g+=poly([[0,d,0],[w,d,0],[w,d+3,0],[0,d+3,0]],'var(--road)','none');
+  // kaki batu
+  g+=poly([[w,0,0],[w,d,0],[w,d,0.45],[w,0,0.45]],st.base); g+=poly([[0,d,0],[w,d,0],[w,d,0.45],[0,d,0.45]],st.base);
+  // sisi kanan & muka
+  g+=poly([[w,0,0.45],[w,d,0.45],[w,d,H],[w,0,H]],shade(st.wall,-0.12));
+  g+=poly([[0,d,0.45],[w,d,0.45],[w,d,H],[0,d,H]],st.wall);
+  // aksen fasad per gaya
+  const face=(x0,z0,x1,z1,fill,sw=.4)=>poly([[x0,d+0.01,z0],[x1,d+0.01,z0],[x1,d+0.01,z1],[x0,d+0.01,z1]],fill,'rgba(0,0,0,.4)',sw);
+  if(st.roof==='frame'){ g+=face(-0.2,0.45,w*0.58,H+0.15,st.accent,.6); }
+  if(t.style==='tropis'||t.style==='japandi'){ const x0=w*0.62, x1=w-0.25; const n=Math.max(4,Math.round((x1-x0)/0.18)); for(let i=0;i<n;i++){ const xa=x0+i*(x1-x0)/n; g+=face(xa,0.6,xa+(x1-x0)/n*0.55,H-0.3,st.accent,.2); } }
+  if(t.style==='industrial'){ for(let z=0.6;z<H-0.2;z+=0.32) g+=face(0,z,w,z+0.04,shade(st.wall,-0.2),.1); }
+  if(t.style==='minimalis'){ g+=face(w*0.04,0.45,w*0.3,H-0.2,st.accent,.4); }
+  if(t.style==='nusantara'){ g+=face(0.15,0.45,w-0.15,0.95,shade(st.base,0.08),.3); }
+  // pintu & jendela tiap lantai
+  for(let f=0;f<floors;f++){
+    const zb=f*3.2+0.45;
+    if(f===0){ g+=face(w*0.36,zb,w*0.36+0.95,zb+2.15,st.trim,.4); g+=face(w*0.36+0.08,zb+0.08,w*0.36+0.87,zb+2.05,shade(st.accent,-0.15),.2); }
+    const win=(xa,xb)=>{ g+=face(xa,zb+0.9,xb,zb+2.25,st.trim,.4); g+=face(xa+0.07,zb+0.97,xb-0.07,zb+2.18,'rgba(140,180,200,.85)',.15); };
+    if(f===0){ win(w*0.58,Math.min(w-0.3,w*0.58+1.6)); }
+    else { win(w*0.12,w*0.12+1.4); win(w*0.55,Math.min(w-0.3,w*0.55+1.8)); g+=face(0.3,zb-0.05,w-0.3,zb+0.08,st.trim,.2); }
+  }
+  // jendela sisi
+  for(let f=0;f<floors;f++){ const zb=f*3.2+0.45; g+=poly([[w+0.01,d*0.35,zb+1],[w+0.01,d*0.55,zb+1],[w+0.01,d*0.55,zb+2.1],[w+0.01,d*0.35,zb+2.1]],'rgba(120,160,180,.8)','rgba(0,0,0,.4)',.4); }
+  // atap
+  const R=st.roofC, ov= (st.roof==='hip'||st.roof==='gable-low')?0.7: st.roof==='gable-tall'?0.5:0.25;
+  if(st.roof==='flat'||st.roof==='frame'){
+    g+=poly([[-0.05,-0.05,H],[w+0.05,-0.05,H],[w+0.05,d+0.05,H],[-0.05,d+0.05,H]],shade(R,0.15));
+    g+=poly([[w+0.05,-0.05,H],[w+0.05,d+0.05,H],[w+0.05,d+0.05,H+0.55],[w+0.05,-0.05,H+0.55]],shade(st.wall,-0.1));
+    g+=poly([[-0.05,d+0.05,H],[w+0.05,d+0.05,H],[w+0.05,d+0.05,H+0.55],[-0.05,d+0.05,H+0.55]],st.wall);
+    if(st.roof==='frame'){ g+=poly([[w*0.15,d,H*0.33],[w*0.15,d+1.6,H*0.33],[w*0.9,d+1.6,H*0.33],[w*0.9,d,H*0.33]],'rgba(170,200,215,.55)'); }
+  } else if(st.roof==='shed'){
+    const hh=1.3; g+=poly([[-ov,-ov,H+hh],[w+ov,-ov,H+hh],[w+ov,d+ov,H],[-ov,d+ov,H]],R);
+    g+=poly([[w,0,H],[w,0,H+hh],[w,d,H]],shade(st.wall,-0.12));
+  } else if(st.roof==='hip'){
+    const rh=1.5; g+=poly([[w+ov,-ov,H],[w+ov,d+ov,H],[w*0.5,d*0.65,H+rh],[w*0.5,d*0.35,H+rh]],shade(R,-0.1));
+    g+=poly([[-ov,d+ov,H],[w+ov,d+ov,H],[w*0.5,d*0.65,H+rh]],R);
+  } else { // pelana: bubungan sejajar kedalaman (y), gevel menghadap jalan
+    const rh = st.roof==='gable-steep'? w*0.62 : st.roof==='gable-tall'? w*0.75 : w*0.3;
+    g+=poly([[w*0.5,-ov,H+rh],[w*0.5,d+ov,H+rh],[w+ov,d+ov,H-0.15],[w+ov,-ov,H-0.15]],shade(R,-0.1));
+    g+=poly([[0,d,H],[w,d,H],[w*0.5,d,H+rh]],st.roof==='gable-steep'? st.wall : shade(st.wall,0.02));
+    g+=poly([[-ov,d+ov,H-0.15],[w*0.5,d+ov,H+rh],[w*0.5,d+ov-0.12,H+rh],[-ov,d+ov-0.12,H-0.15]],shade(R,0.1));
+    g+=poly([[w*0.5,d+ov,H+rh],[w+ov,d+ov,H-0.15],[w+ov,d+ov-0.12,H-0.15],[w*0.5,d+ov-0.12,H+rh]],shade(R,0.05));
+    if(st.roof==='gable-tall'){ for(let i=0;i<5;i++) g+=poly([[w*0.5-0.6+i*0.26,d+0.02,H+rh*0.35],[w*0.5-0.48+i*0.26,d+0.02,H+rh*0.35],[w*0.5-0.48+i*0.26,d+0.02,H+rh*0.55],[w*0.5-0.6+i*0.26,d+0.02,H+rh*0.55]],shade(st.accent,0.1),'rgba(0,0,0,.4)',.2); }
+  }
+  // pohon kecil
+  const tr=(x,y)=>{ const q=P3(x,y,0), r=1.1*k; pts.push([q[0]-r,q[1]-2.6*k]); return `<rect x="${q[0]-0.06*k}" y="${q[1]-1.4*k}" width="${0.12*k}" height="${1.4*k}" fill="#6b4f35"/><circle cx="${q[0]}" cy="${q[1]-1.9*k}" r="${0.75*k}" fill="#5f9a52" opacity=".9"/>`; };
+  g+=tr(-0.9,d+1.2);
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]); const minx=Math.min(...xs)-6, miny=Math.min(...ys)-6, maxx=Math.max(...xs)+6, maxy=Math.max(...ys)+6;
+  return `<svg viewBox="${minx.toFixed(1)} ${miny.toFixed(1)} ${(maxx-minx).toFixed(1)} ${(maxy-miny).toFixed(1)}" role="img" aria-label="Tampak ${esc(st.n)}">${g}</svg>`;
+}
+function shade(hex,amt){ if(!/^#[0-9a-f]{6}$/i.test(hex)) return hex; const n=parseInt(hex.slice(1),16); let r=n>>16,g=(n>>8)&255,b=n&255; const f=v=>clamp(Math.round(amt<0? v*(1+amt) : v+(255-v)*amt),0,255); return '#'+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,'0')).join(''); }
+
+/* Grafik arus kas kumulatif (garis) + batang bulanan */
+function cashSVG(fe){
+  const fl=fe.flow, n=fl.length; let cum=0; const cu=fl.map(v=>cum+=v);
+  const mx=Math.max(1,...fl.map(Math.abs),...cu.map(Math.abs)), w=760, h=230, pl=64, pb=24, pt=10, iw=w-pl-10, ih=h-pb-pt, x=i=>pl+i*iw/Math.max(1,n-1), y=v=>pt+ih/2-v/mx*ih/2;
+  let g=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Arus kas"><line x1="${pl}" x2="${w-10}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/>`;
+  fl.forEach((v,i)=>{ const bw=Math.max(1,iw/n*0.7); g+=`<rect x="${x(i)-bw/2}" y="${Math.min(y(0),y(v))}" width="${bw}" height="${Math.abs(y(v)-y(0))}" fill="${v<0?'var(--warm)':'var(--accent)'}" opacity=".55"/>`; });
+  g+=`<polyline fill="none" stroke="var(--ink)" stroke-width="2" points="${cu.map((v,i)=>x(i).toFixed(1)+','+y(v).toFixed(1)).join(' ')}"/>`;
+  [mx,mx/2,0,-mx/2,-mx].forEach(v=>g+=`<text x="${pl-6}" y="${y(v)+4}" font-size="11" text-anchor="end" fill="var(--muted)">${rp(v)}</text>`);
+  for(let i=0;i<n;i+=Math.max(1,Math.round(n/12))) g+=`<text x="${x(i)}" y="${h-6}" font-size="11" text-anchor="middle" fill="var(--muted)">${i}</text>`;
+  return g+'</svg>';
+}
+function donut(parts){ // [[label,value,color]]
+  const tot=parts.reduce((a,p)=>a+p[1],0)||1, R=60, r=36, cx=70, cy=70; let a0=-Math.PI/2, g=`<svg viewBox="0 0 300 140" role="img" aria-label="Komposisi lahan">`;
+  parts.forEach(p=>{ const a1=a0+2*Math.PI*p[1]/tot; if(p[1]<=0){return} const large=a1-a0>Math.PI?1:0, P=(rr,a)=>[cx+rr*Math.cos(a),cy+rr*Math.sin(a)]; const [x0,y0]=P(R,a0),[x1,y1]=P(R,a1),[x2,y2]=P(r,a1),[x3,y3]=P(r,a0);
+    g+= (p[1]>=tot-1e-9)? `<circle cx="${cx}" cy="${cy}" r="${(R+r)/2}" fill="none" stroke="${p[2]}" stroke-width="${R-r}"/>` : `<path d="M${x0} ${y0}A${R} ${R} 0 ${large} 1 ${x1} ${y1}L${x2} ${y2}A${r} ${r} 0 ${large} 0 ${x3} ${y3}Z" fill="${p[2]}"/>`; a0=a1; });
+  parts.forEach((p,i)=>g+=`<rect x="160" y="${14+i*20}" width="11" height="11" rx="2" fill="${p[2]}"/><text x="177" y="${24+i*20}" font-size="12" fill="var(--ink)">${p[0]} ${pct(p[1]/tot)}</text>`);
+  return g+'</svg>';
+}
+
+/* ===================================================================
+   HALAMAN
+   =================================================================== */
+const PAGES = {};
+PAGES.lahan = sec => {
+  sec.innerHTML = `<h1>1 · Proyek & lahan</h1>
+  <p class="lede">Masukkan ukuran lahan, harga tanah, zona batas harga rumah umum, dan aturan bangunan setempat. Semua angka awal hanyalah contoh — sesuaikan dengan lokasi dan peraturan daerah proyek Anda.</p>
+  <div class="grid g2">
+    <div class="card"><h2>Lahan</h2><div class="form">
+      ${F('site.W','Lebar lahan (arah muka)','m')}${F('site.D','Panjang lahan (dari pintu masuk)','m')}
+      ${F('site.landPrice','Harga tanah','Rp/m² kotor',{step:1000})}${F('cost.landTxPct','Biaya peralihan & notaris','% dari harga tanah')}
+      ${F('site.psuMin','PSU minimal (Perda setempat)','% luas lahan')}
+      ${F('site.zone','Zona batas harga rumah umum','Kepmen PKP 1722/KPTS/M/2026',{sel:ZONES.map(z=>[z.z,'Wilayah '+z.z+' · '+rp(z.max)]),num:1})}
+    </div><p class="note" id="zoneNote"></p></div>
+    <div class="card"><h2>Aturan bangunan (RDTR/zonasi setempat)</h2><div class="form">
+      ${F('rules.kdbMax','KDB maksimal','%')}${F('rules.klbMax','KLB maksimal','kali luas kavling')}
+      ${F('rules.kdhMin','KDH minimal','%')}${F('rules.gsb','Garis sempadan bangunan (GSB)','m dari batas depan')}
+      ${F('rules.backSet','Jarak bebas belakang','m')}${F('rules.paveFront','Perkerasan halaman depan','m kedalaman')}
+      ${F('rules.simple','Termasuk Rumah Sederhana (PPh final 1%)','',{chk:1})}
+    </div><p class="note">KDB, KLB, KDH, dan GSB tidak ditetapkan secara nasional — gunakan angka dari RDTR/peraturan zonasi lokasi proyek.</p></div>
+  </div>
+  <div class="card" id="lahanOut"></div>`;
+  const out=()=>{ const A=(+P.site.W)*(+P.site.D), z=ZONES.find(z=>z.z==P.site.zone)||ZONES[0];
+    $('#zoneNote',sec).textContent = 'Wilayah '+z.z+': '+z.n+'. Harga jual rumah umum tapak paling banyak '+rpFull(z.max)+'.';
+    $('#lahanOut',sec).innerHTML = `<h2>Ringkas lahan</h2><div class="kpis">
+      <div class="kpi"><span>Luas lahan</span><b>${fmt(A)} m²</b><span>${fmt(A/1e4,2)} ha</span></div>
+      <div class="kpi"><span>Harga tanah total</span><b>${rp(A*(+P.site.landPrice||0))}</b><span>+ peralihan ${rp(A*(+P.site.landPrice||0)*(+P.cost.landTxPct||0)/100)}</span></div>
+      <div class="kpi"><span>Lahan PSU minimal</span><b>${fmt(A*(+P.site.psuMin||0)/100)} m²</b><span>${fmt(P.site.psuMin)}% dari luas</span></div>
+      <div class="kpi"><span>Lahan efektif maksimal</span><b>${fmt(A*(100-(+P.site.psuMin||0))/100)} m²</b><span>untuk kavling</span></div></div>`; };
+  bindInputs(sec, out); out();
+};
+
+PAGES.tapak = sec => {
+  sec.innerHTML = `<h1>2 · Tapak & kavling</h1>
+  <p class="lede">Rencana tapak dibuat otomatis: lajur RTH dan fasum di pintu masuk, jalan utama membujur, jalan lingkungan melintang, dan deret kavling saling membelakangi. Atur lebar jalan, porsi RTH/fasum, dan campuran tipe rumah di langkah 3.</p>
+  <div class="card"><div class="form">
+    ${F('plan.mainW','Lebar jalan utama (ruang milik jalan)','m')}${F('plan.localW','Lebar jalan lingkungan','m')}
+    ${F('plan.spine','Posisi jalan utama','',{sel:[['tengah','Di tengah (kavling dua sisi)'],['tepi','Di tepi kiri']]})}
+    ${F('plan.rthPct','RTH / taman','% luas lahan')}${F('plan.fasumPct','Fasilitas umum','% luas lahan')}${F('plan.makamPct','Makam','% luas lahan (bila disyaratkan)')}
+    ${F('plan.jiwaKK','Jiwa per rumah','orang (asumsi)')}
+  </div></div>
+  <div class="grid g2" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)">
+    <div class="card"><div class="row" style="justify-content:space-between"><h2>Rencana tapak</h2><label class="note"><input type="checkbox" id="lotNum"> nomor kavling</label></div><div class="svgbox" id="plan"></div>
+      <div class="legend" style="margin-top:8px"><span style="--c:var(--lot)">Kavling tipe 1</span><span style="--c:var(--lot2)">tipe 2</span><span style="--c:var(--lot3)">tipe 3</span><span style="--c:var(--road)">Jalan</span><span style="--c:var(--rth)">RTH</span><span style="--c:var(--sisa)">Sisa lahan → taman</span><span style="--c:var(--fasum)">Fasum</span><span style="--c:var(--wall)">Tapak bangunan</span></div></div>
+    <div class="card" id="tapakStat"></div>
+  </div>
+  <div class="grid g2">
+    <div class="card" id="tapakChk"></div>
+    <div class="card"><h2>Kebutuhan sarana lingkungan</h2><p class="note">Isi "penduduk pendukung" dan "luas minimal" dari tabel SNI 03-1733-2004 yang Anda pegang (aplikasi tidak menyalin isi SNI). Jumlah kebutuhan dihitung dari perkiraan penduduk.</p><div id="sarana"></div><button class="btn small" id="addSar">+ Tambah sarana</button></div>
+  </div>
+  <div class="card"><div class="row" style="justify-content:space-between"><h2>Daftar kavling</h2><button class="btn small" id="csvLots">Unduh CSV</button></div><div class="tbl" id="lots"></div></div>`;
+  const draw=()=>{ const {lay}=calc(); const num=$('#lotNum',sec).checked;
+    $('#plan',sec).innerHTML=sitePlanSVG(lay,{numbers:num});
+    const A=lay.A, a=lay.area, pop=lay.units*(+P.plan.jiwaKK||4);
+    $('#tapakStat',sec).innerHTML=`<h2>Neraca lahan</h2>${donut([['Kavling',a.lot,'var(--lot)'],['Jalan',a.road,'var(--road)'],['RTH + sisa',a.rth+a.sisa,'var(--rth)'],['Fasum',a.fasum,'var(--fasum)'],['Makam',a.makam,'var(--makam)']])}
+      <table><tr><th>Penggunaan</th><th class="n">Luas (m²)</th><th class="n">%</th></tr>
+      ${[['Kavling efektif',a.lot],['Jalan',a.road],['RTH / taman',a.rth],['Sisa lahan → taman',a.sisa],['Fasilitas umum',a.fasum],['Makam',a.makam]].map(r=>`<tr><td>${r[0]}</td><td class="n">${fmt(r[1])}</td><td class="n">${pct(r[1]/A)}</td></tr>`).join('')}
+      <tr><th>Total PSU (jalan+RTH+fasum+makam+sisa)</th><th class="n">${fmt(a.psu)}</th><th class="n">${pct(a.psu/A)}</th></tr></table>
+      <div class="kpis" style="margin-top:10px"><div class="kpi"><span>Jumlah kavling</span><b>${fmt(lay.units)}</b></div><div class="kpi"><span>Kepadatan</span><b>${fmt(lay.density,1)}</b><span>unit/ha kotor</span></div><div class="kpi"><span>Perkiraan penduduk</span><b>${fmt(pop)}</b><span>jiwa</span></div></div>
+      <p class="note">${P.types.map((t,i)=>`${esc(t.name)}: <b>${fmt(lay.lots.filter(l=>l.type===i).length)}</b> unit`).join(' · ')}</p>`;
+    const psuOk=a.psu/A*100>=(+P.site.psuMin||0)-1e-6, chk=[];
+    chk.push([psuOk?'ok':'bad',`PSU ${pct(a.psu/A)} ${psuOk?'≥':'<'} minimal ${fmt(P.site.psuMin)}% (Perda setempat).`+(psuOk?'':' Naikkan porsi RTH/fasum atau lebar jalan.')]);
+    lay.warn.forEach(w=>chk.push(['bad',w]));
+    P.types.forEach((t,i)=>{ const h=RP.house(t,P.rules); const nm=esc(t.name);
+      chk.push([h.kdb*100<=+P.rules.kdbMax+1e-6?'ok':'bad',`${nm}: KDB ${pct(h.kdb)} (maks ${fmt(P.rules.kdbMax)}%)`]);
+      chk.push([h.klb<=+P.rules.klbMax+1e-6?'ok':'bad',`${nm}: KLB ${fmt(h.klb,2)} (maks ${fmt(P.rules.klbMax,2)})`]);
+      chk.push([h.kdh*100>=+P.rules.kdhMin-1e-6?'ok':'bad',`${nm}: KDH ±${pct(h.kdh)} (min ${fmt(P.rules.kdhMin)}%)`]);
+      if(!h.fitDepth) chk.push(['bad',`${nm}: luas lantai dasar tidak muat di kavling setelah GSB & jarak belakang — perbesar kavling atau buat 2 lantai.`]);
+      if(t.subsidi){ const z=ZONES.find(z=>z.z==P.site.zone)||ZONES[0]; const LT=h.LT;
+        chk.push([(LT>=RU.lahanMin&&LT<=RU.lahanMax)?'ok':'bad',`${nm} (rumah umum): luas lahan ${fmt(LT)} m² — syarat ${RU.lahanMin}–${RU.lahanMax} m² (Kepmen PKP 1722/KPTS/M/2026).`]);
+        chk.push([(+t.lotW>=RU.lebarMin)?'ok':'bad',`${nm} (rumah umum): lebar muka ${fmt(t.lotW,1)} m — minimal ${RU.lebarMin} m.`]);
+        chk.push([(+t.LB>=RU.lantaiMin&&+t.LB<=RU.lantaiMax)?'ok':'bad',`${nm} (rumah umum): luas lantai ${fmt(t.LB)} m² — syarat ${RU.lantaiMin}–${RU.lantaiMax} m².`]);
+        chk.push([(+t.price<=z.max)?'ok':'bad',`${nm} (rumah umum): harga ${rpFull(t.price)} — paling banyak ${rpFull(z.max)} di wilayah ${z.z}.`]); } });
+    $('#tapakChk',sec).innerHTML='<h2>Pemeriksaan aturan</h2>'+chk.map(c=>`<div class="chk ${c[0]}"><i>${c[0]==='ok'?'✓':'!'}</i><span>${c[1]}</span></div>`).join('');
+    $('#sarana',sec).innerHTML=`<table><tr><th>Sarana</th><th class="n">Penduduk pendukung (jiwa/unit)</th><th class="n">Luas minimal (m²/unit)</th><th class="n">Kebutuhan</th><th class="n">Luas</th><th></th></tr>${P.sarana.map((s,i)=>{ const nU=(+s.jiwa>0)? Math.max(1,Math.ceil(pop/+s.jiwa)) : 0; return `<tr><td><input data-sar="${i}" data-f="n" value="${esc(s.n)}" style="width:100%;min-width:150px;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:3px 6px"></td><td class="n"><input type="number" min="0" data-sar="${i}" data-f="jiwa" value="${esc(s.jiwa)}" style="width:90px"></td><td class="n"><input type="number" min="0" data-sar="${i}" data-f="luas" value="${esc(s.luas)}" style="width:90px"></td><td class="n">${nU||'–'}</td><td class="n">${nU? fmt(nU*(+s.luas||0)) : '–'}</td><td><button class="btn small" data-delsar="${i}" title="Hapus">✕</button></td></tr>`; }).join('')}
+      <tr><th colspan="4">Total luas sarana vs lahan fasum tersedia (${fmt(a.fasum)} m²)</th><th class="n">${fmt(P.sarana.reduce((t,s)=>t+((+s.jiwa>0)?Math.max(1,Math.ceil(pop/+s.jiwa))*(+s.luas||0):0),0))}</th><th></th></tr></table>`;
+    $$('[data-sar]',sec).forEach(el=>el.addEventListener('change',()=>{ const s=P.sarana[+el.dataset.sar]; s[el.dataset.f]= el.dataset.f==='n'? el.value : +el.value; persist(); draw(); }));
+    $$('[data-delsar]',sec).forEach(b=>b.addEventListener('click',()=>{ P.sarana.splice(+b.dataset.delsar,1); persist(); draw(); }));
+    $('#lots',sec).innerHTML=`<table><tr><th>No</th><th>Tipe</th><th class="n">Lebar (m)</th><th class="n">Panjang (m)</th><th class="n">Luas (m²)</th><th class="n">Harga</th></tr>${lay.lots.slice(0,1500).map((l,i)=>`<tr><td>${i+1}</td><td>${esc(P.types[l.type]?.name)}</td><td class="n">${fmt(l.w,2)}</td><td class="n">${fmt(l.h,2)}</td><td class="n">${fmt(l.w*l.h,1)}</td><td class="n">${rp(+P.types[l.type]?.price)}</td></tr>`).join('')}</table>`;
+  };
+  bindInputs(sec, draw); $('#lotNum',sec).addEventListener('change',draw);
+  $('#addSar',sec).addEventListener('click',()=>{ P.sarana.push({n:'Sarana baru',jiwa:0,luas:0}); persist(); draw(); });
+  $('#csvLots',sec).addEventListener('click',()=>{ const {lay}=calc(); const rows=[['No','Tipe','Lebar_m','Panjang_m','Luas_m2','Harga_Rp','X_m','Y_m']].concat(lay.lots.map((l,i)=>[i+1,P.types[l.type]?.name,l.w.toFixed(2),l.h.toFixed(2),(l.w*l.h).toFixed(1),P.types[l.type]?.price,l.x.toFixed(2),l.y.toFixed(2)])); download(csv(rows),'kavling-'+slug()+'.csv','csv'); });
+  draw();
+};
+
+PAGES.rumah = sec => {
+  const tabs=()=>P.types.map((t,i)=>`<button data-t="${i}" aria-pressed="${i===selType}">${esc(t.name)}</button>`).join('')+`<button data-add="1">+ Tipe</button>`;
+  sec.innerHTML = `<h1>3 · Tipe & desain rumah</h1>
+  <p class="lede">Atur tipe rumah, ukuran kavling, dan pilih gaya fasad terkini. Denah skematik dan tampak 3D dibuat otomatis dari ukuran — untuk studi awal, bukan gambar kerja.</p>
+  <div class="tabs" id="ttabs">${tabs()}</div><div id="tbody"></div>`;
+  const body=()=>{ const t=P.types[selType]; if(!t){ selType=0; return body(); }
+    $('#tbody',sec).innerHTML=`<div class="grid g2">
+      <div class="card"><h2>Data tipe</h2><div class="form">
+        <label class="f">Nama tipe<input data-tf="name" value="${esc(t.name)}"></label>
+        ${TF('lotW','Lebar kavling (muka)','m')}${TF('lotD','Panjang kavling','m')}${TF('LB','Luas bangunan total','m²')}
+        ${TF('floors','Jumlah lantai','',{min:1,step:1})}${TF('beds','Kamar tidur','',{min:1,step:1})}${TF('baths','Kamar mandi','',{min:1,step:1})}
+        ${TF('price','Harga jual','Rp/unit',{step:1000000})}${TF('share','Porsi unit di tapak','%')}
+        ${TF('sf','Faktor biaya gaya (kosong = bawaan)','×',{step:0.01})}
+        <label class="f" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" data-tf="subsidi" ${t.subsidi?'checked':''}> Rumah umum / subsidi (cek Kepmen PKP 1722)</label>
+      </div><div class="row" style="margin-top:10px"><button class="btn small" id="dupT">Gandakan tipe</button><button class="btn small" id="delT">Hapus tipe</button></div></div>
+      <div class="card" id="hStat"></div></div>
+      <div class="card"><h2>Gaya fasad terkini</h2><div class="styles" id="stl">${Object.entries(STYLES).map(([k,s])=>`<button class="style" data-st="${k}" aria-pressed="${t.style===k}">${isoSVG(Object.assign({},t,{style:k}),{small:1})}<b>${s.n}</b><small>${s.d}</small><small style="display:block;margin-top:2px">faktor biaya ×${fmt(s.f,2)} (asumsi)</small></button>`).join('')}</div></div>
+      <div class="grid g2"><div class="card"><h2>Tampak 3D — ${esc((STYLES[t.style]||STYLES.minimalis).n)}</h2><div class="svgbox" id="iso"></div></div>
+      <div class="card"><h2>Denah skematik lantai 1</h2><div class="svgbox" id="fp"></div><p class="note" id="fpNote"></p></div></div>`;
+    const upd=()=>{ const h=RP.house(t,P.rules), sf=styleFactor(t), cost=(+t.LB)*(+P.cost.buildM2)*sf;
+      $('#hStat',sec).innerHTML=`<h2>Indikator tipe</h2><div class="kpis">
+        <div class="kpi"><span>Luas kavling</span><b>${fmt(h.LT,1)} m²</b><span>${fmt(t.lotW,1)} × ${fmt(t.lotD,1)} m</span></div>
+        <div class="kpi ${h.kdb*100<=+P.rules.kdbMax?'ok':'bad'}"><span>KDB</span><b>${pct(h.kdb)}</b><span>maks ${fmt(P.rules.kdbMax)}%</span></div>
+        <div class="kpi ${h.klb<=+P.rules.klbMax?'ok':'bad'}"><span>KLB</span><b>${fmt(h.klb,2)}</b><span>maks ${fmt(P.rules.klbMax,2)}</span></div>
+        <div class="kpi"><span>Biaya konstruksi</span><b>${rp(cost)}</b><span>${rp(+P.cost.buildM2*sf)}/m² × ${fmt(t.LB)} m²</span></div>
+        <div class="kpi"><span>Harga jual per m² bangunan</span><b>${rp((+t.price)/(+t.LB||1))}</b></div>
+        <div class="kpi"><span>Selisih harga − konstruksi</span><b>${rp(+t.price-cost)}</b><span>belum termasuk tanah & PSU</span></div></div>`;
+      $('#iso',sec).innerHTML=isoSVG(t); $('#fp',sec).innerHTML=floorPlanSVG(t);
+      const fp=floorPlan(t); $('#fpNote',sec).textContent = (+t.floors>1? `Lantai 2: ${fp.upBeds} kamar tidur + ${fp.upBaths} kamar mandi. `:'')+`Lebar bangunan mengikuti lebar kavling (rumah deret/kopel); kedalaman bangunan ±${fmt(fp.bd,1)} m.`; };
+    $$('[data-tf]',$('#tbody',sec)).forEach(el=>el.addEventListener(el.type==='checkbox'?'change':'input',()=>{ const f=el.dataset.tf; t[f]= el.type==='checkbox'? el.checked : el.type==='number'? (el.value===''? null : +el.value) : el.value; if(f==='name') $('#ttabs',sec).innerHTML=tabs(), bindTabs(); persist(); upd(); if(['lotW','lotD','LB','floors'].includes(f)) refreshStyles(); }));
+    const refreshStyles=()=>$$('[data-st]',sec).forEach(b=>{ b.firstElementChild.outerHTML=isoSVG(Object.assign({},t,{style:b.dataset.st}),{small:1}); });
+    $$('[data-st]',sec).forEach(b=>b.addEventListener('click',()=>{ t.style=b.dataset.st; persist(); body(); }));
+    $('#dupT',sec).onclick=()=>{ P.types.splice(selType+1,0,JSON.parse(JSON.stringify(Object.assign({},t,{name:t.name+' (salinan)'})))); selType++; persist(); render('rumah'); };
+    $('#delT',sec).onclick=e=>{ if(P.types.length<2){ toast('Minimal satu tipe.'); return; } confirmArm(e.currentTarget,()=>{ P.types.splice(selType,1); selType=Math.max(0,selType-1); persist(); render('rumah'); },'Klik lagi untuk hapus'); };
+    upd(); };
+  const TF=(f,l,u,o={})=>{ const t=P.types[selType]; const v=t[f]; return `<label class="f">${l}<input type="number" min="${o.min??0}" step="${o.step||'any'}" data-tf="${f}" value="${v==null?'':esc(v)}">${u?`<span class="u">${u}</span>`:''}</label>`; };
+  const bindTabs=()=>{ $$('[data-t]',sec).forEach(b=>b.onclick=()=>{ selType=+b.dataset.t; $('#ttabs',sec).innerHTML=tabs(); bindTabs(); body(); }); const a=$('[data-add]',sec); if(a) a.onclick=()=>{ P.types.push({name:'Tipe baru',lotW:6,lotD:12,LB:36,floors:1,beds:2,baths:1,style:'minimalis',price:350000000,share:10,subsidi:false,sf:null}); selType=P.types.length-1; persist(); render('rumah'); }; };
+  bindTabs(); body();
+};
+
+PAGES.rab = sec => {
+  sec.innerHTML = `<h1>4 · RAB & kelayakan bisnis</h1>
+  <p class="lede">Perkiraan biaya proyek dari tapak dan tipe rumah, jadwal penjualan, dan arus kas bulanan. Hasil: laba, margin, NPV, IRR, kebutuhan dana puncak, dan titik impas.</p>
+  <div class="grid g2">
+    <div class="card"><h2>Harga satuan (perkiraan)</h2><div class="form">
+      ${F('cost.prepM2','Pematangan lahan','Rp/m² lahan',{step:1000})}${F('cost.roadM2','Jalan (perkerasan)','Rp/m²',{step:1000})}
+      ${F('cost.drainM','Saluran drainase','Rp/m (dua sisi jalan)',{step:1000})}${F('cost.rthM2','RTH & taman','Rp/m²',{step:1000})}
+      ${F('cost.fasumM2','Fasum (bangunan & halaman)','Rp/m² lahan fasum',{step:1000})}${F('cost.makamM2','Makam','Rp/m²',{step:1000})}
+      ${F('cost.utilUnit','Sambungan air & listrik','Rp/unit',{step:100000})}${F('cost.buildM2','Konstruksi rumah (gaya dasar)','Rp/m² bangunan',{step:10000})}
+      ${F('cost.permitLump','Perizinan & perencanaan proyek','Rp (borongan)',{step:1000000})}${F('cost.certUnit','Pemecahan sertifikat & PBG per unit','Rp/unit',{step:100000})}
+      ${F('cost.contPct','Cadangan tak terduga','% konstruksi + prasarana')}${F('cost.mktPct','Pemasaran','% pendapatan')}${F('cost.ohPct','Manajemen & umum','% biaya')}
+    </div></div>
+    <div class="card"><h2>Jadwal & penjualan</h2><div class="form">
+      ${F('sales.infraMonths','Masa pembangunan prasarana','bulan')}${F('sales.start','Mulai penjualan','bulan ke-')}
+      ${F('sales.perMonth','Kecepatan penjualan','unit/bulan',{step:0.5})}${F('sales.buildMonths','Masa bangun rumah setelah terjual','bulan')}
+      ${F('sales.dpPct','Uang muka pembeli diterima saat akad','% harga')}${F('sales.horizon','Horizon analisis','bulan')}
+      ${F('fin.discPct','Tingkat diskonto (NPV)','% per tahun')}
+    </div><p class="note">Pola inden: rumah dibangun setelah terjual; sisa harga (pencairan KPR) diterima saat rumah selesai. PPh final memakai tarif PP 34/2016 (2,5%; 1% bila ditandai Rumah Sederhana di langkah 1).</p></div>
+  </div>
+  <div class="card" id="rabK"></div>
+  <div class="grid g2"><div class="card" id="rabT"></div><div class="card"><h2>Arus kas bulanan & kumulatif</h2><div class="svgbox" id="cash"></div><p class="note">Batang: arus kas bersih per bulan (hijau masuk, oranye keluar). Garis: kumulatif. Sumbu bawah: bulan.</p><button class="btn small" id="csvCash">Unduh arus kas (CSV)</button></div></div>`;
+  const draw=()=>{ const {lay,fe}=calc();
+    $('#rabK',sec).innerHTML=`<h2>Hasil kelayakan</h2><div class="kpis">
+      <div class="kpi"><span>Pendapatan</span><b>${rp(fe.revenue)}</b><span>${fmt(fe.nU)} unit</span></div>
+      <div class="kpi"><span>Total biaya</span><b>${rp(fe.total)}</b><span>${rp(fe.costPerUnit)}/unit</span></div>
+      <div class="kpi ${fe.profit>=0?'ok':'bad'}"><span>Laba sebelum bunga</span><b>${rp(fe.profit)}</b><span>margin ${pct(fe.margin)}</span></div>
+      <div class="kpi ${fe.npv>=0?'ok':'bad'}"><span>NPV @ ${fmt(P.fin.discPct)}%</span><b>${rp(fe.npv)}</b></div>
+      <div class="kpi ${isFinite(fe.irr)&&fe.irr*100>=+P.fin.discPct?'ok':'bad'}"><span>IRR proyek</span><b>${isFinite(fe.irr)?pct(fe.irr):'–'}</b><span>per tahun</span></div>
+      <div class="kpi"><span>Kebutuhan dana puncak</span><b>${rp(fe.peakFunding)}</b><span>tanpa pinjaman</span></div>
+      <div class="kpi"><span>Kembali modal</span><b>${fe.payback!=null?'bulan ke-'+fe.payback:'> horizon'}</b><span>penjualan ±${fmt(fe.sellMonths)} bulan</span></div>
+      <div class="kpi"><span>ROI</span><b>${pct(fe.roi)}</b><span>laba / biaya</span></div></div>`;
+    $('#rabT',sec).innerHTML=`<h2>Rincian biaya</h2><table><tr><th>Komponen</th><th class="n">Nilai</th><th class="n">%</th></tr>${fe.items.map(r=>`<tr><td>${r[0]}</td><td class="n">${rpFull(r[1])}</td><td class="n">${pct(r[1]/fe.total)}</td></tr>`).join('')}<tr><th>Total</th><th class="n">${rpFull(fe.total)}</th><th></th></tr></table>
+      <h3 style="margin-top:12px">Pendapatan per tipe</h3><table>${P.types.map((t,i)=>`<tr><td>${esc(t.name)}</td><td class="n">${fmt(fe.units[i])} × ${rp(+t.price)}</td><td class="n">${rpFull(fe.revenueByType[i])}</td></tr>`).join('')}</table>`;
+    $('#cash',sec).innerHTML=cashSVG(fe); };
+  bindInputs(sec, draw);
+  $('#csvCash',sec).onclick=()=>{ const {fe}=calc(); let c=0; download(csv([['Bulan','Masuk_Rp','Keluar_Rp','Bersih_Rp','Kumulatif_Rp']].concat(fe.flow.map((v,i)=>[i,Math.round(fe.inflow[i]),Math.round(fe.outflow[i]),Math.round(v),Math.round(c+=v)]))),'arus-kas-'+slug()+'.csv','csv'); };
+  draw();
+};
+
+PAGES.biaya = sec => {
+  sec.innerHTML = `<h1>5 · Pembiayaan & KPR</h1>
+  <p class="lede">Sisi pengembang: kredit konstruksi menutup kekurangan kas dan dilunasi dari penjualan. Sisi pembeli: simulasi cicilan KPR komersial (bunga tetap lalu mengambang) atau KPR subsidi.</p>
+  <div class="grid g2">
+    <div class="card"><h2>Kredit konstruksi pengembang</h2><div class="form">
+      ${F('fin.loanPct','Plafon kredit','% total biaya')}${F('fin.loanRate','Bunga kredit','% per tahun')}${F('fin.sweepPct','Porsi kas masuk untuk melunasi','%')}
+    </div><div id="devOut" style="margin-top:12px"></div></div>
+    <div class="card"><h2>KPR pembeli</h2>
+      <div class="row" style="margin-bottom:8px"><button class="btn small" id="presetSub">Preset KPR subsidi (Kepmen PKP 1722)</button><button class="btn small" id="presetCom">Preset KPR komersial</button><select id="pickType" class="btn small"><option value="">Ambil harga dari tipe…</option>${P.types.map((t,i)=>`<option value="${i}">${esc(t.name)} · ${rp(+t.price)}</option>`).join('')}</select></div>
+      <div class="form">
+      ${F('kpr.price','Harga rumah','Rp',{step:1000000})}${F('kpr.dpPct','Uang muka','% harga',{step:0.5})}${F('kpr.subsidy','Bantuan uang muka','Rp (bila ada)',{step:100000})}
+      ${F('kpr.rate','Bunga tetap','% per tahun',{step:0.05})}${F('kpr.fixY','Masa bunga tetap','tahun (0 = sepanjang tenor)')}${F('kpr.rateFloat','Bunga mengambang sesudahnya','% per tahun',{step:0.05})}
+      ${F('kpr.years','Tenor','tahun')}${F('kpr.income','Penghasilan rumah tangga','Rp/bulan',{step:100000})}${F('kpr.dsr','Batas cicilan / penghasilan','% (asumsi bank)')}
+    </div><div id="kprOut" style="margin-top:12px"></div></div>
+  </div>
+  <div class="card"><h2>Jadwal pokok KPR (akhir tiap tahun)</h2><div class="tbl" id="kprTbl"></div></div>`;
+  const draw=()=>{ const {fe}=calc(), L=fe.loan;
+    $('#devOut',sec).innerHTML=`<div class="kpis"><div class="kpi"><span>Plafon</span><b>${rp(L.cap)}</b></div><div class="kpi"><span>Pinjaman puncak</span><b>${rp(L.peakDebt)}</b></div><div class="kpi"><span>Total bunga</span><b>${rp(L.totInt)}</b></div><div class="kpi"><span>Modal sendiri dibutuhkan</span><b>${rp(L.equity)}</b></div><div class="kpi ${L.profitAfter>=0?'ok':'bad'}"><span>Laba setelah bunga</span><b>${rp(L.profitAfter)}</b></div><div class="kpi"><span>IRR modal sendiri</span><b>${isFinite(L.eqIrr)?pct(L.eqIrr):'–'}</b><span>per tahun</span></div></div>`;
+    const k=P.kpr, fixed=+k.fixY>0 && +k.fixY < +k.years;
+    const r=RP.kpr({price:+k.price,dpPct:(+k.dpPct||0)/100,i:(+k.rate||0)/100,years:+k.years,fixY:fixed?+k.fixY:0,iFloat:fixed?(+k.rateFloat||0)/100:null,subsidy:+k.subsidy||0});
+    const maxPay=(+k.income||0)*(+k.dsr||0)/100, worst=Math.max(r.firstPay, r.laterPay||0);
+    const z=ZONES.find(z=>z.z==P.site.zone)||ZONES[0];
+    $('#kprOut',sec).innerHTML=`<div class="kpis"><div class="kpi"><span>Uang muka dibayar</span><b>${rp(r.down)}</b><span>${k.subsidy>0?'setelah bantuan '+rp(+k.subsidy):''}</span></div><div class="kpi"><span>Pokok KPR</span><b>${rp(r.principal)}</b></div>
+      <div class="kpi"><span>Cicilan ${fixed?'masa bunga tetap':'per bulan'}</span><b>${rpFull(r.firstPay)}</b></div>${fixed?`<div class="kpi"><span>Cicilan setelah mengambang</span><b>${rpFull(r.laterPay)}</b></div>`:''}
+      <div class="kpi"><span>Total bunga</span><b>${rp(r.totalInterest)}</b></div><div class="kpi ${worst<=maxPay?'ok':'bad'}"><span>Batas cicilan (${fmt(k.dsr)}%)</span><b>${rpFull(maxPay)}</b><span>${worst<=maxPay?'mampu':'melebihi batas'}</span></div></div>
+      ${+k.price>z.max?`<div class="chk info" style="margin-top:8px"><i>i</i><span>Harga melebihi batas harga rumah umum wilayah ${z.z} (${rpFull(z.max)}) — tidak memenuhi kriteria KPR subsidi.</span></div>`:''}
+      ${+k.years>RU.tenorMax?`<div class="chk bad" style="margin-top:8px"><i>!</i><span>Tenor KPR subsidi paling lama ${RU.tenorMax} tahun (Kepmen PKP 1722/KPTS/M/2026).</span></div>`:''}`;
+    $('#kprTbl',sec).innerHTML=`<table><tr><th>Tahun</th><th class="n">Sisa pokok</th><th class="n">Bunga kumulatif</th></tr>${r.rows.map(x=>`<tr><td>${x.year}</td><td class="n">${rpFull(x.bal)}</td><td class="n">${rpFull(x.totI)}</td></tr>`).join('')}</table>`; };
+  bindInputs(sec, draw);
+  const setK=(o)=>{ Object.assign(P.kpr,o); persist(); render('biaya'); };
+  $('#presetSub',sec).onclick=()=>{ const z=ZONES.find(z=>z.z==P.site.zone)||ZONES[0]; setK({price:Math.min(+P.kpr.price||z.max,z.max),rate:RU.bunga,fixY:0,years:20,subsidy:z.z===5?RU.buMukaPapua:RU.buMuka,dpPct:1}); toast('Preset subsidi: bunga 5%, bantuan uang muka sesuai wilayah. Uang muka 1% adalah contoh — cek ketentuan bank penyalur.'); };
+  $('#presetCom',sec).onclick=()=>setK({rate:7.5,fixY:3,rateFloat:11,years:20,subsidy:0,dpPct:10});
+  $('#pickType',sec).onchange=e=>{ const i=e.target.value; if(i!=='') setK({price:+P.types[+i].price}); };
+  draw();
+};
+
+PAGES.ringkas = sec => {
+  const {lay,fe}=calc(); const a=lay.area, A=lay.A;
+  sec.innerHTML = `<h1>6 · Ringkasan & laporan</h1>
+  <p class="lede">Ringkasan proyek <b>${esc(P.title)}</b>. Gunakan <b>Cetak / PDF</b> untuk laporan, <b>Simpan</b> untuk berkas proyek (.json).</p>
+  <div class="card"><h2>Indikator utama</h2><div class="kpis">
+    <div class="kpi"><span>Luas lahan</span><b>${fmt(A/1e4,2)} ha</b></div><div class="kpi"><span>Jumlah unit</span><b>${fmt(fe.nU)}</b></div>
+    <div class="kpi ${a.psu/A*100>=+P.site.psuMin?'ok':'bad'}"><span>PSU</span><b>${pct(a.psu/A)}</b><span>min ${fmt(P.site.psuMin)}%</span></div>
+    <div class="kpi"><span>Pendapatan</span><b>${rp(fe.revenue)}</b></div><div class="kpi"><span>Total biaya</span><b>${rp(fe.total)}</b></div>
+    <div class="kpi ${fe.profit>=0?'ok':'bad'}"><span>Laba / margin</span><b>${rp(fe.profit)}</b><span>${pct(fe.margin)}</span></div>
+    <div class="kpi"><span>IRR proyek</span><b>${isFinite(fe.irr)?pct(fe.irr):'–'}</b></div><div class="kpi"><span>NPV</span><b>${rp(fe.npv)}</b></div>
+    <div class="kpi"><span>Dana puncak</span><b>${rp(fe.peakFunding)}</b></div><div class="kpi"><span>Laba setelah bunga</span><b>${rp(fe.loan.profitAfter)}</b></div></div></div>
+  <div class="grid g2"><div class="card"><h2>Rencana tapak</h2><div class="svgbox">${sitePlanSVG(lay)}</div></div>
+  <div class="card"><h2>Tipe rumah</h2><table><tr><th>Tipe</th><th>Gaya</th><th class="n">Kavling</th><th class="n">LB</th><th class="n">Unit</th><th class="n">Harga</th></tr>${P.types.map((t,i)=>`<tr><td>${esc(t.name)}</td><td>${esc((STYLES[t.style]||{}).n||'')}</td><td class="n">${fmt(t.lotW,1)}×${fmt(t.lotD,1)}</td><td class="n">${fmt(t.LB)}</td><td class="n">${fmt(fe.units[i])}</td><td class="n">${rp(+t.price)}</td></tr>`).join('')}</table>
+  <div class="styles" style="margin-top:10px">${P.types.map(t=>`<div class="style" style="cursor:default">${isoSVG(t,{small:1})}<b>${esc(t.name)}</b></div>`).join('')}</div></div></div>
+  <div class="card"><h2>Arus kas</h2><div class="svgbox">${cashSVG(fe)}</div></div>
+  <div class="card noprint"><h2>Ekspor</h2><div class="row"><button class="btn" id="exJson">Simpan proyek (.json)</button><button class="btn" id="exCsv">Ringkasan (CSV)</button><button class="btn primary" id="exPdf">Cetak / PDF</button></div></div>
+  <p class="note">Dibuat dengan Rancang Perumahan — dibuat oleh Pindo Tutuko. Hasil adalah perkiraan studi awal; verifikasi dengan peraturan daerah, RDTR, harga satuan setempat, dan ketentuan bank.</p>`;
+  $('#exJson',sec).onclick=saveProject; $('#exPdf',sec).onclick=printReport;
+  $('#exCsv',sec).onclick=()=>download(csv([['Indikator','Nilai'],['Proyek',P.title],['Luas lahan m2',A],['Unit',fe.nU],['PSU %',(a.psu/A*100).toFixed(2)],['Pendapatan Rp',Math.round(fe.revenue)],['Total biaya Rp',Math.round(fe.total)],['Laba Rp',Math.round(fe.profit)],['Margin %',(fe.margin*100).toFixed(2)],['NPV Rp',Math.round(fe.npv)],['IRR %',isFinite(fe.irr)?(fe.irr*100).toFixed(2):''],['Dana puncak Rp',Math.round(fe.peakFunding)]].concat(fe.items.map(r=>['Biaya: '+r[0],Math.round(r[1])]))),'ringkasan-'+slug()+'.csv','csv');
+};
+
+PAGES.sumber = sec => {
+  sec.innerHTML = `<h1>Sumber & Referensi</h1>
+  <p class="lede">Hanya rujukan yang dapat diverifikasi yang dicantumkan. Angka yang bukan regulasi ditandai sebagai asumsi dan dapat diubah.</p>
+  <div class="card"><h2>Regulasi & standar</h2><ol class="ref">${CREDIT.map(c=>`<li><b>${esc(c.t)}</b><span class="tag ${c.tag==='contoh daerah'?'as':''}">${esc(c.tag)}</span><br><span class="note">${esc(c.d)}</span><br><a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.u)}</a></li>`).join('')}</ol></div>
+  <div class="card"><h2>Batas harga jual rumah umum tapak (Kepmen PKP 1722/KPTS/M/2026)</h2><table><tr><th>Wilayah</th><th>Cakupan</th><th class="n">Harga jual paling banyak</th></tr>${ZONES.map(z=>`<tr><td>${z.z}</td><td>${esc(z.n)}</td><td class="n">${rpFull(z.max)}</td></tr>`).join('')}</table></div>
+  <div class="card"><h2>Asumsi aplikasi</h2><ul>${ASUMSI.map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>
+  <div class="card"><h2>Rumus</h2><ul>
+    <li>Cicilan anuitas: A = P · r / (1 − (1 + r)<sup>−n</sup>), r = bunga tahunan / 12, n = jumlah bulan.</li>
+    <li>NPV = Σ CF<sub>t</sub> / (1 + r<sub>b</sub>)<sup>t</sup>, r<sub>b</sub> = (1 + diskonto tahunan)<sup>1/12</sup> − 1.</li>
+    <li>IRR: tingkat bulanan yang membuat NPV = 0 (metode bagi dua), dilaporkan sebagai tingkat tahunan efektif.</li>
+    <li>KDB = luas lantai dasar / luas kavling; KLB = luas lantai total / luas kavling.</li></ul></div>
+  <div class="card"><h2>Tentang</h2><p>Rancang Perumahan — alat bantu arsitek dan pengembang untuk studi tapak, desain tipe rumah, kelayakan bisnis, dan pembiayaan. <b>Dibuat oleh Pindo Tutuko</b>, Universitas Merdeka Malang, 2026.</p></div>`;
+};
+
+/* ---------- Navigasi ---------- */
+function render(id){ cur=id; $$('#rail button[data-s]').forEach(b=>b.setAttribute('aria-current', b.dataset.s===id)); $$('section[data-sec]').forEach(s=>{ s.hidden = s.dataset.sec!==id; }); const sec=$(`section[data-sec="${id}"]`); PAGES[id](sec); try{ localStorage.setItem('rp.page',id); }catch(e){} window.scrollTo(0,0); }
+$$('#rail button[data-s]').forEach(b=>b.addEventListener('click',()=>render(b.dataset.s)));
+
+/* ---------- Berkas ---------- */
+const slug=()=>String(P.title||'proyek').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)||'proyek';
+const csv=rows=>'﻿'+rows.map(r=>r.map(v=>{ const s=String(v==null?'':v); return /[;"\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }).join(';')).join('\r\n');
+async function download(text,name,kind){ if(window.rpDesktop){ const ok=await window.rpDesktop.save({name,data:text,kind}); if(ok) toast('Tersimpan: '+name); return; } const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:kind==='csv'?'text/csv;charset=utf-8':'application/json'})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }
+function saveProject(){ P.title=$('#title').value; download(JSON.stringify(Object.assign({app:'rancang-perumahan',dibuat:'Pindo Tutuko'},P),null,1),slug()+'.json','json'); }
+function openProject(text){ try{ const j=JSON.parse(text); if(j.v!==1||!j.site) throw 0; P=migrate(j); $('#title').value=P.title||''; persist(); render(cur); toast('Proyek dibuka'); }catch(e){ toast('Berkas proyek tidak dikenali'); } }
+async function printReport(){ if(window.rpDesktop&&window.rpDesktop.pdf){ render('ringkas'); await window.rpDesktop.pdf({name:slug()+'.pdf'}); return; } render('ringkas'); setTimeout(()=>window.print(),200); }
+$('#bSave').onclick=saveProject;
+$('#bOpen').onclick=async()=>{ if(window.rpDesktop){ const t=await window.rpDesktop.open(); if(t) openProject(t); return; } $('#fileIn').click(); };
+$('#fileIn').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>openProject(r.result); r.readAsText(f); e.target.value=''; };
+$('#bPrint').onclick=printReport;
+$('#bNew').onclick=e=>confirmArm(e.currentTarget,()=>{ P=defaultProject(); $('#title').value=P.title; persist(); selType=0; render('lahan'); toast('Proyek baru dengan nilai contoh'); },'Klik lagi: ganti proyek');
+$('#title').value=P.title; $('#title').addEventListener('input',e=>{ P.title=e.target.value; persist(); });
+$('#bTheme').onclick=()=>{ const r=document.documentElement, dark= r.dataset.theme? r.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme= dark?'light':'dark'; try{ localStorage.setItem('rp.theme',r.dataset.theme); }catch(e){} if(cur) render(cur); };
+try{ const th=localStorage.getItem('rp.theme'); if(th) document.documentElement.dataset.theme=th; }catch(e){}
+
+window.RP=RP; window.RPstate=()=>P; window.RPcalc=calc; window.RPrender=render; window.RPstyles=STYLES; window.RPsvg={sitePlanSVG,isoSVG,floorPlanSVG,cashSVG};
+let start='lahan'; try{ start=localStorage.getItem('rp.page')||'lahan'; if(!PAGES[start]) start='lahan'; }catch(e){}
+render(start);
+</script>
+
+</body>
+</html>
