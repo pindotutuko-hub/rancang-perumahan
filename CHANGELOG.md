@@ -1,5 +1,12 @@
 # Catatan perubahan
 
+## 0.3.0
+- Langkah baru **0 · Lokasi & peta**: peta OpenStreetMap (tanpa pustaka), cari alamat (Nominatim), lokasi perangkat, gambar batas lahan → luas, keliling, sisi muka, persegi panjang pembatas; terapkan ukuran ke lahan proyek.
+- Alamat kab/kota & provinsi dari peta; saran wilayah batas harga rumah umum (Kepmen PKP 1722/KPTS/M/2026).
+- Cek persil & tata ruang di sumber resmi: BHUMI ATR/BPN, GISTARU RTR Online, penelusuran Perda RDTR & PSU, OSM, Google Maps.
+- Isian aturan RDTR/PZ setempat (zona, dokumen, KDB, KLB, KDH, GSB, ketinggian, PSU) → terapkan ke aturan proyek; pemeriksaan zona perumahan & jumlah lantai; tercantum di ringkasan.
+- Kredit rel kiri: "Dibuat oleh Pindo Tutuko - 2026"; tampak 3D awal lebih lapang.
+
 ## 0.2.0
 - Tampak 3D realistis (three.js r171, lokal): material bertekstur (plester, stuko, bata, papan, kayu, batu, genteng beton/tanah liat, metal), bayangan matahari menurut jam, pantulan kaca, deret tetangga, jalan, saluran, carport, pohon; putar/zoom, pandangan 3/4–depan–samping–udara, unduh PNG.
 - 10 gaya fasad populer (baru: Modern klasik, Mediterania modern, Modern farmhouse) dengan thumbnail 3D.

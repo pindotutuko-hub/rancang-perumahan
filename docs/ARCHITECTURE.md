@@ -11,3 +11,5 @@
 - Gambar SVG manual: `sitePlanSVG`, `isoSVG` (isometrik per gaya), `floorPlanSVG`, `cashSVG`, `donut`.
 - Data proyek `P` disimpan di `localStorage` (`rp.project`) dan dapat diekspor `.json`.
 - Rujukan: `CREDIT` (regulasi terverifikasi) dan `ASUMSI` (nilai yang harus disesuaikan pengguna).
+
+- Lokasi & peta (`PAGES.lokasi`, `slippy()`): peta tile OSM digambar sebagai `<img>` + overlay SVG; `RP.polyMetrics` (proyeksi datar lokal, shoelace, persegi pembatas minimum) dan `RP.zoneFor` (saran wilayah Kepmen 1722) murni dan diuji. CSP: img-src tile.openstreetmap.org, connect-src nominatim.openstreetmap.org; Electron menambahkan Referer/User-Agent sesuai kebijakan OSM. Data di `P.loc` (lat, lon, z, poly, addr, rdtr).

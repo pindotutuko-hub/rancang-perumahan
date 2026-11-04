@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Pindo Tutuko">
 <meta name="description" content="Rancang Perumahan — studi tapak, kavling, desain tipe rumah, RAB, kelayakan bisnis, dan KPR. Dibuat oleh Pindo Tutuko.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org; connect-src 'self' https://nominatim.openstreetmap.org">
 </head>
 <body>
 <title>Rancang Perumahan</title>
@@ -100,6 +100,13 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .styles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .style{border:1.5px solid var(--line);border-radius:10px;padding:8px;cursor:pointer;background:var(--sheet);text-align:left}
 .style[aria-pressed="true"]{border-color:var(--warm);box-shadow:0 0 0 2px var(--warm-soft)}
+.lok{grid-template-columns:1.5fr 1fr}.mp{position:relative;height:460px;overflow:hidden;border-radius:10px;border:1px solid var(--line);background:#dfe6e9;touch-action:none;cursor:grab;user-select:none}.mp.drawing{cursor:crosshair}
+.mp-tiles{position:absolute;inset:0}.mp-tiles img{position:absolute;width:256px;height:256px;max-width:none;pointer-events:none}.mp-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.mp-poly{fill:rgba(214,96,48,.22);stroke:#d6602f;stroke-width:2.2}.mp-poly.open{fill:none;stroke-dasharray:6 4}.mp-front{stroke:#b3261e;stroke-width:5;stroke-linecap:round}.mp-v{fill:#fff;stroke:#d6602f;stroke-width:2}.mp-v.first{fill:#d6602f}.mp-cross line{stroke:#1d2228;stroke-width:1.5;opacity:.6}
+.mp-attr{position:absolute;right:0;bottom:0;background:rgba(255,255,255,.85);color:#333;font-size:11px;padding:2px 6px;border-top-left-radius:6px}.mp-attr a{color:#245}
+.mp-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}.mp-bar input{flex:1;min-width:180px}.mp-bar .seg{display:inline-flex;gap:4px}.mp-bar [aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+.mp-res{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;max-height:180px;overflow:auto}.mp-hit{text-align:left;border:1px solid var(--line);background:var(--sheet);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12.5px}
+@media(max-width:900px){.lok{grid-template-columns:1fr}}
 .style svg{width:100%;height:auto;display:block}.style img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-radius:7px;background:var(--paper)}
 .v3d{border-radius:10px;overflow:hidden;background:#cfdce6;min-height:260px}.v3d canvas{display:block;width:100%!important;height:auto!important}
 .v3bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}.v3bar .seg{display:inline-flex;gap:4px}.v3bar [aria-pressed="true"],.v3bar .on{background:var(--ink);color:var(--sheet)}.v3h,.v3c{display:inline-flex;align-items:center;gap:6px;font-size:13px}.v3h input{width:120px}
@@ -127,6 +134,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 </header>
 <div class="shell">
   <nav class="rail" id="rail" aria-label="Langkah">
+    <button data-s="lokasi"><span class="n">0</span><span class="t">Lokasi & peta</span><span class="s">Persil, RDTR, luas lahan</span></button>
     <button data-s="lahan"><span class="n">1</span><span class="t">Proyek & lahan</span><span class="s">Luas, harga tanah, aturan</span></button>
     <button data-s="tapak"><span class="n">2</span><span class="t">Tapak & kavling</span><span class="s">Jalan, kavling, PSU/fasum</span></button>
     <button data-s="rumah"><span class="n">3</span><span class="t">Tipe & desain rumah</span><span class="s">Gaya terkini, denah, tampak</span></button>
@@ -135,9 +143,10 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
     <button data-s="ringkas"><span class="n">6</span><span class="t">Ringkasan & laporan</span><span class="s">Indikator, ekspor</span></button>
     <div class="sep"></div>
     <button data-s="sumber"><span class="n">§</span><span class="t">Sumber & Referensi</span><span class="s">Regulasi & asumsi</span></button>
-    <div class="credit">Dibuat oleh <b>Pindo Tutuko</b><br>Universitas Merdeka Malang · 2026</div>
+    <div class="credit">Dibuat oleh <b>Pindo Tutuko</b> - 2026</div>
   </nav>
   <main id="main">
+    <section data-sec="lokasi" hidden></section>
     <section data-sec="lahan"></section>
     <section data-sec="tapak" hidden></section>
     <section data-sec="rumah" hidden></section>
@@ -174,6 +183,15 @@ const CREDIT = [
   {k:'pp14', t:'Peraturan Pemerintah Nomor 14 Tahun 2016 tentang Penyelenggaraan Perumahan dan Kawasan Permukiman, sebagaimana telah diubah dengan Peraturan Pemerintah Nomor 12 Tahun 2021.',
    d:'Kerangka penyelenggaraan perumahan, termasuk kewajiban PSU dan hunian berimbang. Rincian angka mengikuti peraturan pelaksana.',
    u:'https://peraturan.bpk.go.id/', tag:'kerangka'},
+  {k:'bhumi', t:'Kementerian Agraria dan Tata Ruang/Badan Pertanahan Nasional. BHUMI — peta bidang tanah, zona nilai tanah, dan informasi spasial (layanan publik daring).',
+   d:'Dipakai sebagai tautan pemeriksaan status bidang tanah pada koordinat lokasi proyek. Aplikasi tidak mengambil data BHUMI secara otomatis.',
+   u:'https://bhumi.atrbpn.go.id/peta', tag:'sumber peta'},
+  {k:'gistaru', t:'Kementerian Agraria dan Tata Ruang/Badan Pertanahan Nasional. GISTARU — RTR Online (peta RTRW dan RDTR yang telah ditetapkan beserta dokumen Perda).',
+   d:'Dipakai sebagai tautan pemeriksaan zona RDTR/RTRW lokasi proyek. Nilai KDB, KLB, KDH, GSB, ketinggian, dan PSU diisi pengguna dari dokumen resmi.',
+   u:'https://gistaru.atrbpn.go.id/rtronline/', tag:'sumber peta'},
+  {k:'osm', t:'OpenStreetMap contributors. Peta dasar OpenStreetMap (data © kontributor OpenStreetMap, lisensi Open Database License/ODbL) dan layanan pencarian alamat Nominatim.',
+   d:'Peta dasar dan pencarian alamat pada langkah Lokasi & peta. Peta dasar untuk orientasi, bukan batas bidang tanah resmi.',
+   u:'https://www.openstreetmap.org/copyright', tag:'sumber peta'},
   {k:'sni1733', t:'Badan Standardisasi Nasional. SNI 03-1733-2004 Tata cara perencanaan lingkungan perumahan di perkotaan. Jakarta: BSN, 2004.',
    d:'Acuan kebutuhan sarana lingkungan berdasarkan jumlah penduduk pendukung. Aplikasi ini tidak menyalin tabel SNI; isi tabel sarana di langkah Tapak dengan nilai dari dokumen SNI yang Anda pegang.',
    u:'https://perpus.petra.ac.id/catalog/site/detail?id=2300864', tag:'acuan sarana'}
@@ -181,6 +199,8 @@ const CREDIT = [
 /* Asumsi (bukan regulasi) — selalu dapat diubah pengguna */
 const ASUMSI = [
   'KDB, KLB, KDH, dan garis sempadan bangunan ditetapkan RDTR/peraturan zonasi setempat; nilai awal di aplikasi hanya contoh.',
+  'Luas dan ukuran lahan dari batas yang digambar di peta dihitung dengan proyeksi datar lokal (galat kecil untuk lahan < beberapa kilometer); lahan proyek disederhanakan menjadi persegi panjang setara dengan luas yang sama.',
+  'Saran zona batas harga rumah umum dari nama provinsi/kabupaten-kota bersifat bantuan; periksa lampiran Kepmen PKP 1722/KPTS/M/2026.',
   'Satu kepala keluarga dihitung 4 jiwa (dapat diubah) untuk memperkirakan penduduk pendukung sarana.',
   'Daftar gaya fasad dan tipe rumah merangkum gaya yang banyak ditawarkan pengembang perumahan di Indonesia saat ini (pengamatan pasar, bukan regulasi); faktor biaya gaya hanyalah perkiraan.',
   'Tampak 3D dibuat secara prosedural dari ukuran tipe (lebar kavling, kedalaman bangunan, jumlah lantai) untuk studi massa, material, dan bayangan; bukan gambar kerja atau visual pemasaran yang mengikat.',
@@ -441,6 +461,7 @@ function defaultProject(){
   return {
     v:1, title:'Proyek perumahan baru',
     site:{W:120,D:150,landPrice:450000,zone:1,psuMin:40},
+    loc:{lat:-7.9467,lon:112.6150,z:16,poly:[],addr:{},rdtr:{zona:'',doc:'',kdb:'',klb:'',kdh:'',gsb:'',lantai:'',psu:''}},
     plan:{mainW:10,localW:7,spine:'tengah',rthPct:10,fasumPct:5,makamPct:0,jiwaKK:4},
     rules:{kdbMax:60,klbMax:1.2,kdhMin:10,gsb:3,backSet:1.5,paveFront:3,simple:false},
     types:[
@@ -468,7 +489,7 @@ const RU = {lahanMin:60,lahanMax:200,lebarMin:5,lantaiMin:21,lantaiMax:36,tenorM
 let P = load() || defaultProject();
 let cur = 'lahan', selType = 0;
 function load(){ try{ const s=localStorage.getItem('rp.project'); if(s){ const j=JSON.parse(s); if(j&&j.v===1) return migrate(j); } }catch(e){} return null; }
-function migrate(j){ const d=defaultProject(); for(const k of Object.keys(d)) if(j[k]==null) j[k]=d[k]; for(const k of ['site','plan','rules','cost','sales','fin','kpr']) j[k]=Object.assign({},d[k],j[k]); return j; }
+function migrate(j){ const d=defaultProject(); for(const k of Object.keys(d)) if(j[k]==null) j[k]=d[k]; for(const k of ['site','plan','rules','cost','sales','fin','kpr','loc']) j[k]=Object.assign({},d[k],j[k]); j.loc.rdtr=Object.assign({},d.loc.rdtr,j.loc.rdtr||{}); j.loc.addr=j.loc.addr||{}; j.loc.poly=Array.isArray(j.loc.poly)?j.loc.poly:[]; return j; }
 let saveT=0; function persist(){ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('rp.project',JSON.stringify(P)); }catch(e){} },300); }
 function toast(t){ const e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('on'),2200); }
 /* konfirmasi dua klik (tanpa confirm/alert) */
@@ -658,6 +679,130 @@ function donut(parts){ // [[label,value,color]]
    HALAMAN
    =================================================================== */
 const PAGES = {};
+/* ---------- Lokasi, peta persil & aturan setempat (peta OSM tanpa pustaka) ---------- */
+RP.polyMetrics = pts => {
+  if(!pts||pts.length<3) return null;
+  const R=6371008.8, n=pts.length, latc=pts.reduce((a,p)=>a+p[0],0)/n, lonc=pts.reduce((a,p)=>a+p[1],0)/n, k=Math.PI/180;
+  const xy=pts.map(p=>[(p[1]-lonc)*k*R*Math.cos(latc*k),(p[0]-latc)*k*R]);
+  let A=0, per=0; for(let i=0;i<n;i++){ const a=xy[i], b=xy[(i+1)%n]; A+=a[0]*b[1]-b[0]*a[1]; per+=Math.hypot(b[0]-a[0],b[1]-a[1]); } A=Math.abs(A)/2;
+  const front=Math.hypot(xy[1][0]-xy[0][0],xy[1][1]-xy[0][1]);
+  let best=null; for(let i=0;i<n;i++){ const a=xy[i], b=xy[(i+1)%n], g=Math.atan2(b[1]-a[1],b[0]-a[0]), c=Math.cos(-g), s=Math.sin(-g); let x0=1e18,x1=-1e18,y0=1e18,y1=-1e18;
+    for(const p of xy){ const x=p[0]*c-p[1]*s, y=p[0]*s+p[1]*c; if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; } const w=x1-x0, h=y1-y0; if(!best||w*h<best.w*best.h) best={w,h}; }
+  return {area:A, perim:per, front, depthEq:A/Math.max(front,1e-9), rectW:Math.min(best.w,best.h), rectD:Math.max(best.w,best.h), center:[latc,lonc]};
+};
+/* Saran wilayah batas harga rumah umum dari nama provinsi/kabupaten-kota (Kepmen PKP 1722/KPTS/M/2026) — tetap periksa lampiran Kepmen */
+RP.zoneFor = (prov,kab) => { const p=String(prov||'').toLowerCase(), k=String(kab||'').toLowerCase(); if(!p&&!k) return null;
+  if(/papua/.test(p)) return 5;
+  if(/jakarta|bali|nusa tenggara|maluku/.test(p)) return 4;
+  if(/tangerang|bogor|depok|bekasi|anambas|murung raya|mahakam ulu/.test(k)) return 4;
+  if(/kalimantan/.test(p)) return 3;
+  if(/kepulauan riau|bangka|belitung|sulawesi|gorontalo/.test(p)||/mentawai/.test(k)) return 2;
+  if(/aceh|sumatera|sumatra|riau|jambi|bengkulu|lampung|jawa|banten|yogyakarta/.test(p)) return 1;
+  return null; };
+const OSM_TILE='https://tile.openstreetmap.org/', NOMI='https://nominatim.openstreetmap.org/';
+function slippy(el, st, onChange){
+  el.innerHTML='<div class="mp-tiles"></div><svg class="mp-svg"></svg><div class="mp-attr">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</div>';
+  const tl=el.querySelector('.mp-tiles'), sv=el.querySelector('.mp-svg'), T=256;
+  const proj=(lat,lon,z)=>{ const m=T*2**z, s=Math.sin(Math.max(-85,Math.min(85,lat))*Math.PI/180); return [(lon+180)/360*m,(0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*m]; };
+  const unproj=(x,y,z)=>{ const m=T*2**z, q=Math.PI-2*Math.PI*y/m; return [180/Math.PI*Math.atan(Math.sinh(q)), x/m*360-180]; };
+  let W=0,H=0,last=null;
+  const overlay=()=>{ const c=proj(st.lat,st.lon,st.z), x0=c[0]-W/2, y0=c[1]-H/2; const pts=(st.poly||[]).map(p=>{ const q=proj(p[0],p[1],st.z); return [+(q[0]-x0).toFixed(1),+(q[1]-y0).toFixed(1)]; });
+    let g=''; if(pts.length){ g+=`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" class="mp-poly${pts.length<3?' open':''}"/>`; if(pts.length>=2) g+=`<line x1="${pts[0][0]}" y1="${pts[0][1]}" x2="${pts[1][0]}" y2="${pts[1][1]}" class="mp-front"/>`; pts.forEach((p,i)=>g+=`<circle cx="${p[0]}" cy="${p[1]}" r="${i===0?6:4.5}" class="mp-v${i===0?' first':''}"/>`); }
+    g+=`<g class="mp-cross"><line x1="${W/2-8}" y1="${H/2}" x2="${W/2+8}" y2="${H/2}"/><line x1="${W/2}" y1="${H/2-8}" x2="${W/2}" y2="${H/2+8}"/></g>`;
+    sv.setAttribute('viewBox',`0 0 ${W||1} ${H||1}`); sv.innerHTML=g; return [x0,y0]; };
+  const draw=()=>{ W=el.clientWidth; H=el.clientHeight; const [x0,y0]=overlay(), z=st.z, m=2**z; let h='';
+    for(let ty=Math.floor(y0/T); ty<=Math.floor((y0+H)/T); ty++){ if(ty<0||ty>=m) continue; for(let tx=Math.floor(x0/T); tx<=Math.floor((x0+W)/T); tx++){ const wx=((tx%m)+m)%m; h+=`<img src="${OSM_TILE}${z}/${wx}/${ty}.png" style="left:${Math.round(tx*T-x0)}px;top:${Math.round(ty*T-y0)}px" alt="" draggable="false" onerror="this.style.visibility='hidden'">`; } }
+    tl.style.transform=''; tl.innerHTML=h; last=[x0,y0]; };
+  const quick=()=>{ const [x0,y0]=overlay(); if(last) tl.style.transform=`translate(${Math.round(last[0]-x0)}px,${Math.round(last[1]-y0)}px)`; };
+  const zoomAt=(d,px,py)=>{ const z2=Math.max(3,Math.min(19,st.z+d)); if(z2===st.z) return; if(px==null){ px=W/2; py=H/2; } const c=proj(st.lat,st.lon,st.z), ll=unproj(c[0]-W/2+px,c[1]-H/2+py,st.z), c2=proj(ll[0],ll[1],z2), nc=unproj(c2[0]-px+W/2,c2[1]-py+H/2,z2); st.z=z2; st.lat=nc[0]; st.lon=nc[1]; draw(); onChange&&onChange('view'); };
+  let drag=null, wt=0;
+  el.addEventListener('pointerdown',e=>{ if(e.target.closest('a')) return; el.setPointerCapture&&el.setPointerCapture(e.pointerId); drag={x:e.clientX,y:e.clientY,moved:false,c:proj(st.lat,st.lon,st.z)}; });
+  el.addEventListener('pointermove',e=>{ if(!drag) return; const dx=e.clientX-drag.x, dy=e.clientY-drag.y; if(!drag.moved&&Math.abs(dx)+Math.abs(dy)<5) return; drag.moved=true; const ll=unproj(drag.c[0]-dx,drag.c[1]-dy,st.z); st.lat=ll[0]; st.lon=ll[1]; quick(); });
+  el.addEventListener('pointerup',e=>{ if(!drag) return; const d=drag; drag=null;
+    if(!d.moved&&st.mode==='draw'){ const r=el.getBoundingClientRect(), c=proj(st.lat,st.lon,st.z), ll=unproj(c[0]-W/2+(e.clientX-r.left),c[1]-H/2+(e.clientY-r.top),st.z); st.poly=(st.poly||[]).concat([[+ll[0].toFixed(7),+ll[1].toFixed(7)]]); draw(); onChange&&onChange('poly'); return; }
+    draw(); onChange&&onChange('view'); });
+  el.addEventListener('wheel',e=>{ e.preventDefault(); if(Date.now()-wt<220) return; wt=Date.now(); const r=el.getBoundingClientRect(); zoomAt(e.deltaY<0?1:-1,e.clientX-r.left,e.clientY-r.top); },{passive:false});
+  if(window.ResizeObserver){ const ro=new ResizeObserver(()=>{ if(el.isConnected) draw(); else ro.disconnect(); }); ro.observe(el); }
+  draw();
+  return {draw, zoom:d=>zoomAt(d), go:(lat,lon,z)=>{ st.lat=lat; st.lon=lon; if(z) st.z=z; draw(); onChange&&onChange('view'); }};
+}
+const lokLink=(href,t,d)=>`<li><a href="${esc(href)}" target="_blank" rel="noopener"><b>${t}</b></a><br><span class="note">${d}</span></li>`;
+PAGES.lokasi = sec => {
+  const L=P.loc, R=L.rdtr;
+  sec.innerHTML=`<h1>0 · Lokasi, peta persil & aturan setempat</h1>
+  <p class="lede">Tentukan lokasi proyek di peta, gambar batas lahan untuk mendapatkan luas dan ukurannya, lalu periksa status bidang tanah dan rencana tata ruang pada sumber resmi. Nilai RDTR/peraturan zonasi yang Anda temukan dapat langsung diterapkan ke aturan proyek.</p>
+  <div class="grid g2 lok">
+    <div class="card"><h2>Peta lokasi</h2>
+      <div class="row mp-bar noprint"><input id="mpQ" placeholder="Cari alamat/tempat, mis. Tlogomas, Malang"><button class="btn small" id="mpGo">Cari</button><button class="btn small" id="mpMe" title="Gunakan lokasi perangkat">⌖ Lokasi saya</button></div>
+      <div id="mpRes" class="mp-res" hidden></div>
+      <div class="row mp-bar noprint"><span class="seg"><button class="btn small" data-mm="pan">✋ Geser</button><button class="btn small" data-mm="draw">✎ Gambar batas lahan</button></span><button class="btn small" id="mpUndo">↶ Hapus titik</button><button class="btn small" id="mpClr">✕ Hapus batas</button><button class="btn small" id="mpZi" title="Perbesar">+</button><button class="btn small" id="mpZo" title="Perkecil">−</button></div>
+      <div class="mp" id="mp"></div>
+      <p class="note">Mode gambar: klik sudut-sudut lahan berurutan, dimulai dari dua titik pada sisi muka (sisi jalan masuk) — sisi pertama digambar tebal sebagai muka lahan. Peta dasar OpenStreetMap hanya untuk orientasi; batas bidang tanah resmi dipastikan di BHUMI ATR/BPN, sertifikat, atau hasil ukur.</p></div>
+    <div class="card" id="lokInfo"></div>
+  </div>
+  <div class="grid g2"><div class="card" id="lokCek"></div>
+    <div class="card"><h2>Aturan dari RDTR / peraturan zonasi setempat</h2><p class="note">Isi dari dokumen resmi kabupaten/kota (Perda/Perkada RDTR dan peraturan zonasi, atau Perda PSU). Kosongkan nilai yang tidak diketahui.</p>
+      <div class="form">
+        <label class="f">Zona / subzona<input data-k="loc.rdtr.zona" value="${esc(R.zona)}" placeholder="mis. R-3 (perumahan kepadatan sedang)"></label>
+        <label class="f">Dokumen sumber<input data-k="loc.rdtr.doc" value="${esc(R.doc)}" placeholder="mis. Perwali ... Nomor ... Tahun ... tentang RDTR ..."></label>
+        ${F('loc.rdtr.kdb','KDB maksimal','%')}${F('loc.rdtr.klb','KLB maksimal','kali luas kavling')}
+        ${F('loc.rdtr.kdh','KDH minimal','%')}${F('loc.rdtr.gsb','GSB','m')}
+        ${F('loc.rdtr.lantai','Ketinggian bangunan maksimal','lantai',{step:1})}${F('loc.rdtr.psu','PSU minimal (Perda PSU)','% luas lahan')}
+      </div><div class="row" style="margin-top:10px"><button class="btn" id="rdApply">Terapkan ke aturan proyek</button></div><div id="rdChk" style="margin-top:10px"></div></div></div>`;
+  const st={lat:+L.lat,lon:+L.lon,z:+L.z||16,poly:L.poly||[],mode:'pan'};
+  const save=()=>{ L.lat=+st.lat.toFixed(6); L.lon=+st.lon.toFixed(6); L.z=st.z; L.poly=st.poly; persist(); };
+  const center=()=>{ const m=RP.polyMetrics(st.poly); return m? m.center : [st.lat,st.lon]; };
+  const info=()=>{ const m=RP.polyMetrics(st.poly), c=center(), a=L.addr||{}, zs=RP.zoneFor(a.prov,a.kota);
+    $('#lokInfo',sec).innerHTML=`<h2>Data lokasi & lahan</h2>
+      <p><b>Koordinat ${m?'pusat lahan':'tengah peta'}:</b> <code id="lkC">${c[0].toFixed(6)}, ${c[1].toFixed(6)}</code> <button class="btn small" id="lkCopy">Salin</button></p>
+      <p><b>Alamat:</b> ${a.disp?esc(a.disp):'<span class="note">belum diambil</span>'}<br><b>Kab/Kota:</b> ${esc(a.kota||'–')} · <b>Provinsi:</b> ${esc(a.prov||'–')} <button class="btn small" id="lkAddr">Ambil alamat dari peta</button></p>
+      ${zs?`<p class="note">Saran zona batas harga rumah umum: <b>Wilayah ${zs}</b> (Kepmen PKP 1722/KPTS/M/2026; periksa lampiran untuk pengecualian kabupaten/kota). <button class="btn small" id="lkZone">Pakai Wilayah ${zs}</button></p>`:''}
+      ${m?`<div class="kpis"><div class="kpi"><span>Luas batas lahan</span><b>${fmt(m.area)} m²</b><span>${fmt(m.area/1e4,2)} ha</span></div>
+        <div class="kpi"><span>Keliling</span><b>${fmt(m.perim)} m</b></div>
+        <div class="kpi"><span>Sisi muka (sisi pertama)</span><b>${fmt(m.front,1)} m</b><span>kedalaman setara ${fmt(m.depthEq,1)} m</span></div>
+        <div class="kpi"><span>Persegi panjang pembatas</span><b>${fmt(m.rectW,1)} × ${fmt(m.rectD,1)} m</b></div></div>
+        <div class="row" style="margin-top:10px"><button class="btn" id="lkApply">Terapkan ke lahan proyek</button></div>
+        <p class="note">Lahan proyek dihitung sebagai persegi panjang setara: lebar = sisi muka, panjang = luas ÷ sisi muka (luas sama dengan batas yang digambar). Lahan sekarang: ${fmt(+P.site.W,1)} × ${fmt(+P.site.D,1)} m = ${fmt(P.site.W*P.site.D)} m².</p>`
+       :`<p class="note">Gambar batas lahan (minimal 3 titik) untuk menghitung luas. Titik: ${st.poly.length}.</p>`}`;
+    $('#lkCopy',sec).onclick=()=>{ const t=$('#lkC',sec).textContent; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Koordinat disalin: '+t)).catch(()=>toast('Salin manual: '+t)); };
+    $('#lkAddr',sec).onclick=()=>reverse();
+    const zb=$('#lkZone',sec); if(zb) zb.onclick=()=>{ P.site.zone=zs; persist(); toast('Zona batas harga: Wilayah '+zs); };
+    const ap=$('#lkApply',sec); if(ap) ap.onclick=()=>{ P.site.W=+m.front.toFixed(1); P.site.D=+(m.area/m.front).toFixed(1); persist(); info(); toast('Ukuran lahan diterapkan: '+fmt(P.site.W,1)+' × '+fmt(P.site.D,1)+' m'); };
+    cek(); };
+  const cek=()=>{ const c=center(), a=L.addr||{}, kota=a.kota||'', q=s=>'https://www.google.com/search?q='+encodeURIComponent(s);
+    $('#lokCek',sec).innerHTML=`<h2>Cek persil & tata ruang (sumber resmi)</h2><ol class="ref">
+      ${lokLink('https://bhumi.atrbpn.go.id/peta','BHUMI ATR/BPN — peta bidang tanah','Bidang tanah terdaftar, zona nilai tanah (ZNT), dan informasi spasial. Cari dengan koordinat: tempel koordinat yang disalin dari kartu Data lokasi.')}
+      ${lokLink('https://gistaru.atrbpn.go.id/rtronline/','GISTARU ATR/BPN — RTR Online','Peta rencana tata ruang (RTRW provinsi/kabupaten/kota dan RDTR) beserta dokumen Perda-nya.')}
+      ${lokLink(q('Rencana Detail Tata Ruang peraturan zonasi '+(kota||'kabupaten kota')+' site:peraturan.bpk.go.id'),'Cari Perda/Perkada RDTR'+(kota?' '+esc(kota):''),'Penelusuran di Database Peraturan BPK (peraturan.bpk.go.id) untuk ketentuan KDB, KLB, KDH, GSB, dan ketinggian bangunan.')}
+      ${lokLink(q('prasarana sarana utilitas perumahan '+(kota||'kabupaten kota')+' peraturan daerah site:peraturan.bpk.go.id'),'Cari Perda PSU'+(kota?' '+esc(kota):''),'Ketentuan penyediaan dan penyerahan PSU perumahan (porsi lahan PSU minimal).')}
+      ${lokLink('https://www.openstreetmap.org/?mlat='+c[0].toFixed(6)+'&mlon='+c[1].toFixed(6)+'#map=18/'+c[0].toFixed(6)+'/'+c[1].toFixed(6),'OpenStreetMap di titik ini','Jalan, bangunan, dan fasilitas sekitar lokasi.')}
+      ${lokLink('https://www.google.com/maps/search/?api=1&query='+c[0].toFixed(6)+','+c[1].toFixed(6),'Google Maps di titik ini','Citra satelit dan Street View untuk melihat kondisi lapangan.')}
+      </ol><p class="note">Aplikasi tidak mengambil data persil atau RDTR secara otomatis; buka sumber resmi di atas lalu isi nilainya di kartu Aturan RDTR.</p>`; };
+  const rd=()=>{ const out=[], z=String(R.zona||'').trim();
+    if(z) out.push(/^\s*R[-\s]?\d|perumahan/i.test(z)?['ok',`Zona ${esc(z)} termasuk zona perumahan.`]:['bad',`Zona ${esc(z)} bukan zona perumahan (R) — periksa apakah perumahan diizinkan pada zona ini (tabel ITBX).`]);
+    if(+R.lantai>0) P.types.forEach(t=>out.push([(+t.floors||1)<=+R.lantai?'ok':'bad',`${esc(t.name)}: ${t.floors||1} lantai (maks ${R.lantai} lantai).`]));
+    [['kdb','KDB','rules.kdbMax','%'],['klb','KLB','rules.klbMax',''],['kdh','KDH','rules.kdhMin','%'],['gsb','GSB','rules.gsb',' m'],['psu','PSU','site.psuMin','%']].forEach(([k,n,pth,u])=>{ if(R[k]!==''&&R[k]!=null){ const cur=getPath(P,pth); out.push([+cur===+R[k]?'ok':'warn',`${n} RDTR ${fmt(+R[k],2)}${u} — aturan proyek ${fmt(+cur,2)}${u}${+cur===+R[k]?'':' (belum diterapkan)'}`]); } });
+    $('#rdChk',sec).innerHTML=out.length?out.map(c=>`<div class="chk ${c[0]==='warn'?'info':c[0]}"><i>${c[0]==='ok'?'✓':'!'}</i><span>${c[1]}</span></div>`).join(''):'<p class="note">Belum ada nilai RDTR.</p>'; };
+  const reverse=async()=>{ const c=center(); toast('Mengambil alamat…');
+    try{ const r=await fetch(`${NOMI}reverse?format=jsonv2&accept-language=id&zoom=14&lat=${c[0]}&lon=${c[1]}`); const j=await r.json(); const ad=j.address||{};
+      L.addr={disp:j.display_name||'',kota:ad.city||ad.county||ad.regency||ad.municipality||ad.town||'',prov:ad.state||ad.province||''}; persist(); info(); }
+    catch(e){ toast('Alamat tidak dapat diambil (perlu koneksi internet).'); } };
+  const mp=slippy($('#mp',sec),st,k=>{ save(); if(k==='poly') info(); });
+  $$('[data-mm]',sec).forEach(b=>{ b.setAttribute('aria-pressed',b.dataset.mm===st.mode); b.onclick=()=>{ st.mode=b.dataset.mm; $('#mp',sec).classList.toggle('drawing',st.mode==='draw'); $$('[data-mm]',sec).forEach(x=>x.setAttribute('aria-pressed',x.dataset.mm===st.mode)); }; });
+  $('#mpUndo',sec).onclick=()=>{ st.poly=st.poly.slice(0,-1); save(); mp.draw(); info(); };
+  $('#mpClr',sec).onclick=e=>confirmArm(e.currentTarget,()=>{ st.poly=[]; save(); mp.draw(); info(); },'Klik lagi: hapus batas');
+  $('#mpZi',sec).onclick=()=>mp.zoom(1); $('#mpZo',sec).onclick=()=>mp.zoom(-1);
+  const search=async()=>{ const q=$('#mpQ',sec).value.trim(); if(!q) return; const box=$('#mpRes',sec);
+    try{ const r=await fetch(`${NOMI}search?format=jsonv2&accept-language=id&limit=6&countrycodes=id&q=${encodeURIComponent(q)}`); const j=await r.json();
+      box.hidden=false; box.innerHTML=j.length? j.map((x,i)=>`<button class="mp-hit" data-i="${i}">${esc(x.display_name)}</button>`).join('') : '<p class="note">Tidak ditemukan.</p>';
+      $$('.mp-hit',box).forEach(b=>b.onclick=()=>{ const x=j[+b.dataset.i]; box.hidden=true; mp.go(+x.lat,+x.lon,17); }); }
+    catch(e){ toast('Pencarian gagal (perlu koneksi internet).'); } };
+  $('#mpGo',sec).onclick=search; $('#mpQ',sec).addEventListener('keydown',e=>{ if(e.key==='Enter') search(); });
+  $('#mpMe',sec).onclick=()=>{ if(!navigator.geolocation){ toast('Lokasi perangkat tidak tersedia.'); return; } navigator.geolocation.getCurrentPosition(p=>mp.go(p.coords.latitude,p.coords.longitude,18),()=>toast('Izin lokasi ditolak atau tidak tersedia.')); };
+  $('#rdApply',sec).onclick=()=>{ const m={kdb:'rules.kdbMax',klb:'rules.klbMax',kdh:'rules.kdhMin',gsb:'rules.gsb',psu:'site.psuMin'}; let n=0; for(const k in m) if(R[k]!==''&&R[k]!=null){ setPath(P,m[k],+R[k]); n++; } persist(); rd(); toast(n? n+' nilai RDTR diterapkan ke aturan proyek' : 'Isi dulu nilai RDTR'); };
+  bindInputs(sec, rd); info(); rd();
+};
+
 PAGES.lahan = sec => {
   sec.innerHTML = `<h1>1 · Proyek & lahan</h1>
   <p class="lede">Masukkan ukuran lahan, harga tanah, zona batas harga rumah umum, dan aturan bangunan setempat. Semua angka awal hanyalah contoh — sesuaikan dengan lokasi dan peraturan daerah proyek Anda.</p>
@@ -721,6 +866,7 @@ PAGES.tapak = sec => {
       chk.push([h.kdb*100<=+P.rules.kdbMax+1e-6?'ok':'bad',`${nm}: KDB ${pct(h.kdb)} (maks ${fmt(P.rules.kdbMax)}%)`]);
       chk.push([h.klb<=+P.rules.klbMax+1e-6?'ok':'bad',`${nm}: KLB ${fmt(h.klb,2)} (maks ${fmt(P.rules.klbMax,2)})`]);
       chk.push([h.kdh*100>=+P.rules.kdhMin-1e-6?'ok':'bad',`${nm}: KDH ±${pct(h.kdh)} (min ${fmt(P.rules.kdhMin)}%)`]);
+      if(+P.loc.rdtr.lantai>0) chk.push([(+t.floors||1)<=+P.loc.rdtr.lantai?'ok':'bad',`${nm}: ${t.floors||1} lantai (maks ${P.loc.rdtr.lantai} lantai menurut RDTR).`]);
       if(!h.fitDepth) chk.push(['bad',`${nm}: luas lantai dasar tidak muat di kavling setelah GSB & jarak belakang — perbesar kavling atau buat 2 lantai.`]);
       if(t.subsidi){ const z=ZONES.find(z=>z.z==P.site.zone)||ZONES[0]; const LT=h.LT;
         chk.push([(LT>=RU.lahanMin&&LT<=RU.lahanMax)?'ok':'bad',`${nm} (rumah umum): luas lahan ${fmt(LT)} m² — syarat ${RU.lahanMin}–${RU.lahanMax} m² (Kepmen PKP 1722/KPTS/M/2026).`]);
@@ -880,6 +1026,10 @@ PAGES.ringkas = sec => {
   const {lay,fe}=calc(); const a=lay.area, A=lay.A;
   sec.innerHTML = `<h1>6 · Ringkasan & laporan</h1>
   <p class="lede">Ringkasan proyek <b>${esc(P.title)}</b>. Gunakan <b>Cetak / PDF</b> untuk laporan, <b>Simpan</b> untuk berkas proyek (.json).</p>
+  ${(()=>{ const L=P.loc||{}, a=L.addr||{}, R=L.rdtr||{}, m=RP.polyMetrics(L.poly); if(!a.kota&&!m&&!R.zona&&!R.doc) return ''; return `<div class="card"><h2>Lokasi & aturan setempat</h2><table>
+    <tr><td>Lokasi</td><td>${esc([a.kota,a.prov].filter(Boolean).join(', ')||'–')}${L.lat!=null?` · ${(+L.lat).toFixed(5)}, ${(+L.lon).toFixed(5)}`:''}</td></tr>
+    ${m?`<tr><td>Batas lahan di peta</td><td>${fmt(m.area)} m² (${fmt(m.area/1e4,2)} ha), sisi muka ${fmt(m.front,1)} m</td></tr>`:''}
+    <tr><td>Zona RDTR</td><td>${esc(R.zona||'–')}</td></tr><tr><td>Dokumen sumber</td><td>${esc(R.doc||'–')}</td></tr></table></div>`; })()}
   <div class="card"><h2>Indikator utama</h2><div class="kpis">
     <div class="kpi"><span>Luas lahan</span><b>${fmt(A/1e4,2)} ha</b></div><div class="kpi"><span>Jumlah unit</span><b>${fmt(fe.nU)}</b></div>
     <div class="kpi ${a.psu/A*100>=+P.site.psuMin?'ok':'bad'}"><span>PSU</span><b>${pct(a.psu/A)}</b><span>min ${fmt(P.site.psuMin)}%</span></div>
@@ -1097,7 +1247,7 @@ function make3D(THREE, RoomEnvironment){
   function setSun(S,h){ S.hour=h; const a=(clamp(h,6,18)-6)/12*Math.PI, el=Math.sin(a); S.sun.position.set(S.target.x-Math.cos(a)*40,S.target.y+Math.max(2.5,el*46),S.target.z+16); S.sun.target.position.copy(S.target);
     const warm=1-clamp(el*1.6,0,1); S.sun.color.setRGB(1,.95-.25*warm,.88-.45*warm); S.sun.intensity=.9+2.5*el; S.hemi.intensity=.45+.55*el; S.renderer.toneMappingExposure=.92+.12*el; }
   function cam(S){ const v=S.view, c=S.camera, t=S.target; c.position.set(t.x+v.r*Math.sin(v.th)*Math.cos(v.ph),t.y+v.r*Math.sin(v.ph),t.z+v.r*Math.cos(v.th)*Math.cos(v.ph)); if(c.position.y<.5) c.position.y=.5; c.lookAt(t); }
-  const VIEWS={ '34':{th:.62,ph:.2,f:1}, depan:{th:0,ph:.07,f:.92}, udara:{th:.45,ph:.92,f:1.25}, samping:{th:1.2,ph:.18,f:1.05} };
+  const VIEWS={ '34':{th:.62,ph:.22,f:1.3}, depan:{th:0,ph:.08,f:1.15}, udara:{th:.45,ph:.92,f:1.45}, samping:{th:1.2,ph:.18,f:1.25} };
   function setView(S,k){ const p=VIEWS[k]||VIEWS['34']; S.view.th=p.th; S.view.ph=p.ph; S.view.r=S.fit*p.f; }
 
   /* tampilan utama */
@@ -1121,7 +1271,7 @@ function make3D(THREE, RoomEnvironment){
     view(k){ V3.view=k; if(MAIN){ setView(MAIN,k); draw(); } },
     hour(h){ V3.hour=h; if(MAIN){ setSun(MAIN,h); draw(); } },
     spin(on){ auto=on; draw(); return auto; },
-    spinning:()=>auto,
+    spinning:()=>auto, dbg:()=>MAIN&&({...MAIN.view,fit:MAIN.fit,w:MAIN.renderer.domElement.width}),
     png(){ if(!MAIN) return null; cam(MAIN); MAIN.renderer.render(MAIN.scene,MAIN.camera); return MAIN.renderer.domElement.toDataURL('image/png'); },
     thumbs(list,cb){ const gen=++thGen; if(!TH){ TH=stage({pr:1,sm:1024}); TH.renderer.setSize(360,240); TH.camera.aspect=1.5; TH.camera.updateProjectionMatrix(); }
       let i=0; const next=()=>{ if(gen!==thGen||i>=list.length) return; const it=list[i++];

@@ -57,6 +57,17 @@ ok(html.includes('id="vx-three-core"') && html.includes('id="vx-three-env"') && 
 ok(w.document.querySelector('#v3d') !== null, 'wadah tampak 3D');
 w.RPrender('rumah'); w.document.querySelector('[data-tp="4"]').click(); ok(+w.RPstate().types[0].floors === 2 && +w.RPstate().types[0].LB === 60, 'terapkan tipe 2 lantai');
 ok(w.document.body.innerHTML.includes('Pindo Tutuko'), 'kredit');
+// 9) Lokasi & peta: luas poligon, saran zona, halaman lokasi, penerapan RDTR
+{ const lat = -7.95, lon = 112.61, dy = 100 / 111194.9, dx = 100 / (111194.9 * Math.cos(lat * Math.PI / 180));
+  const m = RP.polyMetrics([[lat, lon], [lat, lon + dx], [lat + dy, lon + dx], [lat + dy, lon]]);
+  near(m.area, 10000, 50, 'luas bujur sangkar 100 m'); near(m.front, 100, 0.5, 'sisi muka 100 m'); near(m.perim, 400, 2, 'keliling 400 m'); near(m.rectW * m.rectD, 10000, 60, 'persegi pembatas');
+  const tri = RP.polyMetrics([[lat, lon], [lat, lon + 2 * dx], [lat + dy, lon]]); near(tri.area, 10000, 50, 'luas segitiga alas 200 m tinggi 100 m');
+  ok(RP.polyMetrics([[lat, lon], [lat, lon + dx]]) === null, 'poligon < 3 titik');
+  const zc = [['Jawa Timur', 'Kota Malang', 1], ['Jawa Barat', 'Kota Bekasi', 4], ['Kalimantan Timur', 'Kabupaten Mahakam Ulu', 4], ['Kalimantan Barat', 'Kota Pontianak', 3], ['Sulawesi Selatan', 'Kota Makassar', 2], ['Papua Barat', '', 5], ['Kepulauan Riau', 'Kota Batam', 2], ['Riau', 'Kota Pekanbaru', 1], ['Bali', 'Kota Denpasar', 4], ['', '', null]];
+  zc.forEach(([p, k, z]) => ok(RP.zoneFor(p, k) === z, `zona ${p}/${k} = ${z}`));
+  w.RPrender('lokasi'); const sec = w.document.querySelector('section[data-sec="lokasi"]'); ok(sec.innerHTML.length > 500 && sec.querySelector('#mp') && sec.innerHTML.includes('bhumi.atrbpn.go.id') && sec.innerHTML.includes('gistaru.atrbpn.go.id'), 'halaman lokasi + tautan resmi');
+  const st2 = w.RPstate(); st2.loc.rdtr.kdb = 65; st2.loc.rdtr.gsb = 4; sec.querySelector('#rdApply').click(); ok(+st2.rules.kdbMax === 65 && +st2.rules.gsb === 4, 'terapkan RDTR ke aturan');
+  ok(/img-src[^;]*tile\.openstreetmap\.org/.test(html) && /connect-src[^;]*nominatim\.openstreetmap\.org/.test(html), 'CSP peta OSM'); }
 ok(!/NaN|undefined/.test(w.document.querySelector('section[data-sec="ringkas"]').textContent), 'ringkasan tanpa NaN/undefined');
 // 8) rujukan memuat Kepmen PKP 1722
 ok(w.document.querySelector('section[data-sec="sumber"]').textContent.includes('1722/KPTS/M/2026'), 'rujukan Kepmen 1722');

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, Menu, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -50,6 +50,12 @@ ipcMain.handle('rp:pdf', async (e, { name }) => {
 });
 
 app.whenReady().then(() => {
+  // Kebijakan penggunaan OpenStreetMap (tile & Nominatim): permintaan wajib beridentitas aplikasi + Referer
+  session.defaultSession.webRequest.onBeforeSendHeaders({ urls: ['https://tile.openstreetmap.org/*', 'https://nominatim.openstreetmap.org/*'] }, (d, cb) => {
+    d.requestHeaders['Referer'] = 'https://pindotutuko.id/';
+    d.requestHeaders['User-Agent'] = 'RancangPerumahan/' + app.getVersion() + ' (desktop; https://pindotutuko.id)';
+    cb({ requestHeaders: d.requestHeaders });
+  });
   if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
   createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });

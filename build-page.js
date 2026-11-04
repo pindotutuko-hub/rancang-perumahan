@@ -11,14 +11,14 @@ const head = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Pindo Tutuko">
 <meta name="description" content="Rancang Perumahan — studi tapak, kavling, desain tipe rumah, RAB, kelayakan bisnis, dan KPR. Dibuat oleh Pindo Tutuko.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org; connect-src https://nominatim.openstreetmap.org">
 </head>
 <body>
 `;
 fs.mkdirSync(path.join(__dirname, 'src'), { recursive: true });
 fs.writeFileSync(path.join(__dirname, 'src', 'index.html'), head + body + '\n</body>\n</html>\n');
 // Versi web untuk menu Tools pindotutuko.id: tombol kembali ke Beranda (pt-back.js) dan izin koneksi ke situs sendiri.
-const webHead = head.replace("connect-src 'none'", "connect-src 'self'");
+const webHead = head.replace("connect-src https://nominatim.openstreetmap.org", "connect-src 'self' https://nominatim.openstreetmap.org");
 fs.mkdirSync(path.join(__dirname, 'web'), { recursive: true });
 fs.writeFileSync(path.join(__dirname, 'web', 'index.html'), webHead + body + '\n<script src="/wp-content/themes/pindotutuko/assets/pt-back.js?v=7" defer></script>\n</body>\n</html>\n');
 console.log('src/index.html + web/index.html written');
