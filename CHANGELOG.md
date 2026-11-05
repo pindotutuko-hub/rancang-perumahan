@@ -1,5 +1,12 @@
 # Catatan perubahan
 
+## 0.6.0 — 2026-11-05
+- Menu R · Rumah susun & apartemen mendapat **tampak 3D massa bangunan**:
+  - Massa dibangun dari hasil hitungan: podium (parkir berkisi atau etalase kaca), menara dengan pita pelat lantai, jendela & balkon ber-instansi, parapet, ruang mesin lif, dan tangki di atap.
+  - Tapak berpaving dengan sempadan hijau, pohon, jalan depan, dan rampa basement.
+  - Tersedia pilihan pandang, jam matahari (lampu unit menyala saat senja), kualitas, dan unduh gambar.
+- Tampak 3D lebih tahan banting: bila mode kualitas tinggi gagal di suatu perangkat/GPU, aplikasi otomatis mencoba mode ringan, lalu mode aman (tanpa langit fisik & efek). Isometrik hanya dipakai bila WebGL benar-benar gagal, dan pesan galatnya ditampilkan untuk diagnosis.
+
 ## 0.5.0 — 2026-11-05
 - Menu baru **R · Rumah susun & apartemen** untuk flat (walk-up), rusun umum (MBR), apartemen menengah, dan kondominium.
   - Kapasitas dihitung dari KDB, KLB, dan batas jumlah lantai: lantai menara/podium/basement, luas lantai kotor (GFA), dan luas bersih terjual (efisiensi).

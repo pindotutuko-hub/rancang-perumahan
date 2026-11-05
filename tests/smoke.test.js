@@ -86,6 +86,7 @@ ok(!/NaN|undefined/.test(w.document.querySelector('section[data-sec="ringkas"]')
   const V2 = Object.assign(w.vertDefault('apartemen'), { A: 4000, kdb: 50, klb: 20, maxFl: 10, podFl: 2 }); const R2 = w.vertCalc(V2); ok(R2.twFl === 8 && R2.limitedBy === 'lantai', 'dibatasi jumlah lantai');
   const Ru = w.vertCalc(Object.assign(w.vertDefault('rusun'), { A: 3000 })); ok(Ru.hbArea === 0 && w.vertDefault('rusun').pphPct === 1, 'rusun umum: tanpa kewajiban 20%, PPh 1%');
   w.RPrender('rusun'); const sv = w.document.querySelector('section[data-sec="rusun"]'); ok(sv.querySelector('#vSec svg') && sv.querySelector('#vPlan svg') && !/NaN|undefined/.test(sv.textContent), 'halaman rumah susun tanpa NaN');
+  ok(/function buildTower\(/.test(app) && /tower:twAPI/.test(app) && sv.querySelector('#t3d') && /tries=V3\.q/.test(app), 'tampak 3D menara + jenjang cadangan WebGL');
   ok(w.document.querySelector('section[data-sec="sumber"]').textContent.includes('Nomor 20 Tahun 2011'), 'rujukan UU Rumah Susun'); }
 // 8) rujukan memuat Kepmen PKP 1722
 ok(w.document.querySelector('section[data-sec="sumber"]').textContent.includes('1722/KPTS/M/2026'), 'rujukan Kepmen 1722');
