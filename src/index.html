@@ -1910,7 +1910,7 @@ function make3D(THREE, RoomEnvironment, FX){
     box(G,L,.04,6,texMat('asphalt','',{roughness:.95,bumpScale:1.5}),-L/2,0,gsb+.5); box(G,L,.16,.15,flat('#b3afa7',.85),-L/2,0,gsb+6.5);
     if(!o.bare&&!o.noStreet) for(let x=-L/2+4;x<L/2;x+=7.5) tree(G,x+rnd()*1.5,gsb+8.2+rnd()*1.2,.9+rnd()*.35);
     /* latar: sabuk pohon di belakang kavling & seberang jalan (lebih jarang, memberi kedalaman) */
-    if(!o.bare&&(S.hq||nb)){ for(let x=-L/2-20;x<L/2+20;x+=5+rnd()*5){ const s2=1+rnd()*.7; tree(G,x,lotBack-4-rnd()*14,s2); if(rnd()<.55) tree(G,x+rnd()*3,gsb+16+rnd()*16,s2); } }
+    if(!o.bare&&(S.hq||nb)){ for(let x=-L/2-20;x<L/2+20;x+=5+rnd()*5){ const s2=1+rnd()*.7; tree(G,x,lotBack-4-rnd()*14,s2); if(rnd()<.55&&!o.noStreet) tree(G,x+rnd()*3,gsb+16+rnd()*16,s2); } }
     const pm=flat('#2a2c2e',.5,.6); if(!o.bare) for(let k=-nb;k<=nb;k+=2){ const x=k*w-w/2+.15; box(G,.08,4.2,.08,pm,x,0,gsb+.3); box(G,.6,.08,.16,pm,x,4.15,gsb+.3); box(G,.34,.04,.12,LAMP,x+.24,4.11,gsb+.32); }
     G.traverse(m=>{ if(m.isMesh&&m!==gr){ m.castShadow=!m.userData.noShadow&&m.material!==GLASS; m.receiveShadow=true; } }); gr.receiveShadow=true;
     const fl=Math.max(1,+o.t.floors||1); S.target.set(0,(.35+3.2*fl)*.5+.4,-fp.bd*.42+gsb*.25); S.fit=Math.max(w*2.4,fp.bd*1.45,13)+(nb?3:0)+(fl-1)*6; }
@@ -2061,7 +2061,7 @@ function make3D(THREE, RoomEnvironment, FX){
       S.target.set(S.entX||0,2.2,E.lay.D/2-30); Object.assign(S.view,{th:.18,ph:.07,r:58}); out.street=shot(S,w,h); return out; },
     house(o,opt={}){ const S=snapStage(); const fp=o.fp, fl=Math.max(1,+o.t.floors||1), w=opt.w||1800, out={};
       build(S,Object.assign({},o,{neighbors:!!opt.eye,nb:1,bare:!opt.eye,noStreet:true})); setSun(S,opt.hour||10); setView(S,'34'); S.view.r*=.92; out.persp=shot(S,w,Math.round(w*.66));
-      if(opt.eye){ const t0=S.target.clone(); S.target.set(t0.x,t0.y*.9,t0.z); Object.assign(S.view,{th:-.32,ph:.05,r:S.fit*.95}); out.eye=shot(S,w,Math.round(w*.66)); S.target.copy(t0); build(S,Object.assign({},o,{neighbors:false,bare:true})); setSun(S,opt.hour||10); }
+      if(opt.eye){ const t0=S.target.clone(), th=-.28, ph=.08, gz=Math.max(.6,fp.gsb)+6.2; S.target.set(t0.x,1.4+1.5*fl,-fp.bd*.3); Object.assign(S.view,{th,ph,r:(gz-S.target.z)/(Math.cos(th)*Math.cos(ph))}); const fov=S.camera.fov; S.camera.fov=fl>1?68:58; out.eye=shot(S,w,Math.round(w*.66)); S.camera.fov=fov; S.camera.updateProjectionMatrix(); S.target.copy(t0); build(S,Object.assign({},o,{neighbors:false,bare:true})); setSun(S,opt.hour||10); }
       const wF=fp.w+5, hF=.35+3.2*fl+5.5, hpx=Math.round(w*hF/wF); out.front=oshot(S,w,hpx,V(0,hF/2-1,0),V(0,0,1),wF); out.frontW=wF; out.frontH=hF;
       const zc=(Math.max(.6,fp.gsb)-fp.bd)/2, wS=fp.bd+Math.max(.6,fp.gsb)+5, hpx2=Math.round(w*hF/wS); out.side=oshot(S,w,hpx2,V(0,hF/2-1,zc),V(1,0,0),wS); out.sideW=wS; out.sideH=hF; return out; },
     tower(T,opt={}){ const S=snapStage(); buildTower(S,Object.assign({},T,{ctx:true})); setSun(S,opt.hour||9.5); const w=opt.w||2400, h=opt.h||1450, d=S.dims, out={};

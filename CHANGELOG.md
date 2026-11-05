@@ -1,5 +1,8 @@
 # Catatan perubahan
 
+## 0.7.2 — 2026-11-05
+- Render "pandangan mata" tidak lagi tertutup pohon: kamera setinggi mata di jalan depan, pohon jalan & sabuk seberang tidak dipasang, sudut pandang lebih lebar.
+
 ## 0.7.1 — 2026-11-05
 - Kartu "Tampak isometrik (skema)" diganti **Perspektif realistis (render)**: dua foto dari model 3D (perspektif 3/4 dan pandangan dari jalan setinggi mata) dengan deret tetangga, langit fisik, bayangan sore, oklusi ambien, dan tanaman. Isometrik hanya dipakai bila WebGL tidak tersedia.
 
