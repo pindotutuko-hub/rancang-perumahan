@@ -1,5 +1,8 @@
 # Catatan perubahan
 
+## 0.6.1 — 2026-11-05
+- Kredit di sudut kiri bawah menu: "Dikembangkan oleh: Pindo Tutuko".
+
 ## 0.6.0 — 2026-11-05
 - Menu R · Rumah susun & apartemen mendapat **tampak 3D massa bangunan**:
   - Massa dibangun dari hasil hitungan: podium (parkir berkisi atau etalase kaca), menara dengan pita pelat lantai, jendela & balkon ber-instansi, parapet, ruang mesin lif, dan tangki di atap.

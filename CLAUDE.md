@@ -7,7 +7,7 @@ Proyek: **Rancang Perumahan** — studi tapak & kavling, desain tipe rumah (gaya
 2. Setelah perubahan: `npm install` (sekali) lalu **`npm test` harus lulus**. Tambahkan pemeriksaan angka untuk fitur baru di `tests/smoke.test.js`.
 3. Bahasa antarmuka: Indonesia; istilah teknis Inggris + padanan Indonesia dalam kurung bila perlu.
 4. **Tanpa halusinasi rujukan.** Rujukan regulasi di objek `CREDIT` wajib dapat diverifikasi (nomor, tahun, pasal, URL sumber resmi). Angka yang bukan regulasi masuk `ASUMSI` dan harus dapat diubah pengguna. Jangan menyalin tabel SNI.
-5. Pertahankan kredit "Dibuat oleh Pindo Tutuko" (rel kiri, Tentang, laporan, berkas ekspor).
+5. Pertahankan kredit: rel kiri bawah "Dikembangkan oleh: Pindo Tutuko"; "Dibuat oleh Pindo Tutuko" di Tentang, laporan, berkas ekspor.
 6. Jangan menambah library/CDN runtime. Satu-satunya pengecualian: three.js r171 (MIT) yang di-vendor di `vendor/three/` untuk tampak 3D (disisipkan oleh `build-page.js`, dimuat lewat blob:). Diagram 2D tetap SVG manual. Warna antarmuka lewat token CSS (mode gelap).
 7. Jangan memakai `alert/confirm/prompt`; gunakan `confirmArm()`.
 8. Rilis: naikkan `version` di `package.json` + catatan di `CHANGELOG.md`, push ke `main`; CI membangun .exe/.dmg dan menerbitkan GitHub Release.
