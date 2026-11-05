@@ -6,7 +6,7 @@ const html = fs.readFileSync(path.join(__dirname, '..', 'src', 'index.html'), 'u
 const app = fs.readFileSync(path.join(__dirname, '..', 'app.html'), 'utf8');
 const errors = [];
 const dom = new JSDOM(html, { runScripts: 'dangerously', url: 'http://localhost/', pretendToBeVisual: true,
-  beforeParse(w) { w.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {} }); w.scrollTo = () => {}; w.URL.createObjectURL = () => 'blob:x'; w.addEventListener('error', e => errors.push(e.message)); } });
+  beforeParse(w) { w.TextEncoder = TextEncoder; w.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {} }); w.scrollTo = () => {}; w.URL.createObjectURL = () => 'blob:x'; w.addEventListener('error', e => errors.push(e.message)); } });
 const w = dom.window, RP = w.RP;
 let n = 0; const ok = (c, m) => { assert.ok(c, m); n++; };
 const near = (a, b, tol, m) => ok(Math.abs(a - b) <= tol, `${m}: ${a} ≠ ${b}`);
@@ -88,6 +88,16 @@ ok(!/NaN|undefined/.test(w.document.querySelector('section[data-sec="ringkas"]')
   w.RPrender('rusun'); const sv = w.document.querySelector('section[data-sec="rusun"]'); ok(sv.querySelector('#vSec svg') && sv.querySelector('#vPlan svg') && !/NaN|undefined/.test(sv.textContent), 'halaman rumah susun tanpa NaN');
   ok(/function buildTower\(/.test(app) && /tower:twAPI/.test(app) && sv.querySelector('#t3d') && /tries=V3\.q/.test(app), 'tampak 3D menara + jenjang cadangan WebGL');
   ok(w.document.querySelector('section[data-sec="sumber"]').textContent.includes('Nomor 20 Tahun 2011'), 'rujukan UU Rumah Susun'); }
+// 10) v0.7.0: gambar terukur & lembar A2 — setiap SVG harus XML sah (dirender sebagai gambar untuk PDF)
+{ const st = w.RPstate(); const DP = new w.DOMParser(), okXML = (svg, m) => { const d = DP.parseFromString(w.pvars(svg).replace(/^<svg /, '<svg xmlns="http://www.w3.org/2000/svg" '), 'image/svg+xml'); ok(!d.getElementsByTagName('parsererror').length, 'XML sah: ' + m); };
+  st.types.forEach((t, i) => { okXML(w.archPlanSVG(t, 1), 'denah L1 tipe ' + i); if (+t.floors > 1) okXML(w.archPlanSVG(t, 2), 'denah L2 tipe ' + i); okXML(w.elevationSVG(t), 'tampak tipe ' + i); okXML(w.sectionSVG(t), 'potongan tipe ' + i); });
+  st.plan.komPct = 8; const L2 = w.RPcalc().lay; ok(L2.ruko.length > 0 && L2.area.kom > 0, 'zona komersial terbentuk'); near(L2.area.sum, L2.A, 1, 'neraca lahan + komersial tertutup'); okXML(w.sitePlanSVG(L2, { numbers: true }), 'siteplan + ruko');
+  const fe2 = w.RPcalc().fe; near(fe2.komRev, L2.area.kom * st.site.komPrice, 1, 'pendapatan kavling komersial'); st.plan.komPct = 0;
+  const V = w.vertDefault('apartemen'), Rv = w.vertCalc(V); okXML(w.towerSiteSVG(Rv, V), 'siteplan menara'); okXML(w.vertPlanSVG(Rv, V), 'denah tipikal menara');
+  const Fm = w.towerForm(Rv); ok(Fm.L <= Fm.S * .8 + 1e-6 || Fm.nT === 4, 'massa menara muat di lahan (dipecah bila perlu)');
+  const sh = w.gkSheetSVG({ proyek: 'Uji & coba', lokasi: 'Malang', tanggal: '5 November 2026', kind: 'tapak', gaya: 'putih' }, { code: 'A-01', title: 'RENCANA TAPAK', body: w.gkNest(w.sitePlanSVG(L2), 24, 14, 200, 200), scale: '1 : 500' }, 0, 1);
+  ok(!DP.parseFromString(sh, 'image/svg+xml').getElementsByTagName('parsererror').length && /594mm/.test(sh) && /Dikembangkan oleh: Pindo Tutuko/.test(sh), 'lembar A2 + kop sah');
+  const pdf = w.gkPDF([{ bytes: new Uint8Array([255, 216, 255, 217]), w: 1, h: 1 }], 'Uji'); ok(pdf.size > 300, 'PDF tersusun'); }
 // 8) rujukan memuat Kepmen PKP 1722
 ok(w.document.querySelector('section[data-sec="sumber"]').textContent.includes('1722/KPTS/M/2026'), 'rujukan Kepmen 1722');
 ok(errors.length === 0, 'galat skrip: ' + errors.join(' | '));

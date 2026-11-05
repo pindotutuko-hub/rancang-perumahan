@@ -28,10 +28,11 @@ ipcMain.handle('rp:save', async (e, { name, data, kind }) => {
 });
 ipcMain.handle('rp:saveImage', async (e, { name, data }) => {
   const win = BrowserWindow.fromWebContents(e.sender);
-  const m = /^data:image\/png;base64,(.+)$/.exec(String(data || '')); if (!m) return false;
-  const r = await dialog.showSaveDialog(win, { defaultPath: name, filters: [{ name: 'Gambar PNG', extensions: ['png'] }] });
+  const m = /^data:(image\/png|application\/pdf);base64,(.+)$/.exec(String(data || '')); if (!m) return false;
+  const pdf = m[1] === 'application/pdf';
+  const r = await dialog.showSaveDialog(win, { defaultPath: name, filters: [pdf ? { name: 'Dokumen PDF', extensions: ['pdf'] } : { name: 'Gambar PNG', extensions: ['png'] }] });
   if (r.canceled || !r.filePath) return false;
-  fs.writeFileSync(r.filePath, Buffer.from(m[1], 'base64'));
+  fs.writeFileSync(r.filePath, Buffer.from(m[2], 'base64'));
   return true;
 });
 ipcMain.handle('rp:open', async (e) => {

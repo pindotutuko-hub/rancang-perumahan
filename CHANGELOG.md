@@ -1,5 +1,21 @@
 # Catatan perubahan
 
+## 0.7.0 — 2026-11-05
+- **Menu baru G · Gambar kerja A2** (594 × 420 mm) dengan kop gambar lengkap: nama proyek, lokasi, pemilik, perencana, catatan, arah utara & legenda, revisi, judul, skala, kolom digambar/diperiksa/disetujui, tanggal, kode/nomor lembar, dan kredit.
+  - Lembar perumahan tapak: sampul & data proyek & daftar gambar, rencana tapak berskala, perspektif kawasan & lingkungan sekitar (3D), serta untuk tiap tipe: denah, tampak, potongan, dan 3D.
+  - Lembar rusun/apartemen: sampul, rencana tapak & lanskap, denah tipikal + potongan massa + tabel unit/NPP, tampak depan (render ortografik berskala), dan perspektif kawasan.
+  - Gaya standar atau cetak biru, resolusi 110/150/200 dpi, unduh PDF A2 tanpa pustaka tambahan (desktop: dialog simpan PDF).
+- **Denah terukur berperabot**: dinding bertebal, pintu berayun, jendela, as/grid, dimensi berantai, serta perabot (tempat tidur, lemari, sofa, TV, tangga, dapur, meja makan, kloset/shower, carport & mobil, taman). Denah lantai 2 untuk rumah dua lantai.
+- **Tampak depan terukur** dengan keterangan material, penanda level, dan dimensi bukaan; **potongan A–A** dengan level lantai dan tinggi bangunan.
+- **Rencana tapak bergaya lanskap**: halaman hijau, denah atap rumah, jalan masuk kavling, pohon, trotoar & marka, taman dengan jalur & area bermain, fasum, makam, batas tapak, gerbang, arah utara.
+- **Zona komersial (ruko)** opsional di muka kawasan: porsi lahan, lebar kavling ruko, dan harga kavling komersial (asumsi) yang masuk ke kelayakan.
+- **Rusun/apartemen**:
+  - Rencana tapak lanskap (drop-off, pos jaga, parkir, podium, kolam & taman atap, jogging track, lapangan, area bermain, musala, TPS).
+  - Denah tipikal terukur: inti lif & tangga darurat, lobi lif, shaft, dan unit berperabot.
+  - Menara terlalu panjang untuk lahan otomatis dipecah menjadi 2–4 massa sejajar.
+- **Kawasan 3D**: rumah tiap kavling, ruko, jalan, RTH, fasum, makam, pagar & gerbang, jalan akses, kampung sekitar, dan sawah.
+- Perbaikan: sisa lahan di ujung tapak tidak lagi menumpuk jalan utama (neraca lahan tepat).
+
 ## 0.6.2 — 2026-11-05
 - Perbaikan: tampak 3D gagal dimuat ("vendor three.js tidak ada") bila aplikasi langsung terbuka di halaman yang memuat 3D (halaman terakhir yang tersimpan). Pemuat kini menunggu dokumen selesai diurai, dan kegagalan tidak disimpan sehingga dapat dicoba ulang.
 
