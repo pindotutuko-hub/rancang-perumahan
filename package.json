@@ -1,7 +1,7 @@
 {
   "name": "rancang-perumahan",
   "productName": "Rancang Perumahan",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Studi tapak & kavling, desain tipe rumah, RAB, kelayakan bisnis, dan pembiayaan/KPR untuk arsitek dan pengembang perumahan",
   "author": "Pindo Tutuko",
   "license": "UNLICENSED",
@@ -22,10 +22,50 @@
     "appId": "id.ac.unmer.rancangperumahan",
     "productName": "Rancang Perumahan",
     "copyright": "Pindo Tutuko",
-    "files": ["main.js", "preload.js", "src/**/*"],
-    "directories": { "output": "dist", "buildResources": "build" },
-    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "zip", "arch": ["x64"] }], "icon": "build/icon.png" },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "shortcutName": "Rancang Perumahan" },
-    "mac": { "target": [{ "target": "dmg", "arch": ["universal"] }], "icon": "build/icon.png", "category": "public.app-category.productivity", "identity": "-" }
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Rancang Perumahan"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.productivity",
+      "identity": "-"
+    }
   }
 }

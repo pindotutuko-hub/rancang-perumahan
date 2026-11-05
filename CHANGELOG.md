@@ -1,5 +1,16 @@
 # Catatan perubahan
 
+## 0.4.0 — 2026-11-05
+- Tampak 3D lebih realistis:
+  - Langit fisik (model Preetham, addon Sky three.js) dirender ke cubemap. Langit ini menjadi latar sekaligus cahaya pantul lingkungan, dan berubah mengikuti jam matahari, termasuk warna senja.
+  - Kualitas tinggi menambah oklusi ambien GTAO (bayangan kontak di sudut, bawah atap, dan sela tiang) serta anti-alias SMAA.
+  - Material memakai peta normal yang diturunkan dari tekstur prosedural, sehingga nat bata, genteng, batu, serat kayu, dan paving punya relief yang terkena cahaya matahari.
+  - Pohon dan perdu disusun dari ribuan kartu daun bertekstur (InstancedMesh, alpha-test) di atas batang dan cabang, ditambah sabuk pohon di belakang kavling dan di seberang jalan.
+  - Halaman depan berisi helai rumput ber-instansi.
+  - Jendela memperlihatkan ruang dalam dan gorden acak. Kacanya transparan dan memantulkan langit. Mulai jam ±17.00, lampu dalam rumah dan lampu jalan menyala.
+- Tombol "✨ Kualitas: Tinggi/Ringan" disimpan per perangkat. Perangkat sentuh memakai "Ringan" secara bawaan.
+- Addon three.js r171 (MIT) dibundel lokal ke `vendor/three/addons.min.js`, tanpa CDN.
+
 ## 0.3.0
 - Langkah baru **0 · Lokasi & peta**: peta OpenStreetMap (tanpa pustaka), cari alamat (Nominatim), lokasi perangkat, gambar batas lahan → luas, keliling, sisi muka, persegi panjang pembatas; terapkan ukuran ke lahan proyek.
 - Alamat kab/kota & provinsi dari peta; saran wilayah batas harga rumah umum (Kepmen PKP 1722/KPTS/M/2026).

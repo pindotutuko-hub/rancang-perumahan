@@ -3,6 +3,7 @@ const fs = require('fs'), path = require('path'), assert = require('assert');
 const { JSDOM } = require('jsdom');
 require('../build-page.js');
 const html = fs.readFileSync(path.join(__dirname, '..', 'src', 'index.html'), 'utf8');
+const app = fs.readFileSync(path.join(__dirname, '..', 'app.html'), 'utf8');
 const errors = [];
 const dom = new JSDOM(html, { runScripts: 'dangerously', url: 'http://localhost/', pretendToBeVisual: true,
   beforeParse(w) { w.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {} }); w.scrollTo = () => {}; w.URL.createObjectURL = () => 'blob:x'; w.addEventListener('error', e => errors.push(e.message)); } });
@@ -54,6 +55,9 @@ w.RPtipe.forEach(p => { const m = p.n.match(/(\d+)\/(\d+)/); ok(+m[1] === p.LB &
 ok(Object.values(w.RPstyles).every(s => s.n && s.roof && s.wall && s.trim && s.roofC && isFinite(s.f)), 'data gaya lengkap untuk 3D');
 // 7c) three.js r171 di-vendor (tanpa CDN) & CSP mengizinkan blob:
 ok(html.includes('id="vx-three-core"') && html.includes('id="vx-three-env"') && /script-src[^;]*blob:/.test(html) && !/<script[^>]+src="https?:/.test(html), 'three.js lokal + CSP blob');
+// 7d) v0.4.0: addon three.js lokal (langit fisik, GTAO, SMAA) + pilihan kualitas + vegetasi ber-instansi
+ok(html.includes('id="vx-three-fx"') && /GTAOPass/.test(html) && /SMAAPass/.test(html) && /sunPosition/.test(html), 'addon three.js (Sky, GTAO, SMAA) tersisip lokal');
+ok(/id="v3q"/.test(app) && /quality\(q\)/.test(app) && /InstancedMesh/.test(app) && /function nrm\(/.test(app), 'kualitas 3D, peta normal, daun ber-instansi');
 ok(w.document.querySelector('#v3d') !== null, 'wadah tampak 3D');
 w.RPrender('rumah'); w.document.querySelector('[data-tp="4"]').click(); ok(+w.RPstate().types[0].floors === 2 && +w.RPstate().types[0].LB === 60, 'terapkan tipe 2 lantai');
 ok(w.document.body.innerHTML.includes('Pindo Tutuko'), 'kredit');

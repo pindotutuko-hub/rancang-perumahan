@@ -3,7 +3,7 @@ const fs = require('fs'), path = require('path');
 const app = fs.readFileSync(path.join(__dirname, 'app.html'), 'utf8');
 // three.js r171 (MIT) di-vendor lokal; disisipkan sebagai teks dan dimuat lewat blob: (bekerja di file:// Electron & web, tanpa CDN)
 const vx = (id, f) => { const t = fs.readFileSync(path.join(__dirname, 'vendor', 'three', f), 'utf8'); if (/<\/script/i.test(t)) throw new Error(f); return `<script type="text/plain" id="${id}">${t}</script>\n`; };
-const body = app + '\n' + vx('vx-three-core', 'three.core.min.js') + vx('vx-three', 'three.module.min.js') + vx('vx-three-env', 'RoomEnvironment.js');
+const body = app + '\n' + vx('vx-three-core', 'three.core.min.js') + vx('vx-three', 'three.module.min.js') + vx('vx-three-env', 'RoomEnvironment.js') + vx('vx-three-fx', 'addons.min.js');
 const head = `<!doctype html>
 <html lang="id">
 <head>
