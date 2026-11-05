@@ -369,7 +369,8 @@ const RP = (()=>{
     const rth = (lay.area.rth+lay.area.sisa)*(+c.rthM2||0);
     const fasum = lay.area.fasum*(+c.fasumM2||0) + lay.area.makam*(+c.makamM2||0);
     const util = nU*(+c.utilUnit||0);
-    const infra = prep+roads+drain+rth+fasum+util;
+    const fasX = fasCost(P.fasH||fasDefault('perumahan'),'perumahan',nU,0);
+    const infra = prep+roads+drain+rth+fasum+util+fasX.total;
     const consByType = T.map((t,i)=>units[i]*(+t.LB||0)*(+c.buildM2||0)*(styleFactor(t)||1));
     const cons = consByType.reduce((a,b)=>a+b,0);
     const permits = (+c.permitLump||0) + nU*(+c.certUnit||0);
@@ -380,7 +381,7 @@ const RP = (()=>{
     const overhead = (land+infra+cons+permits)*(+c.ohPct||0)/100;
     const total = land+infra+cons+permits+contingency+marketing+tax+overhead;
     const profit = revenue-total;
-    const items=[['Lahan (termasuk biaya peralihan)',land],['Pematangan lahan',prep],['Jalan',roads],['Saluran drainase',drain],['RTH & taman',rth],['Fasum & makam',fasum],['Utilitas (air, listrik) per unit',util],['Konstruksi rumah',cons],['Perizinan & sertifikat',permits],['Cadangan tak terduga',contingency],['Pemasaran',marketing],['PPh final penjualan ('+fmt(taxRate*100,1)+'%)',tax],['Manajemen & umum',overhead]];
+    const items=[['Lahan (termasuk biaya peralihan)',land],['Pematangan lahan',prep],['Jalan',roads],['Saluran drainase',drain],['RTH & taman',rth],['Fasum & makam (lahan & halaman)',fasum],['Fasilitas, lanskap & utilitas lingkungan',fasX.total],['Utilitas (air, listrik) per unit',util],['Konstruksi rumah',cons],['Perizinan & sertifikat',permits],['Cadangan tak terduga',contingency],['Pemasaran',marketing],['PPh final penjualan ('+fmt(taxRate*100,1)+'%)',tax],['Manajemen & umum',overhead]];
 
     /* arus kas bulanan (sebelum pembiayaan) */
     const H = Math.max(6, Math.round(+sale.horizon||48));
@@ -600,11 +601,11 @@ function massLayout(R){ const V=R.V||{}, Fm=towerForm(R), L=Fm.L, D=Fm.D, n=Fm.n
 /* Fasilitas & utilitas lingkungan (biaya = asumsi, dapat diubah) — v: hunian vertikal, h: perumahan tapak */
 const FAS={
   pos:{n:'Pos jaga & gerbang',sz:[5,4],c:'#e9e2d4',cost:150e6,v:1,h:1,def:'rusun apartemen kondominium perumahan'},
-  ibadah:{n:'Musala / masjid',sz:[16,13],c:'#f0b36b',cost:1.5e9,v:1,h:1,def:'rusun apartemen kondominium perumahan'},
+  ibadah:{n:'Musala / masjid',sz:[16,13],c:'#f0b36b',cost:1.5e9,ch:800e6,v:1,h:1,def:'rusun apartemen kondominium perumahan'},
   bermain:{n:'Taman bermain anak',sz:[12,10],c:'#e9b07c',cost:250e6,v:1,h:1,def:'rusun apartemen kondominium perumahan'},
   taman:{n:'Taman tematik / RTH aktif',sz:[22,16],c:'#b5d896',cost:350e6,v:1,h:1,def:'rusun apartemen kondominium perumahan'},
   jogging:{n:'Jogging track',sz:[34,22],c:'#d9785e',cost:450e6,v:1,h:1,def:'apartemen kondominium'},
-  lapangan:{n:'Lapangan olahraga (basket/futsal)',sz:[30,17],c:'#4f8fd1',cost:650e6,v:1,h:1,def:'rusun apartemen perumahan'},
+  lapangan:{n:'Lapangan olahraga (basket/futsal)',sz:[30,17],c:'#4f8fd1',cost:650e6,v:1,h:1,def:'rusun apartemen'},
   tenis:{n:'Lapangan tenis',sz:[36,18],c:'#3f8f6a',cost:900e6,v:1,h:1,def:'kondominium'},
   kolam:{n:'Kolam renang & dek',sz:[26,14],c:'#7cc4e4',cost:1.8e9,v:1,h:1,def:'apartemen kondominium'},
   klub:{n:'Clubhouse / gym',sz:[18,12],c:'#d8c3e8',cost:2.2e9,v:1,h:1,def:'kondominium'},
@@ -612,11 +613,11 @@ const FAS={
   belanja:{n:'Minimarket / pusat belanja',sz:[20,14],c:'#e3a68e',cost:2.5e9,v:1,h:1,def:'apartemen kondominium'},
   resto:{n:'Restoran / kafe',sz:[14,10],c:'#e8c48e',cost:1.1e9,v:1,h:1,def:'kondominium'},
   laundry:{n:'Laundry & area jemur bersama',sz:[10,7],c:'#cfe0ef',cost:300e6,v:1,h:0,def:'rusun'},
-  balai:{n:'Balai RT/RW / gedung pertemuan',sz:[16,12],c:'#f2d9a8',cost:1.2e9,v:1,h:1,def:'rusun perumahan'},
+  balai:{n:'Balai RT/RW / gedung pertemuan',sz:[16,12],c:'#f2d9a8',cost:1.2e9,ch:500e6,v:1,h:1,def:'rusun'},
   kantor:{n:'Kantor pengelola',sz:[10,8],c:'#e6dcc6',cost:600e6,v:1,h:1,def:'rusun apartemen kondominium'},
   sekolah:{n:'PAUD / TK',sz:[18,14],c:'#f6e08f',cost:1.6e9,v:0,h:1,def:''},
-  mee:{n:'Pusat MEE (genset, panel, pompa, GWT)',sz:[14,10],c:'#b9b4aa',cost:3.5e9,v:1,h:1,def:'rusun apartemen kondominium perumahan'},
-  ipal:{n:'IPAL / STP komunal',sz:[12,8],c:'#9cb8a8',cost:1.5e9,v:1,h:1,def:'rusun apartemen kondominium perumahan'},
+  mee:{n:'Pusat MEE (genset, panel, pompa, GWT)',sz:[14,10],c:'#b9b4aa',cost:3.5e9,ch:600e6,v:1,h:1,def:'rusun apartemen kondominium'},
+  ipal:{n:'IPAL / STP komunal',sz:[12,8],c:'#9cb8a8',cost:1.5e9,ch:900e6,v:1,h:1,def:'rusun apartemen kondominium'},
   sumur:{n:'Sumur dalam & reservoir',sz:[7,6],c:'#9fc7de',cost:450e6,v:1,h:1,def:'rusun perumahan'},
   tps:{n:'TPS 3R',sz:[8,6],c:'#bdb6a8',cost:200e6,v:1,h:1,def:'rusun apartemen kondominium perumahan'},
   parkir:{n:'Parkir permukaan tamu',sz:[22,15],c:'#d7d3cb',cost:350e6,v:1,h:1,def:'rusun apartemen'},
@@ -624,10 +625,10 @@ const FAS={
   tpu:{n:'TPU / makam',sz:[0,0],c:'#c7c2b6',cost:0,v:0,h:1,def:'',note:'luas mengikuti pengaturan Makam di Tapak'}
 };
 const UTIL={
-  pv:{n:'Panel surya atap (PV)',u:'kWp/unit',q:{rusun:0,apartemen:.5,kondominium:1.5,perumahan:2},cost:15e6,d:'Rp/kWp (asumsi)'},
-  smart:{n:'Sistem smart (akses kartu, CCTV, IoT/BMS)',u:'unit',q:{rusun:0,apartemen:1,kondominium:1,perumahan:1},cost:6e6,d:'Rp/unit (asumsi)'},
-  tanam:{n:'Listrik & kabel tanam (underground)',u:'unit',q:{rusun:0,apartemen:1,kondominium:1,perumahan:1},cost:9e6,d:'Rp/unit (asumsi)'},
-  panel:{n:'Panel kontrol / ruang kontrol terpusat',u:'paket',q:{rusun:1,apartemen:1,kondominium:1,perumahan:1},cost:750e6,d:'Rp/paket (asumsi)'},
+  pv:{n:'Panel surya atap (PV)',u:'kWp/unit',q:{rusun:0,apartemen:.5,kondominium:1.5,perumahan:0},cost:15e6,d:'Rp/kWp (asumsi)'},
+  smart:{n:'Sistem smart (akses kartu, CCTV, IoT/BMS)',u:'unit',q:{rusun:0,apartemen:1,kondominium:1,perumahan:0},cost:6e6,d:'Rp/unit (asumsi)'},
+  tanam:{n:'Listrik & kabel tanam (underground)',u:'unit',q:{rusun:0,apartemen:1,kondominium:1,perumahan:0},cost:9e6,d:'Rp/unit (asumsi)'},
+  panel:{n:'Panel kontrol / ruang kontrol terpusat',u:'paket',q:{rusun:1,apartemen:1,kondominium:1,perumahan:0},cost:750e6,d:'Rp/paket (asumsi)'},
   fire:{n:'Proteksi kebakaran (hidran, sprinkler, alarm)',u:'m² GFA / unit',q:{rusun:1,apartemen:1,kondominium:1,perumahan:1},cost:0,d:'vertikal: Rp350 rb/m² GFA; tapak: Rp2,5 jt/unit (asumsi)'},
   rwh:{n:'Panen air hujan & sumur resapan',u:'unit',q:{rusun:1,apartemen:1,kondominium:1,perumahan:1},cost:3e6,d:'Rp/unit (asumsi)'}
 };
@@ -636,7 +637,7 @@ const VEG={peneduh:{n:'Pohon peneduh (trembesi, ketapang kencana, tabebuya)',r:1
 function fasDefault(kind){ const o={}; for(const k in FAS) o[k]=FAS[k].def.split(' ').includes(kind); const u={}; for(const k in UTIL) u[k]=UTIL[k].q[kind]||0; return {on:o,util:u,lans:kind==='rusun'?'produktif':kind==='kondominium'?'formal':'tropis',veg:kind==='kondominium'?'palem':'campuran'}; }
 /* biaya fasilitas & utilitas: {items:[[nama,Rp]], total} */
 function fasCost(F,kind,units,gfa){ const it=[]; if(!F) return {items:it,total:0}; const vert=kind!=='perumahan';
-  for(const k in FAS) if(F.on&&F.on[k]&&FAS[k].cost&&(vert?FAS[k].v:FAS[k].h)) it.push([FAS[k].n,FAS[k].cost]);
+  for(const k in FAS) if(F.on&&F.on[k]&&FAS[k].cost&&(vert?FAS[k].v:FAS[k].h)) it.push([FAS[k].n,vert? FAS[k].cost : (FAS[k].ch||FAS[k].cost)]);
   const u=F.util||{}; if(+u.pv) it.push([UTIL.pv.n+` (${fmt(+u.pv,1)} kWp/unit)`,units*(+u.pv)*UTIL.pv.cost]);
   ['smart','tanam','rwh'].forEach(k=>{ if(+u[k]) it.push([UTIL[k].n,units*UTIL[k].cost]); }); if(+u.panel) it.push([UTIL.panel.n,UTIL.panel.cost]);
   if(+u.fire) it.push([UTIL.fire.n, vert? (gfa||0)*350000 : units*2.5e6]);
@@ -647,6 +648,14 @@ function slotGrid(S){ const N=Math.ceil(S)+1, g=new Uint8Array(N*N), mark=(x,y,w
   place=(w,h,pref='back',mg=1)=>{ const ys=[]; for(let y=0;y<=S-h;y+=2) ys.push(y); if(pref==='back') ys.reverse(); const xs=[]; for(let x=0;x<=S-w;x+=2) xs.push(x); if(pref==='back') xs.reverse();
     for(const rot of [0,1]){ const ww=rot?h:w, hh=rot?w:h; for(const y of ys) for(const x of xs) if(free(x-mg,y-mg,ww+2*mg,hh+2*mg)&&x+ww<=S&&y+hh<=S){ mark(x-mg,y-mg,ww+2*mg,hh+2*mg); return [x,y,ww,hh]; } } return null; };
   return {mark,free,place}; }
+/* Fasilitas perumahan tapak: dikemas ke petak fasum (bangunan) & RTH (rekreasi); dipakai siteplan 2D & kawasan 3D */
+function estateFas(lay,F){ F=F||fasDefault('perumahan'); const on=F.on||{}, placed=[], miss=[], grids=new Map();
+  const gridOf=r=>{ if(!grids.has(r)){ const n=Math.max(r.w,r.h), G=slotGrid(n); G.mark(r.w,0,n,n); G.mark(0,r.h,n,n); grids.set(r,G); } return grids.get(r); };
+  const rec=/taman|bermain|lapangan|jogging|kolam|tenis|golf/, order=['golf','tenis','lapangan','jogging','kolam','klub','ibadah','sekolah','balai','belanja','klinik','resto','kantor','taman','bermain','parkir','mee','ipal','sumur','tps'];
+  order.forEach(k=>{ if(!on[k]||!FAS[k].h) return; const pools=rec.test(k)? [lay.rth,lay.fasum] : [lay.fasum,lay.rth]; let ok=false;
+    for(const f of [1,.75,.55]) { for(const pool of pools){ for(const r of pool.slice().sort((a,b)=>b.w*b.h-a.w*a.h)){ if(r.end&&!rec.test(k)) continue; const G=gridOf(r), p=G.place(FAS[k].sz[0]*f,FAS[k].sz[1]*f,'back',.6); if(p){ placed.push({k,x:r.x+p[0],y:r.y+p[1],w:p[2],h:p[3],rf:pool===lay.rth}); ok=true; break; } } if(ok) break; } if(ok) break; }
+    if(!ok) miss.push(k); });
+  return {placed,miss}; }
 /* Penataan tapak hunian vertikal (data bersama untuk siteplan 2D & tampak 3D) */
 function vertSite(R,V){ const ML=massLayout(R), S=ML.S, F=V.fas||fasDefault(V.kind), on=F.on||{}, kom=V.podUse==='komersial', G=slotGrid(S), kb=Math.max(2.5,S*.03);
   G.mark(0,0,S,kb); G.mark(0,S-kb,S,kb); G.mark(0,0,kb,S); G.mark(S-kb,0,kb,S);
@@ -804,7 +813,8 @@ function defaultProject(){
       {name:'Tunggal 120/200',model:'tunggal',lotW:12.5,lotD:16,LB:120,floors:2,beds:4,baths:3,style:'japandi',price:1350000000,share:20,subsidi:false,sf:null}
     ],
     sarana:[{n:'Taman bermain',jiwa:0,luas:0},{n:'Posyandu / balai warga',jiwa:0,luas:0},{n:'Musala',jiwa:0,luas:0}],
-    cost:{landTxPct:5,prepM2:35000,roadM2:280000,drainM:450000,rthM2:120000,fasumM2:2500000,makamM2:50000,utilUnit:9000000,buildM2:3800000,permitLump:350000000,certUnit:4500000,contPct:5,mktPct:3,ohPct:5},
+    fasH:fasDefault('perumahan'),
+    cost:{landTxPct:5,prepM2:35000,roadM2:280000,drainM:450000,rthM2:120000,fasumM2:400000,makamM2:50000,utilUnit:9000000,buildM2:3800000,permitLump:350000000,certUnit:4500000,contPct:5,mktPct:3,ohPct:5},
     sales:{start:3,perMonth:6,buildMonths:4,dpPct:20,infraMonths:6,horizon:48},
     fin:{loanPct:40,loanRate:11,sweepPct:100,discPct:14},
     kpr:{price:330000000,dpPct:10,rate:7.5,years:20,fixY:3,rateFloat:11,income:12000000,dsr:30,subsidy:0},
@@ -864,15 +874,28 @@ function sitePlanSVG(lay, opt={}){
   const R=(r,a)=>`<rect x="${X(r.x)}" y="${Y(r.y)}" width="${r.w.toFixed(2)}" height="${r.h.toFixed(2)}" ${a}/>`;
   const GR='#d9e8c4', LAWN='#cfe3b4', TREE='#6f9a52', TREEs='#4f7a3a', PAVE='#e8e2d6', ROAD='#c9c5bd', KERB='#f4f1ea';
   let g=`<svg viewBox="0 0 ${vw.toFixed(1)} ${vh.toFixed(1)}" role="img" aria-label="Rencana tapak" font-family="Arial, Helvetica, sans-serif">`;
-  const tree=(x,y,r)=>`<circle cx="${X(x)}" cy="${Y(y)}" r="${r.toFixed(2)}" fill="${TREE}" stroke="${TREEs}" stroke-width="${lw}"/><circle cx="${(x+pad-r*.25).toFixed(2)}" cy="${(y+top-r*.25).toFixed(2)}" r="${(r*.45).toFixed(2)}" fill="#8db86a" opacity=".7"/>`;
+  const LSC=(LANS[(P.fasH||{}).lans]||LANS.tropis).c, VGt=(P.fasH||{}).veg; let tq=0;
+  const tree=(x,y,r)=>{ tq++; if(VGt==='palem'&&tq%2) return `<g transform="translate(${X(x)} ${Y(y)})">${[0,1,2,3,4,5].map(a=>`<path d="M0 0 L${(Math.cos(a*1.05)*r).toFixed(2)} ${(Math.sin(a*1.05)*r).toFixed(2)}" stroke="${LSC[tq%3]}" stroke-width="${(r*.3).toFixed(2)}" stroke-linecap="round"/>`).join('')}</g>`; return `<circle cx="${X(x)}" cy="${Y(y)}" r="${r.toFixed(2)}" fill="${LSC[tq%3]}" stroke="${TREEs}" stroke-width="${lw}"/><circle cx="${(x+pad-r*.25).toFixed(2)}" cy="${(y+top-r*.25).toFixed(2)}" r="${(r*.45).toFixed(2)}" fill="#8db86a" opacity=".7"/>`; };
   // jalan akses di luar kawasan (sisi muka)
   g+=`<rect x="0" y="${(top-big*.045).toFixed(2)}" width="${vw.toFixed(2)}" height="${(big*.04).toFixed(2)}" fill="${ROAD}"/><line x1="0" x2="${vw.toFixed(2)}" y1="${(top-big*.025).toFixed(2)}" y2="${(top-big*.025).toFixed(2)}" stroke="#fff" stroke-width="${lw*2}" stroke-dasharray="${lw*14} ${lw*10}"/>`;
   g+=`<text x="${(pad).toFixed(2)}" y="${(top-big*.05).toFixed(2)}" font-size="${(big*.016).toFixed(2)}" fill="var(--muted)">JALAN AKSES / JALAN UTAMA KOTA</text>`;
   g+=`<rect x="${X(0)}" y="${Y(0)}" width="${W}" height="${D}" fill="${GR}"/>`;
-  lay.rth.concat(lay.sisa).forEach(r=>{ g+=R(r,`fill="${LAWN}"`); if(r.w>8&&r.h>8){ g+=`<path d="M${X(r.x+r.w*.1)} ${Y(r.y+r.h*.85)} Q${X(r.x+r.w*.5)} ${Y(r.y+r.h*.1)} ${X(r.x+r.w*.9)} ${Y(r.y+r.h*.7)}" fill="none" stroke="${PAVE}" stroke-width="${Math.min(2,r.h*.08).toFixed(2)}"/>`;
+  const EF=estateFas(lay,P.fasH), hasF=r=>EF.placed.some(q=>q.x>=r.x-.01&&q.y>=r.y-.01&&q.x<r.x+r.w&&q.y<r.y+r.h), onF=(x,y)=>EF.placed.some(q=>x>q.x-1.5&&x<q.x+q.w+1.5&&y>q.y-1.5&&y<q.y+q.h+1.5);
+  lay.rth.concat(lay.sisa).forEach(r=>{ g+=R(r,`fill="${LAWN}"`); if(r.w>8&&r.h>8&&!hasF(r)){ g+=`<path d="M${X(r.x+r.w*.1)} ${Y(r.y+r.h*.85)} Q${X(r.x+r.w*.5)} ${Y(r.y+r.h*.1)} ${X(r.x+r.w*.9)} ${Y(r.y+r.h*.7)}" fill="none" stroke="${PAVE}" stroke-width="${Math.min(2,r.h*.08).toFixed(2)}"/>`;
       if(r.w>14&&r.h>10&&!r.end) g+=`<circle cx="${X(r.x+r.w*.5)}" cy="${Y(r.y+r.h*.5)}" r="${Math.min(4,r.h*.18).toFixed(2)}" fill="#e9c9a0" stroke="var(--ink)" stroke-width="${lw}"/>`;
-      for(let x=r.x+3;x<r.x+r.w-2;x+=7) for(let y=r.y+3;y<r.y+r.h-2;y+=8) if(((x*7+y*3)|0)%3) g+=tree(x+((y|0)%3),y,2.2); } });
-  lay.fasum.forEach(r=>{ g+=R(r,`fill="${PAVE}"`); const bw=Math.min(r.w*.6,20), bd=Math.min(r.h*.6,14); if(bw>4&&bd>4){ const bx=r.x+(r.w-bw)/2, by=r.y+(r.h-bd)/2; g+=`<rect x="${X(bx)}" y="${Y(by)}" width="${bw}" height="${bd}" fill="var(--fasum)" stroke="var(--ink)" stroke-width="${lw*1.5}"/><line x1="${X(bx)}" y1="${Y(by)}" x2="${X(bx+bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/><line x1="${X(bx+bw)}" y1="${Y(by)}" x2="${X(bx+bw-bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/><line x1="${X(bx)}" y1="${Y(by+bd)}" x2="${X(bx+bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/><line x1="${X(bx+bw)}" y1="${Y(by+bd)}" x2="${X(bx+bw-bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/><line x1="${X(bx+bd/2)}" y1="${Y(by+bd/2)}" x2="${X(bx+bw-bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/>`; } });
+      } for(let x=r.x+3;x<r.x+r.w-2;x+=7) for(let y=r.y+3;y<r.y+r.h-2;y+=8) if(((x*7+y*3)|0)%3&&!onF(x,y)) g+=tree(x+((y|0)%3),y,2.2); });
+  const FSH={ibadah:'MASJID',balai:'BALAI RW',klinik:'KLINIK',sekolah:'PAUD/TK',kantor:'PENGELOLA',belanja:'MINIMARKET',resto:'RESTO',klub:'CLUBHOUSE',mee:'MEE/GARDU',ipal:'IPAL',sumur:'SUMUR',tps:'TPS 3R',parkir:'PARKIR',taman:'TAMAN',bermain:'BERMAIN',lapangan:'LAPANGAN',jogging:'JOGGING',kolam:'KOLAM',tenis:'TENIS',golf:'MINI GOLF',pos:'POS'};
+  lay.fasum.forEach(r=>{ g+=R(r,`fill="${PAVE}"`); });
+  EF.placed.forEach(q=>{ const c=FAS[q.k].c, k=q.k;
+    if(k==='kolam') g+=R({x:q.x-.8,y:q.y-.8,w:q.w+1.6,h:q.h+1.6},`fill="#e6dfd1"`)+R(q,`fill="${c}" stroke="#3a8fb5" stroke-width="${lw*1.5}"`);
+    else if(k==='lapangan'||k==='tenis') g+=R(q,`fill="${c}" stroke="#fff" stroke-width="${lw*2}"`)+`<line x1="${X(q.x+q.w/2)}" x2="${X(q.x+q.w/2)}" y1="${Y(q.y)}" y2="${Y(q.y+q.h)}" stroke="#fff" stroke-width="${lw*1.5}"/>`;
+    else if(k==='jogging') g+=`<rect x="${X(q.x)}" y="${Y(q.y)}" width="${q.w.toFixed(2)}" height="${q.h.toFixed(2)}" rx="${(Math.min(q.w,q.h)/2).toFixed(2)}" fill="none" stroke="${c}" stroke-width="${(lw*5).toFixed(2)}"/>`;
+    else if(k==='taman'||k==='golf') g+=`<ellipse cx="${X(q.x+q.w/2)}" cy="${Y(q.y+q.h/2)}" rx="${(q.w/2).toFixed(2)}" ry="${(q.h/2).toFixed(2)}" fill="${c}" opacity=".9"/>`;
+    else if(k==='bermain') g+=R(q,`fill="#f3e3c4"`)+`<circle cx="${X(q.x+q.w*.35)}" cy="${Y(q.y+q.h/2)}" r="${(q.h*.25).toFixed(2)}" fill="${c}" stroke="var(--ink)" stroke-width="${lw}"/>`;
+    else if(k==='parkir') g+=R(q,`fill="#d7d3cb"`);
+    else g+=R(q,`fill="${c}" stroke="var(--ink)" stroke-width="${lw*1.5}"`);
+    g+=`<text x="${X(q.x+q.w/2)}" y="${Y(q.y+q.h/2)}" font-size="${Math.max(.8,Math.min(q.h*.28,q.w/((FSH[k]||k).length*.62),big*.012)).toFixed(2)}" text-anchor="middle" dominant-baseline="middle" fill="var(--ink)" font-weight="700" stroke="#fff" stroke-width="${(lw*2.5).toFixed(2)}" paint-order="stroke">${FSH[k]||k}</text>`; });
+  lay.fasum.forEach(r=>{ if(EF.placed.some(q=>q.x>=r.x-.01&&q.y>=r.y-.01&&q.x<r.x+r.w&&q.y<r.y+r.h)) return; const bw=Math.min(r.w*.6,20), bd=Math.min(r.h*.6,14); if(bw>4&&bd>4){ const bx=r.x+(r.w-bw)/2, by=r.y+(r.h-bd)/2; g+=`<rect x="${X(bx)}" y="${Y(by)}" width="${bw}" height="${bd}" fill="var(--fasum)" stroke="var(--ink)" stroke-width="${lw*1.5}"/><line x1="${X(bx)}" y1="${Y(by)}" x2="${X(bx+bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/><line x1="${X(bx+bw)}" y1="${Y(by)}" x2="${X(bx+bw-bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/><line x1="${X(bx)}" y1="${Y(by+bd)}" x2="${X(bx+bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/><line x1="${X(bx+bw)}" y1="${Y(by+bd)}" x2="${X(bx+bw-bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/><line x1="${X(bx+bd/2)}" y1="${Y(by+bd/2)}" x2="${X(bx+bw-bd/2)}" y2="${Y(by+bd/2)}" stroke="var(--ink)" stroke-width="${lw}"/>`; } });
   lay.makam.forEach(r=>{ g+=R(r,`fill="#d6d1c6"`); for(let x=r.x+1.5;x<r.x+r.w-1;x+=2.5) for(let y=r.y+1.5;y<r.y+r.h-1;y+=3.2) g+=`<rect x="${X(x)}" y="${Y(y)}" width="1" height="2" fill="#f2efe8" stroke="#9a948a" stroke-width="${lw*.6}"/>`; });
   // zona komersial: ruko 3 lantai, parkir depan
   (lay.ruko||[]).forEach((r,i)=>{ const pk=Math.min(6,r.h*.3), bd=Math.max(4,r.h-pk-2); g+=R({x:r.x,y:r.y,w:r.w,h:pk},`fill="${PAVE}" stroke="#bdb6a8" stroke-width="${lw*.6}"`);
@@ -892,7 +915,7 @@ function sitePlanSVG(lay, opt={}){
     if(opt.numbers && lay.lots.length<=600) g+=`<text x="${X(l.x+l.w/2)}" y="${Y(by+bd/2+Math.min(l.w,bd)*.12)}" font-size="${(Math.min(l.w,bd)*0.32).toFixed(2)}" text-anchor="middle" fill="var(--ink)" font-weight="700">${i+1}</text>`; });
   // label zona & batas tapak
   const lbl=(arr,t)=>arr.forEach(r=>{ if(r.w>W*0.06&&r.h>D*0.02) g+=`<text x="${X(r.x+r.w/2)}" y="${Y(r.y+r.h/2)}" font-size="${Math.min(r.h*0.22,big*0.018).toFixed(2)}" text-anchor="middle" dominant-baseline="middle" fill="var(--ink)" font-weight="700" stroke="#ffffff" stroke-width="${(lw*4).toFixed(2)}" paint-order="stroke">${t}</text>`; });
-  lbl(lay.rth,'TAMAN / RTH'); lbl(lay.fasum,'FASUM'); lbl(lay.makam,'MAKAM');
+  lbl(lay.rth.filter(r=>!hasF(r)),'TAMAN / RTH'); lbl(lay.fasum.filter(r=>!hasF(r)),'FASUM'); lbl(lay.makam,'MAKAM');
   g+=`<rect x="${X(0)}" y="${Y(0)}" width="${W}" height="${D}" fill="none" stroke="#c0392b" stroke-width="${lw*3}" stroke-dasharray="${lw*16} ${lw*6} ${lw*3} ${lw*6}"/>`;
   // gerbang & pintu masuk
   const ent=lay.roads.find(r=>r.kind==='utama'); const sx=ent? ent.x+ent.w/2 : W/2;
@@ -1337,7 +1360,7 @@ PAGES.lahan = sec => {
   bindInputs(sec, out); out();
 };
 
-PAGES.tapak = sec => {
+PAGES.tapak = sec => { if(!P.fasH) P.fasH=fasDefault('perumahan');
   sec.innerHTML = `<h1>2 · Tapak & kavling</h1>
   <p class="lede">Rencana tapak dibuat otomatis: lajur RTH dan fasum di pintu masuk, jalan utama membujur, jalan lingkungan melintang, dan deret kavling saling membelakangi. Atur lebar jalan, porsi RTH/fasum, dan campuran tipe rumah di langkah 3.</p>
   <div class="card"><div class="form">
@@ -1354,10 +1377,15 @@ PAGES.tapak = sec => {
   </div>
   <div class="grid g2">
     <div class="card" id="tapakChk"></div>
+    <div class="card"><h2>Fasilitas, lanskap & utilitas perumahan</h2><p class="note">Fasilitas bangunan ditempatkan otomatis di petak fasum; fasilitas rekreasi di RTH. Bila tidak muat, perbesar porsi PSU/fasum di atas. TPU mengikuti pengaturan makam. Biaya per item adalah asumsi dan masuk ke kelayakan.</p>
+      <div class="form">${F('fasH.lans','Gaya penataan lanskap','',{sel:Object.entries(LANS).map(([k,b])=>[k,b.n])})}${F('fasH.veg','Jenis vegetasi','',{sel:Object.entries(VEG).map(([k,b])=>[k,b.n])})}</div>
+      <h3 style="margin:12px 0 6px;font-size:14px">Fasilitas lingkungan</h3><div class="form">${Object.entries(FAS).filter(([k,f])=>f.h&&k!=='tpu').map(([k,f])=>F('fasH.on.'+k,`${f.n} <small class="muted">(${rp(f.ch||f.cost)})</small>`,'',{chk:1})).join('')}</div>
+      <h3 style="margin:12px 0 6px;font-size:14px">Utilitas, energi & keselamatan</h3><div class="form">${F('fasH.util.pv','Panel surya atap (PV)','kWp per rumah · Rp15 jt/kWp (asumsi)',{step:.5})}${['smart','tanam','panel','fire','rwh'].map(k=>F('fasH.util.'+k,`${UTIL[k].n} <small class="muted">(${esc(k==='fire'?'Rp2,5 jt/unit (asumsi)':UTIL[k].d)})</small>`,'',{chk:1})).join('')}</div>
+      <div id="fasHout" class="note" style="margin-top:8px"></div></div>
     <div class="card"><h2>Kebutuhan sarana lingkungan</h2><p class="note">Isi "penduduk pendukung" dan "luas minimal" dari tabel SNI 03-1733-2004 yang Anda pegang (aplikasi tidak menyalin isi SNI). Jumlah kebutuhan dihitung dari perkiraan penduduk.</p><div id="sarana"></div><button class="btn small" id="addSar">+ Tambah sarana</button></div>
   </div>
   <div class="card"><div class="row" style="justify-content:space-between"><h2>Daftar kavling</h2><button class="btn small" id="csvLots">Unduh CSV</button></div><div class="tbl" id="lots"></div></div>`;
-  const draw=()=>{ const {lay}=calc(); const num=$('#lotNum',sec).checked;
+  const draw=()=>{ const {lay}=calc(); const num=$('#lotNum',sec).checked; { const EF=estateFas(lay,P.fasH), FC=fasCost(P.fasH,'perumahan',lay.units,0); const o=$('#fasHout',sec); if(o) o.innerHTML=`Biaya fasilitas & utilitas: <b>${rp(FC.total)}</b>${EF.miss.length?` · <span style="color:var(--bad)">tidak muat di fasum/RTH: ${EF.miss.map(k=>esc(FAS[k].n)).join(', ')}</span>`:''}`; }
     $('#plan',sec).innerHTML=sitePlanSVG(lay,{numbers:num});
     const A=lay.A, a=lay.area, pop=lay.units*(+P.plan.jiwaKK||4);
     $('#tapakStat',sec).innerHTML=`<h2>Neraca lahan</h2>${donut([['Kavling',a.lot,'var(--lot)'],['Jalan',a.road,'var(--road)'],['RTH + sisa',a.rth+a.sisa,'var(--rth)'],['Fasum',a.fasum,'var(--fasum)'],['Makam',a.makam,'var(--makam)']])}
@@ -1470,7 +1498,7 @@ PAGES.rab = sec => {
     <div class="card"><h2>Harga satuan (perkiraan)</h2><div class="form">
       ${F('cost.prepM2','Pematangan lahan','Rp/m² lahan',{step:1000})}${F('cost.roadM2','Jalan (perkerasan)','Rp/m²',{step:1000})}
       ${F('cost.drainM','Saluran drainase','Rp/m (dua sisi jalan)',{step:1000})}${F('cost.rthM2','RTH & taman','Rp/m²',{step:1000})}
-      ${F('cost.fasumM2','Fasum (bangunan & halaman)','Rp/m² lahan fasum',{step:1000})}${F('cost.makamM2','Makam','Rp/m²',{step:1000})}
+      ${F('cost.fasumM2','Fasum (penyiapan & halaman)','Rp/m² lahan fasum; bangunan fasilitas dihitung per item',{step:1000})}${F('cost.makamM2','Makam','Rp/m²',{step:1000})}
       ${F('cost.utilUnit','Sambungan air & listrik','Rp/unit',{step:100000})}${F('cost.buildM2','Konstruksi rumah (gaya dasar)','Rp/m² bangunan',{step:10000})}
       ${F('cost.permitLump','Perizinan & perencanaan proyek','Rp (borongan)',{step:1000000})}${F('cost.certUnit','Pemecahan sertifikat & PBG per unit','Rp/unit',{step:100000})}
       ${F('cost.contPct','Cadangan tak terduga','% konstruksi + prasarana')}${F('cost.mktPct','Pemasaran','% pendapatan')}${F('cost.ohPct','Manajemen & umum','% biaya')}
@@ -1698,7 +1726,7 @@ function gkSheetSVG(K,sh,i,n){ const bp=K.gaya==='biru', vars=bp? {ink:'#ffffff'
 /* susun daftar lembar */
 async function gkBuild(K,progress){ const R3=await load3D(); const sheets=[], hdr=(code,title,body,o={})=>sheets.push(Object.assign({code,title,body},o)), D=GK.da;
   const today=K.tanggal;
-  if(K.kind!=='vertikal'){ const {lay,fe}=calc(); progress&&progress('Merender kawasan 3D…'); const E=R3.snaps.estate({lay,types:P.types,rules:P.rules},{w:2200,h:1300});
+  if(K.kind!=='vertikal'){ const {lay,fe}=calc(); progress&&progress('Merender kawasan 3D…'); const E=R3.snaps.estate({lay,types:P.types,rules:P.rules,fas:P.fasH},{w:2200,h:1300});
     const legend=P.types.map((t,i)=>[t.name,PV[['lot','lot2','lot3','lot4','lot','lot2'][i%6]]]).concat([['Jalan',PV.road],['RTH / taman','#cfe3b4'],['Fasum',PV.fasum]]).concat(lay.ruko&&lay.ruko.length?[['Komersial / ruko','#e3a68e']]:[]);
     // sampul
     const rowsT=[['Tipe','Kavling','LB/LT (m²)','Unit']].concat(P.types.map((t,i)=>[t.name,`${fmt(t.lotW,1)}×${fmt(t.lotD,1)}`,`${fmt(t.LB)}/${fmt(t.lotW*t.lotD)}`,fmt(fe.units[i])]));
@@ -2203,7 +2231,13 @@ function make3D(THREE, RoomEnvironment, FX){
     const gm=texMat('grass','',{roughness:.97}); const gr=box(G,6000,.02,6000,gm,-3000,-.02,-3000); gr.castShadow=false;
     const AS=texMat('asphalt','',{roughness:.95}), PV=texMat('paving','#b9b4ab',{roughness:.8}), FN=flat('#d8d3c8',.85);
     lay.roads.forEach(r=>box(G,r.w,.05,r.h,AS,X(r.x),0,Z(r.y+r.h)));
-    lay.fasum.forEach(r=>{ box(G,r.w,.04,r.h,PV,X(r.x),0,Z(r.y+r.h)); const bw=Math.min(r.w*.6,18), bd=Math.min(r.h*.6,12); if(bw>4&&bd>4) houseLite(G,X(r.x+(r.w-bw)/2),Z(r.y+(r.h+bd)/2),Z(r.y+(r.h-bd)/2),bw,1,{roof:'hip',wall:'#f1ede4',wallT:'plaster',roofC:'#8f4a2b',roofT:'clay',pitch:30,accent:'#6b4a33'},1); });
+    const EF=estateFas(lay,E.fas), inR=(q,r)=>q.x>=r.x-.01&&q.y>=r.y-.01&&q.x<r.x+r.w&&q.y<r.y+r.h, POOL=M('pool',()=>new THREE.MeshPhysicalMaterial({color:'#5fb7dc',roughness:.05,clearcoat:1,envMapIntensity:2}));
+    EF.placed.forEach(q=>{ const k=q.k, c=FAS[k].c, x0=X(q.x), z0=Z(q.y+q.h);
+      if(k==='kolam'){ box(G,q.w+1.6,.05,q.h+1.6,PV,x0-.8,0,z0-.8); box(G,q.w,.07,q.h,POOL,x0,.02,z0); }
+      else if(k==='lapangan'||k==='tenis'){ box(G,q.w,.05,q.h,flat(c,.8),x0,0,z0); box(G,.12,.06,q.h,flat('#ffffff',.6),x0+q.w/2-.06,.01,z0); }
+      else if(/taman|jogging|golf|bermain|parkir/.test(k)){ box(G,q.w,.05,q.h,k==='parkir'?AS:k==='bermain'?flat('#e8d3a8',.95):gm,x0,0,z0); if(k==='bermain'){ box(G,1.2,2.2,1.2,flat('#e07a5f',.6),x0+q.w*.3,0,z0+q.h*.4); } }
+      else houseLite(G,x0,Z(q.y+q.h),Z(q.y),q.w,k==='sekolah'||k==='klub'?2:1,{roof:k==='ibadah'?'flat':'hip',wall:c,wallT:'plaster',roofC:k==='ibadah'?'#3d6b5a':'#8f4a2b',roofT:'clay',pitch:28,accent:'#6b4a33'},1); });
+    lay.fasum.forEach(r=>{ box(G,r.w,.04,r.h,PV,X(r.x),0,Z(r.y+r.h)); if(EF.placed.some(q=>inR(q,r))) return; const bw=Math.min(r.w*.6,18), bd=Math.min(r.h*.6,12); if(bw>4&&bd>4) houseLite(G,X(r.x+(r.w-bw)/2),Z(r.y+(r.h+bd)/2),Z(r.y+(r.h-bd)/2),bw,1,{roof:'hip',wall:'#f1ede4',wallT:'plaster',roofC:'#8f4a2b',roofT:'clay',pitch:30,accent:'#6b4a33'},1); });
     lay.makam.forEach(r=>{ box(G,r.w,.04,r.h,flat('#b9b2a4',.95),X(r.x),0,Z(r.y+r.h)); const st=[]; for(let x=r.x+1.5;x<r.x+r.w-1;x+=2.2) for(let y=r.y+1.5;y<r.y+r.h-1;y+=3) st.push(_m(X(x),.35,Z(y),.35,.7,.12)); inst(G,UBOX,flat('#e8e4dc',.8),st); });
     let nt=0; lay.rth.concat(lay.sisa.filter(r=>r.w*r.h>60)).forEach(r=>{ for(let x=r.x+4;x<r.x+r.w-2&&nt<60;x+=9) for(let y=r.y+4;y<r.y+r.h-2&&nt<60;y+=9){ tree(G,X(x)+(rnd()-.5)*2,Z(y)+(rnd()-.5)*2,.9+rnd()*.5); nt++; } });
     const gsb=Math.max(.6,+E.rules.gsb||3);
