@@ -347,11 +347,11 @@ const RP = (()=>{
     const LT=(+t.lotW)*(+t.lotD), floors=Math.max(1,+t.floors||1), LB=+t.LB, foot=LB/floors;
     const kdb = LT? foot/LT : NaN, klb = LT? LB/LT : NaN;
     const gsb=+rules.gsb||0, back=+rules.backSet||0;
-    const maxDepth=(+t.lotD)-gsb-back, bw=Math.min(+t.lotW, foot/Math.max(1,Math.min(maxDepth,foot/Math.max(1,+t.lotW))));
-    const bd = foot/Math.max(0.1, +t.lotW); // rumah deret/kopel: lebar bangunan = lebar kavling
+    const maxDepth=(+t.lotD)-gsb-back, bw=bldW(t,0);
+    const bd = foot/Math.max(0.1, bw); // lebar bangunan = lebar kavling dikurangi jarak samping (deret: 0)
     const fitDepth = bd <= maxDepth+1e-6;
     const kdh = LT? Math.max(0, (LT - foot - (+t.lotW)*Math.min(gsb, +rules.paveFront||0))/LT) : NaN;
-    return {LT,LB,foot,floors,kdb,klb,kdh,bw:+t.lotW,bd,maxDepth,fitDepth};
+    return {LT,LB,foot,floors,kdb,klb,kdh,bw,bd,maxDepth,fitDepth,model:t.model||'deret',side:sideOf(t,0)};
   }
 
   /* -------- Biaya, pendapatan, arus kas -------- */
@@ -464,8 +464,27 @@ const TIPE = [
   {n:'Tipe 45/90',lotW:7.5,lotD:12,LB:45,floors:1,beds:2,baths:1},
   {n:'Tipe 54/105',lotW:7,lotD:15,LB:54,floors:1,beds:3,baths:1},
   {n:'Tipe 60/72 · 2 lantai',lotW:6,lotD:12,LB:60,floors:2,beds:3,baths:2},
-  {n:'Tipe 90/120 · 2 lantai',lotW:8,lotD:15,LB:90,floors:2,beds:4,baths:3}
+  {n:'Tipe 90/120 · 2 lantai',lotW:8,lotD:15,LB:90,floors:2,beds:4,baths:3},
+  {n:'Kopel 45/120',lotW:10,lotD:12,LB:45,floors:1,beds:2,baths:1,model:'kopel'},
+  {n:'Tunggal 70/150',lotW:10,lotD:15,LB:70,floors:1,beds:3,baths:2,model:'tunggal'},
+  {n:'Tunggal 120/200 · 2 lantai',lotW:12.5,lotD:16,LB:120,floors:2,beds:4,baths:3,model:'tunggal'},
+  {n:'Townhouse 100/72 · 3 lantai',lotW:6,lotD:12,LB:100,floors:3,beds:3,baths:3,model:'townhouse'},
+  {n:'Villa taman 180/360 · 2 lantai',lotW:18,lotD:20,LB:180,floors:2,beds:4,baths:4,model:'villa'}
 ];
+/* Model rumah tapak — jarak bebas samping (jarak samping) mengikuti RDTR/peraturan bangunan setempat; nilai di P.rules.sideSet */
+const HMODEL = {
+  deret:{n:'Rumah deret (row house)',d:'Dinding samping menempel kiri-kanan; lahan paling hemat.'},
+  kopel:{n:'Rumah kopel (semi-detached)',d:'Dua rumah berbagi satu dinding; satu sisi berjarak bebas samping.'},
+  tunggal:{n:'Rumah tunggal (detached)',d:'Berdiri sendiri; jarak bebas samping di kedua sisi.'},
+  townhouse:{n:'Townhouse (deret 2–3 lantai)',d:'Deret bertingkat di kavling sempit, biasanya dalam klaster tertutup.'},
+  villa:{n:'Rumah taman / villa',d:'Rumah tunggal di kavling besar dengan taman luas.'}
+};
+/* jarak samping [kiri, kanan] untuk kavling ke-i (kopel: berpasangan, dinding bersama di tengah pasangan) */
+function sideOf(t,i=0){ const m=(t&&t.model)||'deret', ss=Math.max(0,+((typeof P!=='undefined'&&P.rules&&P.rules.sideSet)??1.5)||0), W=+t.lotW||6, cap=Math.max(0,(W-3)/2);
+  if(m==='tunggal'||m==='villa') return [Math.min(ss,cap),Math.min(ss,cap)];
+  if(m==='kopel') return i%2? [0,Math.min(ss,W-3)] : [Math.min(ss,W-3),0];
+  return [0,0]; }
+const bldW=(t,i=0)=>{ const s2=sideOf(t,i); return Math.max(3,(+t.lotW||6)-s2[0]-s2[1]); };
 
 /* ---------- Proyek default (nilai contoh, dapat diubah semua) ---------- */
 /* -------- Rumah susun / flat / apartemen / kondominium (bangunan gedung bertingkat) --------
@@ -478,9 +497,9 @@ const VKIND = {
   rusun:{n:'Rusun umum (milik) — MBR',d:'Rumah susun umum untuk masyarakat berpenghasilan rendah; PPh final 1% bila memenuhi kriteria Rusun Sederhana.',komersial:false,sederhana:true,
     v:{A:3000,landPrice:2000000,kdb:50,klb:3,maxFl:10,podFl:0,podUse:'parkir',baseFl:0,plate:850,eff:80,floorH:3.0,parkPer:0.15,priceUp:0,mix:[['Tipe 24',24,40,10500000],['Tipe 36',36,60,10000000]],struM2:5500000,podM2:4500000,baseM2:8000000}},
   apartemen:{n:'Apartemen menengah',d:'Menara hunian dengan podium parkir/komersial, studio–3 kamar.',komersial:true,sederhana:false,
-    v:{A:4000,landPrice:6000000,kdb:50,klb:5,maxFl:30,podFl:2,podUse:'parkir',baseFl:1,plate:1100,eff:78,floorH:3.1,parkPer:0.4,priceUp:0.4,mix:[['Studio',24,35,27000000],['1 kamar',33,35,26000000],['2 kamar',45,25,25000000],['3 kamar',65,5,24500000]],struM2:7800000,podM2:5000000,baseM2:8500000}},
+    v:{A:4000,landPrice:6000000,kdb:50,klb:5,maxFl:30,podFl:2,podUse:'parkir',baseFl:1,plate:1100,eff:78,floorH:3.1,parkPer:0.4,priceUp:0.4,mix:[['Studio',30,30,27000000],['1 kamar',42,35,26000000],['2 kamar',58,28,25000000],['3 kamar',82,7,24500000]],struM2:7800000,podM2:5000000,baseM2:8500000}},
   kondominium:{n:'Kondominium / apartemen mewah',d:'Unit luas, plat lantai lebih sedikit unit, rasio parkir tinggi.',komersial:true,sederhana:false,
-    v:{A:5000,landPrice:15000000,kdb:45,klb:6,maxFl:35,podFl:3,podUse:'parkir',baseFl:2,plate:1300,eff:75,floorH:3.4,parkPer:1.5,priceUp:0.6,mix:[['1 kamar',60,20,52000000],['2 kamar',110,45,50000000],['3 kamar',160,30,49000000],['Penthouse',300,5,58000000]],struM2:13000000,podM2:7500000,baseM2:10500000}}
+    v:{A:5000,landPrice:15000000,kdb:45,klb:6,maxFl:35,podFl:3,podUse:'parkir',baseFl:2,plate:1300,eff:75,floorH:3.4,parkPer:1.5,priceUp:0.6,mix:[['1 kamar',75,15,52000000],['2 kamar',125,45,50000000],['3 kamar',175,33,49000000],['Penthouse',320,7,58000000]],struM2:13000000,podM2:7500000,baseM2:10500000}}
 };
 function vertDefault(kind='apartemen'){ const K=VKIND[kind]||VKIND.apartemen, v=K.v;
   return {kind, A:v.A, landPrice:v.landPrice, kdb:v.kdb, klb:v.klb, kdh:20, maxFl:v.maxFl, podFl:v.podFl, podUse:v.podUse, podPlate:0, baseFl:v.baseFl, basePlate:0, baseInKLB:false,
@@ -593,6 +612,7 @@ function vertPlanSVG(R,V,opt={}){
   if(!R.twFl) return '<p class="note">Belum ada lantai menara.</p>';
   const Fm=towerForm(R), ud=Fm.ud, cor=1.8, D=Fm.D, L=Fm.L, nTw=Fm.nT;
   const nl=Math.max(2,Math.ceil((R.lifts||2)/nTw)), coreW=Math.min(L*.3,Math.max(9,nl*1.3+6.4)), c0=L/2-coreW/2, c1=L/2+coreW/2;
+  const TIER=V.kind==='kondominium'?'lux':V.kind==='apartemen'?'mid':'basic';
   const INK='var(--ink)', MU='var(--muted)', WALL='#2a2d31', FIL='#fbfaf7', E=.25, I=.12;
   const pad={l:4.2,r:3.2,t:4.2,b:2.6}, vw=L+pad.l+pad.r, vh=D+pad.t+pad.b, X=x=>(x+pad.l).toFixed(3), Y=y=>(y+pad.t).toFixed(3);
   const rect=(x,y,w,h,a)=>`<rect x="${X(x)}" y="${Y(y)}" width="${w.toFixed(3)}" height="${h.toFixed(3)}" ${a}/>`, line=(x1,y1,x2,y2,a)=>`<line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" ${a}/>`;
@@ -614,16 +634,33 @@ function vertPlanSVG(R,V,opt={}){
     // pintu masuk dari koridor
     const dx=x+w-kmW-1.2, dy=side? y : y+h; s+=rect(dx,dy-(side?0:E),.9,E,`fill="${FIL}"`)+`<path d="M${X(dx)} ${Y(dy)} A.9 .9 0 0 ${side?0:1} ${X(dx+.9)} ${Y(side?dy+.9:dy-.9)}" ${thin} stroke-dasharray=".08 .05"/>`;
     // kamar di sisi fasad
-    const rb=Math.max(0,ih-cb-.2), ry=side? iy+cb : iy, bw=beds? Math.min(3.4,w/(beds+(beds>1?.7:1))) : 0;
+    const rb=Math.max(0,ih-cb-.2), ry=side? iy+cb : iy, bw=beds? Math.min(TIER==='lux'?4.8:TIER==='mid'?3.8:3.0,w/(beds+(beds>1?.7:1))) : 0, wy=side? ry : ry+rb;
     for(let b=0;b<beds;b++){ const bx=x+w-bw*(b+1); s+=rect(bx,ry,bw,rb,`fill="none" stroke="${WALL}" stroke-width="${I}"`); const bedW=b===0?1.6:1.2, bl=Math.min(2,rb-.6); if(bw>bedW+.3) s+=rect(bx+(bw-bedW)/2,side?ry+rb-bl-.1:ry+.1,bedW,bl,thinF)+rect(bx+(bw-bedW)/2+.1,side?ry+rb-.5:ry+.15,bedW-.2,.35,thin);
       s+=rect(bx+.3,side?ry-.06:ry+rb-.06,.8,.12,`fill="${FIL}"`); s+=txt(bx+bw/2,ry+rb/2+.1,b===0&&beds>0?'KT UTAMA':'KT '+(b+1),.28,'font-weight="700"'); }
+    // modul per jenis: rusun (dasar) / apartemen (menengah) / kondominium (mewah)
+    const ac=(ax,ay)=>rect(ax,ay,.9,.22,`fill="#d6e8f4" stroke="${INK}" stroke-width=".02"`)+txt(ax+.45,ay+.18,'AC',.15,'font-weight="700"');
+    for(let b=0;b<beds;b++){ const bx=x+w-bw*(b+1), ens=TIER==='lux'||(TIER==='mid'&&b===0), kmw=Math.min(1.7,bw*.42), kmh=Math.min(1.9,rb-2.5);
+      if(TIER!=='basic'){ s+=ac(bx+.25,side?wy+.1:wy-.32); const wl=Math.min(1.8,rb*.42); s+=rect(bx+.12,side?wy+.45:wy-.45-wl,.58,wl,thin)+line(bx+.12,side?wy+.45:wy-.45-wl,bx+.7,side?wy+.45+wl:wy-.45,`stroke="${INK}" stroke-width=".015"`); }
+      else s+=rect(bx+.12,side?wy+.15:wy-.15-1.0,.5,1.0,thin);
+      if(ens&&kmh>1.2&&bw>2.6){ const kx2=bx+bw-kmw-.06, ky2=side?wy+.06:wy-.06-kmh; s+=rect(kx2,ky2,kmw,kmh,`fill="#dfe8ee" stroke="${WALL}" stroke-width="${I}"`)+`<ellipse cx="${X(kx2+.4)}" cy="${Y(ky2+kmh/2)}" rx=".17" ry=".24" ${thinF}/>`;
+        if(TIER==='lux'&&b===0&&kmw>1.4) s+=rect(kx2+.75,ky2+.12,kmw-.85,kmh-.24,`fill="#ffffff" stroke="${INK}" stroke-width=".025" rx=".25"`)+txt(kx2+.75+(kmw-.85)/2,ky2+kmh/2+.06,'BATHTUB',.12);
+        else s+=rect(kx2+kmw-.85,ky2+.08,.78,.78,`fill="none" stroke="${INK}" stroke-width=".02" stroke-dasharray=".08 .05"`);
+        s+=txt(kx2+kmw/2,side?ky2+kmh-.12:ky2+.28,'KM',.16,'font-weight="700"');
+        if(TIER==='lux'&&b===0&&bw-kmw>2.6){ const ww=Math.min(1.5,bw-kmw-1.2); s+=rect(kx2-ww-.05,ky2,ww,kmh,`fill="#efe9dc" stroke="${WALL}" stroke-width="${I}"`)+line(kx2-ww+.1,ky2+.1,kx2-ww+.1,ky2+kmh-.1,`stroke="${INK}" stroke-width=".05"`)+txt(kx2-ww/2-.05,ky2+kmh/2,'WIC',.16,'font-weight="700"'); } } }
+    if(TIER==='basic'){ for(let k=0;k<4;k++) s+=line(x+.4,fy+bal*(.2+k*.2),x+Math.min(2.6,w*.4),fy+bal*(.2+k*.2),`stroke="${MU}" stroke-width=".015"`); s+=txt(x+Math.min(1.5,w*.25),fy+bal*.55,'JEMURAN',.15); }
+    else { const no=Math.min(beds+1,TIER==='lux'?4:3); for(let k=0;k<no;k++){ const ox=x+.35+k*.95; if(ox+.8>x+w*.42) break; s+=rect(ox,fy+bal/2-.18,.8,.36,`fill="#c9ccd1" stroke="${INK}" stroke-width=".02"`)+`<circle cx="${X(ox+.5)}" cy="${Y(fy+bal/2)}" r=".13" ${thin}/>`; } s+=txt(x+.75,side?fy+bal-.1:fy+.22,'AC OUTDOOR',.12); }
     const lw2=w-bw*beds; if(lw2>1.6){ const sx=x+.3, sy=side? ry+rb-1.2 : ry+.3; s+=rect(sx,sy,Math.min(2.1,lw2-.6),.85,thinF)+rect(sx+.4,side?sy-1.0:sy+1.1,Math.min(1.1,lw2-1.3),.55,thin); s+=txt(x+lw2/2,ry+rb/2-.5,beds?'R. KELUARGA':'STUDIO',.28,'font-weight="700"'); }
+    if(lw2>2.4&&TIER!=='basic'){ s+=ac(x+lw2/2-.45,side?wy+.1:wy-.32); const tx=x+Math.max(.4,lw2/2-.6), ty=ry+rb/2+.1; s+=rect(tx,ty,1.2,.8,thinF)+[[-.3,.2],[-.3,.5],[1.25,.2],[1.25,.5]].map(q=>rect(tx+q[0],ty+q[1]-.1,.25,.25,thin)).join('')+txt(tx+.6,ty+.5,'MAKAN',.13); }
+    if(TIER==='lux'&&beds>=2&&lw2>4.2){ const mw=Math.min(2.1,lw2*.36), mh=Math.min(2.4,rb*.5), mx=x+.06, my=side?wy+.06:wy-.06-mh; s+=rect(mx,my,mw,mh,`fill="#ece4f0" stroke="${WALL}" stroke-width="${I}"`)+rect(mx+.15,side?my+mh-1.95:my+.1,.9,1.85,thinF)+txt(mx+mw/2+.3,my+mh/2,'KT ART',.15,'font-weight="700"'); }
     // jendela fasad
     s+=rect(x+.4,side?y+h-.08:y-.04,w-.8,.12,`fill="#ffffff" stroke="${INK}" stroke-width=".02"`);
-    s+=txt(x+w/2,side?y+h-bal/2+.1:y+bal/2+.1,`${esc(t.n.toUpperCase())} · ${fmt(t.a)} m²`,.26,`fill="${INK}"`);
+    s+=txt(TIER==='basic'?x+w/2:x+w*.66,side?y+h-bal/2+.1:y+bal/2+.1,`${esc(t.n.toUpperCase())} · ${fmt(t.a)} m²`,.24,`fill="${INK}" stroke="#ebe7df" stroke-width=".06" paint-order="stroke"`);
     return s; };
-  [0,1].forEach(side=>{ const items=list.filter((_,j)=>j%2===side), tot=items.reduce((s,i)=>s+per[i].a,0)||1, avail=L-coreW; let x=0;
-    items.forEach(i=>{ let w=per[i].a/tot*avail; if(x<c0&&x+w>c0+.01) x=c1; else if(x>=c0&&x<c1) x=c1; w=Math.min(w,L-x); if(w<2.4) return; g+=unit(x,side? ud+cor : 0,w,ud,side,i); g+=rect(x+w-I/2,side?ud+cor:0,I,ud,`fill="${WALL}"`); x+=w; }); });
+  [0,1].forEach(side=>{ const items=list.filter((_,j)=>j%2===side), tot=items.reduce((s,i)=>s+per[i].a,0)||1; if(!items.length) return;
+    // bagi ke sayap kiri (0–c0) & kanan (c1–L) sebanding luas, lalu lebar unit diskalakan agar sayap terisi penuh
+    let acc=0, k=0; while(k<items.length-1&&acc+per[items[k]].a/2<=tot*c0/(c0+L-c1)){ acc+=per[items[k]].a; k++; } if(items.length>1&&k===0) k=1;
+    [[items.slice(0,k),0,c0],[items.slice(k),c1,L]].forEach(([its,x0,x1])=>{ const ta=its.reduce((s,i)=>s+per[i].a,0)||1; let x=x0;
+      its.forEach(i=>{ const w=per[i].a/ta*(x1-x0); g+=unit(x,side? ud+cor : 0,w,ud,side,i); g+=rect(x+w-I/2,side?ud+cor:0,I,ud,`fill="${WALL}"`); x+=w; }); }); });
   // koridor
   g+=rect(0,ud,L,cor,`fill="#f1eee8"`); g+=txt(L*.18,ud+cor/2+.12,'KORIDOR '+fmt(cor,1)+' m',.32,`fill="${MU}"`)+txt(L*.82,ud+cor/2+.12,'KORIDOR',.32,`fill="${MU}"`);
   // inti: tangga ×2, lif, shaft, lobi lif
@@ -652,11 +689,11 @@ function defaultProject(){
     site:{W:120,D:150,landPrice:450000,zone:1,psuMin:40,komPrice:3500000},
     loc:{lat:-7.9467,lon:112.6150,z:16,poly:[],addr:{},rdtr:{zona:'',doc:'',kdb:'',klb:'',kdh:'',gsb:'',lantai:'',psu:''}},
     plan:{mainW:10,localW:7,spine:'tengah',rthPct:10,fasumPct:5,makamPct:0,komPct:0,rukoW:5,jiwaKK:4},
-    rules:{kdbMax:60,klbMax:1.2,kdhMin:10,gsb:3,backSet:1.5,paveFront:3,simple:false},
+    rules:{kdbMax:60,klbMax:1.2,kdhMin:10,gsb:3,backSet:1.5,sideSet:1.5,paveFront:3,simple:false},
     types:[
       {name:'Tipe 36/72',lotW:6,lotD:12,LB:36,floors:1,beds:2,baths:1,style:'minimalis',price:330000000,share:50,subsidi:false,sf:null},
-      {name:'Tipe 45/90',lotW:7.5,lotD:12,LB:45,floors:1,beds:2,baths:1,style:'tropis',price:430000000,share:30,subsidi:false,sf:null},
-      {name:'Tipe 70/120',lotW:8,lotD:15,LB:70,floors:2,beds:3,baths:2,style:'japandi',price:780000000,share:20,subsidi:false,sf:null}
+      {name:'Kopel 45/120',model:'kopel',lotW:10,lotD:12,LB:45,floors:1,beds:2,baths:1,style:'tropis',price:520000000,share:30,subsidi:false,sf:null},
+      {name:'Tunggal 120/200',model:'tunggal',lotW:12.5,lotD:16,LB:120,floors:2,beds:4,baths:3,style:'japandi',price:1350000000,share:20,subsidi:false,sf:null}
     ],
     sarana:[{n:'Taman bermain',jiwa:0,luas:0},{n:'Posyandu / balai warga',jiwa:0,luas:0},{n:'Musala',jiwa:0,luas:0}],
     cost:{landTxPct:5,prepM2:35000,roadM2:280000,drainM:450000,rthM2:120000,fasumM2:2500000,makamM2:50000,utilUnit:9000000,buildM2:3800000,permitLump:350000000,certUnit:4500000,contPct:5,mktPct:3,ohPct:5},
@@ -739,9 +776,9 @@ function sitePlanSVG(lay, opt={}){
   lay.roads.forEach(r=>{ const hz=r.w>r.h; const x1=r.x+(hz?0:r.w/2), y1=r.y+(hz?r.h/2:0), x2=hz?x1+r.w:x1, y2=hz?y1:y1+r.h; g+=`<line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="#ffffff" stroke-width="${lw*1.6}" stroke-dasharray="${lw*10} ${lw*8}"/>`; });
   // kavling: halaman, rumah (denah atap perisai), jalan masuk, pohon depan
   const gsb=+P.rules.gsb||3;
-  lay.lots.forEach((l,i)=>{ g+=R(l,`fill="${LAWN}" stroke="#7f8f6f" stroke-width="${lw*.6}"`); const t=P.types[l.type]; if(!t) return; const fl=Math.max(1,+t.floors||1), bd=Math.max(3,Math.min(l.h-gsb-.5,(+t.LB/fl)/l.w)), by=l.face==='atas'? l.y+gsb : l.y+l.h-gsb-bd;
-    const col=TYPE_COLORS[l.type%TYPE_COLORS.length]; g+=`<rect x="${X(l.x+.25)}" y="${Y(by)}" width="${(l.w-.5).toFixed(2)}" height="${bd.toFixed(2)}" fill="${col}" stroke="var(--ink)" stroke-width="${lw*1.1}"/>`;
-    const r2=Math.min((l.w-.5)/2,bd/2), cx0=l.x+.25, cx1=l.x+l.w-.25; g+=`<path d="M${X(cx0)} ${Y(by)} L${X(cx0+r2)} ${Y(by+r2)} L${X(cx1-r2)} ${Y(by+bd-r2)} L${X(cx1)} ${Y(by+bd)} M${X(cx1)} ${Y(by)} L${X(cx1-r2)} ${Y(by+r2)} M${X(cx0)} ${Y(by+bd)} L${X(cx0+r2)} ${Y(by+bd-r2)}" fill="none" stroke="var(--ink)" stroke-opacity=".45" stroke-width="${lw*.7}"/>`;
+  lay.lots.forEach((l,i)=>{ g+=R(l,`fill="${LAWN}" stroke="#7f8f6f" stroke-width="${lw*.6}"`); const t=P.types[l.type]; if(!t) return; const sd=sideOf(t,i), s0=sd[0]||.25, s1=sd[1]||.25, bwl=Math.max(2.5,l.w-s0-s1), fl=Math.max(1,+t.floors||1), bd=Math.max(3,Math.min(l.h-gsb-.5,(+t.LB/fl)/bwl)), by=l.face==='atas'? l.y+gsb : l.y+l.h-gsb-bd;
+    const col=TYPE_COLORS[l.type%TYPE_COLORS.length]; g+=`<rect x="${X(l.x+s0)}" y="${Y(by)}" width="${bwl.toFixed(2)}" height="${bd.toFixed(2)}" fill="${col}" stroke="var(--ink)" stroke-width="${lw*1.1}"/>`;
+    const r2=Math.min(bwl/2,bd/2), cx0=l.x+s0, cx1=l.x+s0+bwl; g+=`<path d="M${X(cx0)} ${Y(by)} L${X(cx0+r2)} ${Y(by+r2)} L${X(cx1-r2)} ${Y(by+bd-r2)} L${X(cx1)} ${Y(by+bd)} M${X(cx1)} ${Y(by)} L${X(cx1-r2)} ${Y(by+r2)} M${X(cx0)} ${Y(by+bd)} L${X(cx0+r2)} ${Y(by+bd-r2)}" fill="none" stroke="var(--ink)" stroke-opacity=".45" stroke-width="${lw*.7}"/>`;
     const dy=l.face==='atas'? l.y : by+bd; g+=`<rect x="${X(l.x+.4)}" y="${Y(dy)}" width="${Math.min(2.8,l.w*.45).toFixed(2)}" height="${gsb.toFixed(2)}" fill="${PAVE}"/>`;
     if(i%2===0&&l.w>=5) g+=tree(l.x+l.w-1.2, l.face==='atas'? l.y+1.2 : l.y+l.h-1.2, 1.3);
     if(opt.numbers && lay.lots.length<=600) g+=`<text x="${X(l.x+l.w/2)}" y="${Y(by+bd/2+Math.min(l.w,bd)*.12)}" font-size="${(Math.min(l.w,bd)*0.32).toFixed(2)}" text-anchor="middle" fill="var(--ink)" font-weight="700">${i+1}</text>`; });
@@ -761,7 +798,7 @@ function sitePlanSVG(lay, opt={}){
 
 /* Denah skematik satu lantai (rumah deret/kopel; lebar bangunan = lebar kavling) */
 function floorPlan(t){
-  const R=P.rules, w=+t.lotW, d=+t.lotD, floors=Math.max(1,+t.floors||1), foot=(+t.LB)/floors, gsb=+R.gsb, back=+R.backSet;
+  const R=P.rules, sd=sideOf(t,0), lotW=+t.lotW, w=bldW(t,0), d=+t.lotD, floors=Math.max(1,+t.floors||1), foot=(+t.LB)/floors, gsb=+R.gsb, back=+R.backSet;
   const bd=Math.max(3,Math.min(d-gsb-0.5, foot/w)), beds=Math.max(1,+t.beds||1), baths=Math.max(1,+t.baths||1);
   const rooms=[]; const R1=(n,x,y,ww,hh,c)=>rooms.push({n,x,y,w:ww,h:hh,c});
   // lantai 1: depan→belakang
@@ -782,7 +819,7 @@ function floorPlan(t){
     const lvH=hR*0.6; R1('R. keluarga + tangga',x0,yR,w,lvH,'var(--warm-soft)'); R1('Dapur & makan',x0,yR+lvH,w*0.65,hR-lvH,'var(--lot)'); R1('KM',x0+w*0.65,yR+lvH,w*0.35,hR-lvH,'var(--lot4)');
   }
   const carport = gsb>=2.5;
-  return {w,d,bd,gsb,back,rooms,carport,upBeds: floors>1? Math.min(beds,2):0, upBaths: floors>1? Math.max(1,baths-bathsDown):0};
+  return {w,d,bd,gsb,back,rooms,carport,lotW,xl:sd[0],xr:sd[1],upBeds: floors>1? Math.min(beds,2):0, upBaths: floors>1? Math.max(1,baths-bathsDown):0};
 }
 function floorPlanSVG(t){
   const fp=floorPlan(t), pad=1.2, vw=fp.w+pad*2+3.2, vh=fp.d+pad*2;
@@ -810,7 +847,13 @@ function archPlan(t,lvl){ const fp=floorPlan(t); if(lvl!==2) return {fp,rooms:fp
   for(let i=0;i<beds;i++) R1('KT '+(i+1),colL,yR+i*kt,w-colL,kt,'var(--accent-soft)');
   R1('KM',colL,yR+beds*kt,w-colL,hR-beds*kt,'var(--lot4)'); R1('R. keluarga atas + tangga',0,yR,colL,hR*.72,'var(--warm-soft)'); R1('Ruang cuci & jemur',0,yR+hR*.72,colL,hR*.28,'var(--lot)');
   return {fp,rooms,front:yR,open:'Balkon'}; }
-function archPlanSVG(t,lvl=1,opt={}){
+function archPlanSVG(t,lvl=1,opt={}){ const fp0=floorPlan(t), s0=archPlanSVG0(t,lvl,opt); if(!(fp0.xl+fp0.xr>0)) return s0;
+  const v=gkVB(s0), xl=fp0.xl, xr=fp0.xr, pl=3.9, pt=3.9, d=fp0.d, INK=opt.ink||'var(--ink)', MU=opt.muted||'var(--muted)';
+  const inner=s0.replace(/^[\s\S]*?<svg[^>]*>/,'').replace(/<\/svg>\s*$/,'').replace(/<rect [^>]*stroke-dasharray=".3 .15 .05 .15"\/>/,'');
+  let g=`<svg viewBox="0 0 ${(v[2]+xl+xr).toFixed(2)} ${v[3].toFixed(2)}" role="img" aria-label="Denah lantai ${lvl} terukur" font-family="Arial, Helvetica, sans-serif"><rect x="${pl}" y="${pt}" width="${fp0.lotW.toFixed(3)}" height="${d.toFixed(3)}" fill="var(--rth)" fill-opacity=".18" stroke="${MU}" stroke-width=".03" stroke-dasharray=".3 .15 .05 .15"/>`;
+  [[0,xl],[xl+fp0.w,xr]].forEach(q=>{ if(q[1]>.05){ const cx=pl+q[0]+q[1]/2, cy=pt+fp0.gsb+fp0.bd/2; g+=`<text x="${cx.toFixed(3)}" y="${cy.toFixed(3)}" font-size=".22" text-anchor="middle" fill="${INK}" transform="rotate(-90 ${cx.toFixed(3)} ${cy.toFixed(3)})">JARAK SAMPING ${fmt(q[1],2)} m</text>`; } });
+  return g+`<g transform="translate(${xl.toFixed(3)} 0)">${inner}</g></svg>`; }
+function archPlanSVG0(t,lvl=1,opt={}){
   const A=archPlan(t,lvl), fp=A.fp, w=fp.w, d=fp.d, y0=fp.gsb, yB=y0+fp.bd, yF=A.front, rooms=A.rooms.filter(r=>r.n!==A.open), op=A.rooms.find(r=>r.n===A.open);
   const INK=opt.ink||'var(--ink)', MU=opt.muted||'var(--muted)', WALL=opt.wall||'#2a2d31', FIL=opt.fill||'#fbfaf7', E=.15, I=.06, f2=v=>fmt(v,2);
   const pad={l:3.9,r:2.9,t:3.9,b:1.4}, vw=w+pad.l+pad.r, vh=d+pad.t+pad.b, X=x=>(x+pad.l).toFixed(3), Y=y=>(y+pad.t).toFixed(3);
@@ -1170,7 +1213,7 @@ PAGES.lahan = sec => {
     </div><p class="note" id="zoneNote"></p></div>
     <div class="card"><h2>Aturan bangunan (RDTR/zonasi setempat)</h2><div class="form">
       ${F('rules.kdbMax','KDB maksimal','%')}${F('rules.klbMax','KLB maksimal','kali luas kavling')}
-      ${F('rules.kdhMin','KDH minimal','%')}${F('rules.gsb','Garis sempadan bangunan (GSB)','m dari batas depan')}
+      ${F('rules.kdhMin','KDH minimal','%')}${F('rules.gsb','Garis sempadan bangunan (GSB)','m dari batas depan')}${F('rules.sideSet','Jarak bebas samping','m (rumah kopel/tunggal; RDTR)')}
       ${F('rules.backSet','Jarak bebas belakang','m')}${F('rules.paveFront','Perkerasan halaman depan','m kedalaman')}
       ${F('rules.simple','Termasuk Rumah Sederhana (PPh final 1%)','',{chk:1})}
     </div><p class="note">KDB, KLB, KDH, dan GSB tidak ditetapkan secara nasional — gunakan angka dari RDTR/peraturan zonasi lokasi proyek.</p></div>
@@ -1251,6 +1294,7 @@ PAGES.rumah = sec => {
     $('#tbody',sec).innerHTML=`<div class="grid g2">
       <div class="card"><h2>Data tipe</h2><div class="form">
         <label class="f">Nama tipe<input data-tf="name" value="${esc(t.name)}"></label>
+        <label class="f">Model rumah<select data-tf="model">${Object.entries(HMODEL).map(([k,m])=>`<option value="${k}" ${(t.model||'deret')===k?'selected':''}>${esc(m.n)}</option>`).join('')}</select></label>
         ${TF('lotW','Lebar kavling (muka)','m')}${TF('lotD','Panjang kavling','m')}${TF('LB','Luas bangunan total','m²')}
         ${TF('floors','Jumlah lantai','',{min:1,step:1})}${TF('beds','Kamar tidur','',{min:1,step:1})}${TF('baths','Kamar mandi','',{min:1,step:1})}
         ${TF('price','Harga jual','Rp/unit',{step:1000000})}${TF('share','Porsi unit di tapak','%')}
@@ -1276,6 +1320,7 @@ PAGES.rumah = sec => {
     const upd=()=>{ const h=RP.house(t,P.rules), sf=styleFactor(t), cost=(+t.LB)*(+P.cost.buildM2)*sf;
       $('#hStat',sec).innerHTML=`<h2>Indikator tipe</h2><div class="kpis">
         <div class="kpi"><span>Luas kavling</span><b>${fmt(h.LT,1)} m²</b><span>${fmt(t.lotW,1)} × ${fmt(t.lotD,1)} m</span></div>
+        <div class="kpi"><span>Model</span><b style="font-size:15px">${esc((HMODEL[h.model]||HMODEL.deret).n)}</b><span>bangunan ${fmt(h.bw,2)} × ${fmt(h.bd,2)} m · samping ${fmt(h.side[0],1)} / ${fmt(h.side[1],1)} m</span></div>
         <div class="kpi ${h.kdb*100<=+P.rules.kdbMax?'ok':'bad'}"><span>KDB</span><b>${pct(h.kdb)}</b><span>maks ${fmt(P.rules.kdbMax)}%</span></div>
         <div class="kpi ${h.klb<=+P.rules.klbMax?'ok':'bad'}"><span>KLB</span><b>${fmt(h.klb,2)}</b><span>maks ${fmt(P.rules.klbMax,2)}</span></div>
         <div class="kpi"><span>Biaya konstruksi</span><b>${rp(cost)}</b><span>${rp(+P.cost.buildM2*sf)}/m² × ${fmt(t.LB)} m²</span></div>
@@ -1283,7 +1328,7 @@ PAGES.rumah = sec => {
         <div class="kpi"><span>Selisih harga − konstruksi</span><b>${rp(+t.price-cost)}</b><span>belum termasuk tanah & PSU</span></div></div>`;
       schedRnd(); $('#fp',sec).innerHTML=archPlanSVG(t,1); const two=+t.floors>1; $('#fp2',sec).innerHTML=two? archPlanSVG(t,2) : ''; $('#fp2',sec).style.display=two?'':'none'; $('#fpWrap',sec).classList.toggle('g2',two); $('#sec',sec).innerHTML=sectionSVG(t); $('#elev',sec).innerHTML=elevationSVG(t); sched3D();
       const fp=floorPlan(t); $('#fpNote',sec).textContent = (+t.floors>1? `Lantai 2: ${fp.upBeds} kamar tidur + ${fp.upBaths} kamar mandi. `:'')+`Lebar bangunan mengikuti lebar kavling (rumah deret/kopel); kedalaman bangunan ±${fmt(fp.bd,1)} m.`; };
-    $$('[data-tf]',$('#tbody',sec)).forEach(el=>el.addEventListener(el.type==='checkbox'?'change':'input',()=>{ const f=el.dataset.tf; t[f]= el.type==='checkbox'? el.checked : el.type==='number'? (el.value===''? null : +el.value) : el.value; if(f==='name') $('#ttabs',sec).innerHTML=tabs(), bindTabs(); persist(); upd(); if(['lotW','lotD','LB','floors'].includes(f)) refreshStyles(); }));
+    $$('[data-tf]',$('#tbody',sec)).forEach(el=>el.addEventListener(el.type==='checkbox'?'change':'input',()=>{ const f=el.dataset.tf; t[f]= el.type==='checkbox'? el.checked : el.type==='number'? (el.value===''? null : +el.value) : el.value; if(f==='name') $('#ttabs',sec).innerHTML=tabs(), bindTabs(); persist(); upd(); if(['lotW','lotD','LB','floors','model'].includes(f)) refreshStyles(); }));
     const o3=()=>({t,st:STYLES[t.style]||STYLES.minimalis,fp:floorPlan(t),neighbors:V3.nb});
     const fallback3=e=>{ const h=$('#v3d',sec); if(h) h.innerHTML=`<div class="svgbox">${isoSVG(t)}</div><p class="note">Tampak 3D (WebGL) tidak dapat dimuat di perangkat ini — ditampilkan tampak isometrik.${e&&e.message?` <small>(${esc(String(e.message).slice(0,140))})</small>`:''}</p>`; };
     let mounted=false, t3=0;
@@ -1300,7 +1345,7 @@ PAGES.rumah = sec => {
     $('#v3nb',sec).onchange=e=>{ V3.nb=e.target.checked; if(RP3D&&mounted) RP3D.update(o3()); };
     $('#v3q',sec).onclick=e=>{ const q=V3.q==='ringan'?'tinggi':'ringan'; e.currentTarget.textContent='✨ Kualitas: '+(q==='ringan'?'Ringan':'Tinggi'); if(RP3D&&mounted) RP3D.quality(q); else V3.q=q; };
     $('#v3png',sec).onclick=()=>{ const u=RP3D&&RP3D.png(); if(!u){ toast('Tampak 3D belum siap.'); return; } downloadURL(u,slug()+'-'+t.style+'.png'); };
-    $$('[data-tp]',sec).forEach(b=>b.onclick=()=>{ const p=TIPE[+b.dataset.tp]; const {n,...dim}=p; Object.assign(t,dim); t.name=n; persist(); render('rumah'); toast(n+' diterapkan'); });
+    $$('[data-tp]',sec).forEach(b=>b.onclick=()=>{ const p=TIPE[+b.dataset.tp]; const {n,...dim}=p; Object.assign(t,{model:'deret'},dim); t.name=n; persist(); render('rumah'); toast(n+' diterapkan'); });
     $$('[data-st]',sec).forEach(b=>b.addEventListener('click',()=>{ t.style=b.dataset.st; persist(); body(); }));
     $('#dupT',sec).onclick=()=>{ P.types.splice(selType+1,0,JSON.parse(JSON.stringify(Object.assign({},t,{name:t.name+' (salinan)'})))); selType++; persist(); render('rumah'); };
     $('#delT',sec).onclick=e=>{ if(P.types.length<2){ toast('Minimal satu tipe.'); return; } confirmArm(e.currentTarget,()=>{ P.types.splice(selType,1); selType=Math.max(0,selType-1); persist(); render('rumah'); },'Klik lagi untuk hapus'); };
@@ -1891,9 +1936,9 @@ function make3D(THREE, RoomEnvironment, FX){
     return S; }
   const rend=S=>{ cam(S); if(S.comp) S.comp.render(); else S.renderer.render(S.scene,S.camera); };
   function clear(S){ S.world.traverse(m=>{ if(m.isMesh) m.geometry.dispose(); }); S.world.clear(); }
-  function build(S,o){ clear(S); seed(JSON.stringify([o.st.n,o.fp.w,o.fp.bd,o.t.floors])); o=Object.assign({},o,{hq:S.hq}); const fp=o.fp, w=fp.w, gsb=Math.max(.6,fp.gsb), nb=o.neighbors?(o.nb??2):0, L=(2*nb+1)*w+80, G=S.world;
+  function build(S,o){ clear(S); seed(JSON.stringify([o.st.n,o.fp.w,o.fp.bd,o.t.floors])); o=Object.assign({},o,{hq:S.hq}); const fp=o.fp, w=fp.lotW||fp.w, gsb=Math.max(.6,fp.gsb), nb=o.neighbors?(o.nb??2):0, L=(2*nb+1)*w+80, G=S.world;
     const gm=texMat('grass','',{roughness:.97}); const gr=box(G,L+5000,.02,5000,gm,-(L+5000)/2,-.02,-2500); gr.castShadow=false;
-    for(let k=-nb;k<=nb;k++){ const h=house(o); h.position.x=k*w-w/2; G.add(h); }
+    for(let k=-nb;k<=nb;k++){ const h=house(o), sd=sideOf(o.t,((k%2)+2)%2); h.position.x=k*w-w/2+sd[0]; G.add(h); if(sd[0]+sd[1]>0){ const FNm=flat('#d9d4ca',.85); box(G,.12,1.6,fp.d-gsb,FNm,k*w-w/2-.06,0,-(fp.d-gsb)); } }
     const hs=Math.max(16,(2*nb+1)*w/2+7, fp.d*.75+6); Object.assign(S.sun.shadow.camera,{left:-hs,right:hs,top:hs,bottom:-hs}); S.sun.shadow.camera.updateProjectionMatrix();
     const lotBack=-(fp.d-gsb); box(G,(2*nb+1)*w,1.8,.12,wallMat({wallT:'plaster',wall:'#c9c5bd'}),-(2*nb+1)*w/2,0,lotBack-.12);
     box(G,L,.06,.5,flat('#9d9a93',.9),-L/2,0,gsb); box(G,L,.065,.26,flat('#26282a',.95),-L/2,0,gsb+.12);
@@ -2024,9 +2069,9 @@ function make3D(THREE, RoomEnvironment, FX){
     lay.makam.forEach(r=>{ box(G,r.w,.04,r.h,flat('#b9b2a4',.95),X(r.x),0,Z(r.y+r.h)); const st=[]; for(let x=r.x+1.5;x<r.x+r.w-1;x+=2.2) for(let y=r.y+1.5;y<r.y+r.h-1;y+=3) st.push(_m(X(x),.35,Z(y),.35,.7,.12)); inst(G,UBOX,flat('#e8e4dc',.8),st); });
     let nt=0; lay.rth.concat(lay.sisa.filter(r=>r.w*r.h>60)).forEach(r=>{ for(let x=r.x+4;x<r.x+r.w-2&&nt<60;x+=9) for(let y=r.y+4;y<r.y+r.h-2&&nt<60;y+=9){ tree(G,X(x)+(rnd()-.5)*2,Z(y)+(rnd()-.5)*2,.9+rnd()*.5); nt++; } });
     const gsb=Math.max(.6,+E.rules.gsb||3);
-    lay.lots.forEach(l=>{ const t=E.types[l.type]; if(!t) return; const st=STYLES[t.style]||STYLES.minimalis, fl=Math.max(1,+t.floors||1), bd=Math.max(3,Math.min(l.h-gsb-.5,(+t.LB/fl)/l.w));
+    lay.lots.forEach((l,li)=>{ const t=E.types[l.type]; if(!t) return; const st=STYLES[t.style]||STYLES.minimalis, fl=Math.max(1,+t.floors||1), sd=sideOf(t,li), bwl=Math.max(2.5,l.w-sd[0]-sd[1]), bd=Math.max(3,Math.min(l.h-gsb-.5,(+t.LB/fl)/bwl));
       const yS=l.face==='atas'? l.y+gsb : l.y+l.h-gsb-bd, yE=yS+bd, face=l.face==='atas'?1:-1;
-      houseLite(G,X(l.x),Z(yE),Z(yS),l.w,fl,st,face);
+      houseLite(G,X(l.x+sd[0]),Z(yE),Z(yS),bwl,fl,st,face);
       const yr0=l.face==='atas'? l.y : l.y+l.h-gsb; box(G,Math.min(2.8,l.w*.45),.04,gsb,PV,X(l.x+.2),0,Z(yr0+gsb));
       const fz=l.face==='atas'? Z(l.y)-.1 : Z(l.y+l.h)+.0; box(G,l.w-Math.min(3.2,l.w*.5),.9,.1,FN,X(l.x+Math.min(3.2,l.w*.5)),0,fz); });
     (lay.ruko||[]).forEach(r=>{ if(r.sisa) return; const pk=Math.min(6,r.h*.3), bd=Math.max(4,r.h-pk-2); box(G,r.w,.04,pk,PV,X(r.x),0,Z(r.y+pk)); houseLite(G,X(r.x)+.05,Z(r.y+pk+bd),Z(r.y+pk),r.w-.1,3,{roof:'flat',wall:'#efe4d6',wallT:'plaster',accent:'#5a4636',door:'#3d4a52'},1); });
