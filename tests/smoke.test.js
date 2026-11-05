@@ -98,6 +98,46 @@ ok(!/NaN|undefined/.test(w.document.querySelector('section[data-sec="ringkas"]')
   const sh = w.gkSheetSVG({ proyek: 'Uji & coba', lokasi: 'Malang', tanggal: '5 November 2026', kind: 'tapak', gaya: 'putih' }, { code: 'A-01', title: 'RENCANA TAPAK', body: w.gkNest(w.sitePlanSVG(L2), 24, 14, 200, 200), scale: '1 : 500' }, 0, 1);
   ok(!DP.parseFromString(sh, 'image/svg+xml').getElementsByTagName('parsererror').length && /594mm/.test(sh) && /Dikembangkan oleh: Pindo Tutuko/.test(sh), 'lembar A2 + kop sah');
   const pdf = w.gkPDF([{ bytes: new Uint8Array([255, 216, 255, 217]), w: 1, h: 1 }], 'Uji'); ok(pdf.size > 300, 'PDF tersusun'); }
+
+// 11) v0.8.0: modul unit, model rumah, tata massa, fasilitas, kelas kota, skenario, perizinan, pelaksanaan, dokumen
+{ const st = w.RPstate(); const DP = new w.DOMParser(), okXML = (svg, m) => { const d = DP.parseFromString(w.pvars(svg).replace(/^<svg /, '<svg xmlns="http://www.w3.org/2000/svg" '), 'image/svg+xml'); ok(!d.getElementsByTagName('parsererror').length, 'XML sah: ' + m); };
+  // model rumah: jarak samping
+  const tg = { lotW: 10, lotD: 15, LB: 70, floors: 1, model: 'tunggal' }, kp0 = w.sideOf({ lotW: 10, model: 'kopel' }, 0), kp1 = w.sideOf({ lotW: 10, model: 'kopel' }, 1);
+  near(w.bldW(tg), 10 - 2 * st.rules.sideSet, 1e-9, 'rumah tunggal: lebar bangunan = kavling − 2 jarak samping');
+  ok(kp0[0] > 0 && kp0[1] === 0 && kp1[0] === 0 && kp1[1] > 0, 'rumah kopel: dinding bersama berpasangan'); near(w.bldW({ lotW: 6, model: 'deret' }), 6, 1e-9, 'rumah deret: lebar penuh');
+  const h = w.RP.house(tg, st.rules); near(h.bd * h.bw, 70, 1e-6, 'tapak bangunan tunggal = LB/lantai'); okXML(w.archPlanSVG(Object.assign({}, tg, { beds: 3, baths: 2, style: 'tropis' }), 1), 'denah rumah tunggal');
+  // tata massa & tipe bangunan
+  ['linear', 'grid', 'cluster', 'radial', 'memusar', 'courtyard'].forEach(pola => [1, 2, 3, 4, 6].forEach(n => { const V = Object.assign(w.vertDefault('apartemen'), { A: 12000, pola, nMass: n }), R = w.vertCalc(V), M = w.massLayout(R);
+    ok(M.masses.length === n && M.masses.every(m => isFinite(m.cx) && isFinite(m.cy)), `pola ${pola} ${n} massa`); if (n === 4) okXML(w.towerSiteSVG(R, V), 'siteplan ' + pola); }));
+  { const V = Object.assign(w.vertDefault('rusun'), { btype: 'tunggal' }), R = w.vertCalc(V), F1 = w.towerForm(R); near(F1.D, F1.ud + 1.8, 1e-9, 'koridor tunggal: kedalaman = unit + selasar'); okXML(w.vertPlanSVG(R, V), 'denah koridor tunggal'); }
+  ['rusun', 'apartemen', 'kondominium'].forEach(k => { const V = w.vertDefault(k), R = w.vertCalc(V); okXML(w.vertPlanSVG(R, V), 'denah modul ' + k); ok(R.fasT > 0 && Math.abs(R.cost - (R.land + R.landTx + R.cons + R.soft + R.cont + R.mkt + R.pph + R.hbCost + R.fasT)) < 1, 'biaya fasilitas masuk kelayakan ' + k); });
+  ok(/AC OUTDOOR/.test(w.vertPlanSVG(w.vertCalc(w.vertDefault('apartemen')), w.vertDefault('apartemen'))) && /JEMURAN/.test(w.vertPlanSVG(w.vertCalc(w.vertDefault('rusun')), w.vertDefault('rusun'))) && /WIC|BATHTUB/.test(w.vertPlanSVG(w.vertCalc(w.vertDefault('kondominium')), w.vertDefault('kondominium'))), 'modul unit berbeda: rusun jemuran, apartemen AC, kondominium WIC/bathtub');
+  // fasilitas perumahan
+  const L0 = w.RPcalc().lay, EF = w.estateFas(L0, st.fasH); ok(EF.placed.every(q => q.w > 0 && q.h > 0), 'fasilitas perumahan ditempatkan'); okXML(w.utilPlanSVG(L0), 'rencana utilitas');
+  const FC = w.fasCost(st.fasH, 'perumahan', 100, 0); near(FC.total, FC.items.reduce((a, r) => a + r[1], 0), 1e-6, 'jumlah biaya fasilitas');
+  // kelas kota
+  const keep = JSON.stringify(st.rules); w.applyKota('metro', 'h'); ok(st.rules.klbMax === w.KOTA.metro.klbH && st.kota === 'metro', 'kelas kota diterapkan (asumsi)'); Object.assign(st.rules, JSON.parse(keep));
+  // skenario
+  ['perumahan', 'rusun', 'apartemen'].forEach(c => { ok(w.SKEN[c].length === 5, '5 skenario ' + c); const rows = w.scenRows(c); ok(rows.every(r => !r.err && isFinite(r.units) && r.units > 0 && isFinite(r.profit)), 'skenario ' + c + ' terhitung ' + rows.map(r => r.err || r.units).join(',')); });
+  { const B = st.vert, V = w.scenVert(w.SKEN.apartemen[2]); ok(V.klb <= B.klb && V.kdb <= B.kdb && V.maxFl <= B.maxFl && V.A === B.A, 'skenario tidak melampaui aturan lokasi'); }
+  // perizinan & lingkungan
+  const pA = w.permitList('perumahan', { A: 400000, units: 2000, gfa: 1e5, cons: 1e11 }), pS = w.permitList('perumahan', { A: 8000, units: 40, gfa: 2000, cons: 1e9 });
+  ok(pA.envDoc === 'Amdal' && pS.envDoc === 'SPPL' && pA.items.some(i => /Andalalin/.test(i.n)), 'jenis dokumen lingkungan & Andalalin menurut skala (ambang isian)');
+  ok(pA.items.every(i => w.document.querySelector('section[data-sec="sumber"]') && i.ref), 'setiap izin punya dasar rujukan');
+  // pelaksanaan: fast track lebih singkat; RAB terbagi bahan/upah/alat
+  const ctx = w.lakCtx('perumahan'); st.lak.metode = 'tradisional'; const S1 = w.schedule('perumahan', ctx); st.lak.metode = 'fasttrack'; const S2 = w.schedule('perumahan', ctx); st.lak.metode = 'tradisional';
+  ok(S2.T < S1.T && S1.A.some(a => a.crit), 'fast track lebih singkat & jalur kritis ada (' + S1.T.toFixed(1) + ' → ' + S2.T.toFixed(1) + ')');
+  const rb = w.rabLak('perumahan', 1e10); near(rb.direct, rb.bahan + rb.upah + rb.alat, 1, 'RAB = bahan + upah + alat'); near(rb.direct, 1e10, 1e10 * 0.001, 'porsi pekerjaan = 100% (mutu standar)');
+  st.lak.mutu = 'premium'; ok(w.rabLak('perumahan', 1e10).bahan > rb.bahan, 'mutu premium menaikkan bahan'); st.lak.mutu = 'standar';
+  const cr = w.crew(rb, 12); ok(cr.peak > cr.avg && cr.mandor >= 1, 'tenaga kerja puncak'); const en = w.envCalc('perumahan', { units: 100, gfa: 5000 }); near(en.jiwa, 400, 1e-9, 'penghuni = unit × jiwa');
+  okXML(w.ganttSVG(S1), 'Gantt'); okXML(w.scurveSVG(S1, 1e9).svg, 'kurva S');
+  // dokumen A4
+  const pg = w.docPages([{ h1: 'UJI & COBA' }, { p: 'Paragraf '.repeat(1500) }, { t: { w: [50, 50], r: [['A', 'B'], ['1', 'Rp 2 M']] } }, { fig: w.ganttSVG(S1), hh: 80 }], { proyek: 'Uji' });
+  ok(pg.length >= 2 && pg.every(x => !DP.parseFromString(x, 'image/svg+xml').getElementsByTagName('parsererror').length) && /Dibuat oleh Pindo Tutuko/.test(pg[0]), 'halaman A4 dokumen sah & berkredit');
+  // halaman baru
+  ['skenario', 'laksana', 'dokumen', 'tapak', 'rusun'].forEach(p => { w.RPrender(p); const el = w.document.querySelector(`section[data-sec="${p}"]`); ok(el.innerHTML.length > 500 && !/NaN|undefined/.test(el.textContent), 'halaman ' + p + ' tanpa NaN'); });
+  w.RPrender('sumber'); const src = w.document.querySelector('section[data-sec="sumber"]').textContent; ['Nomor 16 Tahun 2021', 'Nomor 21 Tahun 2021', 'Nomor 22 Tahun 2021', 'Nomor 28 Tahun 2025', 'Nomor 22 Tahun 2009', 'Nomor 4 Tahun 2021'].forEach(k => ok(src.includes(k), 'rujukan ' + k));
+}
 // 8) rujukan memuat Kepmen PKP 1722
 ok(w.document.querySelector('section[data-sec="sumber"]').textContent.includes('1722/KPTS/M/2026'), 'rujukan Kepmen 1722');
 ok(errors.length === 0, 'galat skrip: ' + errors.join(' | '));

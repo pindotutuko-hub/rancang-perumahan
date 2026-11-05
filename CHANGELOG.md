@@ -1,5 +1,16 @@
 # Catatan perubahan
 
+## 0.8.0 — 2026-11-05
+- **Model rumah tapak**: deret, kopel (semi-detached), tunggal (detached), townhouse, rumah taman/villa — jarak bebas samping di denah, rencana tapak, kawasan 3D, dan indikator; 5 tipe populer baru.
+- **Modul unit hunian vertikal berbeda**: rusun (ringkas, jemuran, tanpa AC), apartemen (unit lebih luas, AC indoor/outdoor, meja makan, KM dalam kamar utama), kondominium (KM dalam tiap kamar, walk-in closet, bathtub, kamar ART). Unit mengisi penuh kedua sayap.
+- **Tipe bangunan, jumlah massa (1–6), pola tata massa** (linear, grid, cluster, radial, memusar, courtyard) pada rencana tapak, denah, dan tampak 3D; podium tunggal atau per massa.
+- **Fasilitas, lanskap & utilitas** berbeda untuk perumahan, rusun, apartemen/kondominium: ibadah, klinik, pusat belanja, restoran, laundry, balai, kantor pengelola, PAUD, pusat MEE, IPAL, sumur, TPS 3R, parkir, kolam, clubhouse, jogging, lapangan, tenis, mini golf; gaya lanskap & jenis vegetasi; PV, smart system, kabel tanam, panel kontrol, proteksi kebakaran, panen air hujan. Ditempatkan otomatis (halaman → atap podium → atap menara), dirender 2D & 3D, biaya masuk kelayakan.
+- **Kelas lokasi kota** (metropolitan/besar/sedang/kecil) mengisi nilai awal aturan & harga bila RDTR/Perda belum ada (asumsi).
+- **Menu S · Skenario keputusan**: 5 desain per jenis (perumahan, rusun, apartemen/kondominium) dibandingkan — kapasitas & intensitas (dibatasi aturan lokasi), biaya, laba, IRR, NPV, pembiayaan, dokumen lingkungan, perizinan; satu klik terapkan.
+- **Menu P · Pelaksanaan & lingkungan**: metode tradisional/fast track/design & build/CM at risk, jadwal CPM (Gantt) & kurva S, RAB pelaksanaan bahan-upah-alat per kualitas bahan dengan spesifikasi, tenaga kerja & teknisi, perizinan (OSS, KKPR, persetujuan lingkungan, Andalalin, PBG, SLF, pertelaan), analisis lokasi, limbah & air.
+- **Menu D · Dokumen lengkap**: PDF berisi FS (A4), desain teknis pelaksanaan (A4), dan DED lembar A2 berkop termasuk rencana utilitas & proteksi kebakaran.
+- Rujukan baru terverifikasi: PP 16/2021, PP 21/2021, PP 22/2021, Permen LHK 4/2021, PP 28/2025, UU 22/2009 Ps. 99.
+
 ## 0.7.2 — 2026-11-05
 - Render "pandangan mata" tidak lagi tertutup pohon: kamera setinggi mata di jalan depan, pohon jalan & sabuk seberang tidak dipasang, sudut pandang lebih lebar.
 

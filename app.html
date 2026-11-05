@@ -131,7 +131,10 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
     <button data-s="rab"><span class="n">4</span><span class="t">RAB & kelayakan</span><span class="s">Biaya, harga jual, laba, IRR</span></button>
     <button data-s="biaya"><span class="n">5</span><span class="t">Pembiayaan & KPR</span><span class="s">Kredit konstruksi, cicilan</span></button>
     <button data-s="rusun"><span class="n">R</span><span class="t">Rumah susun & apartemen</span><span class="s">Flat, rusun, kondominium</span></button>
+    <button data-s="skenario"><span class="n">S</span><span class="t">Skenario keputusan</span><span class="s">5 desain per jenis, banding</span></button>
+    <button data-s="laksana"><span class="n">P</span><span class="t">Pelaksanaan & lingkungan</span><span class="s">Metode, jadwal, RAB, limbah</span></button>
     <button data-s="gk"><span class="n">G</span><span class="t">Gambar kerja A2</span><span class="s">Kop, denah, tampak, 3D, PDF</span></button>
+    <button data-s="dokumen"><span class="n">D</span><span class="t">Dokumen FS & DED</span><span class="s">PDF lengkap siap periksa</span></button>
     <button data-s="ringkas"><span class="n">6</span><span class="t">Ringkasan & laporan</span><span class="s">Indikator, ekspor</span></button>
     <div class="sep"></div>
     <button data-s="sumber"><span class="n">§</span><span class="t">Sumber & Referensi</span><span class="s">Regulasi & asumsi</span></button>
@@ -145,7 +148,10 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
     <section data-sec="rab" hidden></section>
     <section data-sec="biaya" hidden></section>
     <section data-sec="rusun" hidden></section>
+    <section data-sec="skenario" hidden></section>
+    <section data-sec="laksana" hidden></section>
     <section data-sec="gk" hidden></section>
+    <section data-sec="dokumen" hidden></section>
     <section data-sec="ringkas" hidden></section>
     <section data-sec="sumber" hidden></section>
   </main>
@@ -183,6 +189,24 @@ const CREDIT = [
   {k:'pp14', t:'Peraturan Pemerintah Nomor 14 Tahun 2016 tentang Penyelenggaraan Perumahan dan Kawasan Permukiman, sebagaimana telah diubah dengan Peraturan Pemerintah Nomor 12 Tahun 2021.',
    d:'Kerangka penyelenggaraan perumahan, termasuk kewajiban PSU dan hunian berimbang. Rincian angka mengikuti peraturan pelaksana.',
    u:'https://peraturan.bpk.go.id/', tag:'kerangka'},
+  {k:'pp16', t:'Peraturan Pemerintah Nomor 16 Tahun 2021 tentang Peraturan Pelaksanaan Undang-Undang Nomor 28 Tahun 2002 tentang Bangunan Gedung (LN 2021 No. 26; ditetapkan 2 Februari 2021).',
+   d:'Pasal 1 angka 17: PBG adalah perizinan kepada pemilik bangunan gedung untuk membangun baru, mengubah, memperluas, mengurangi, dan/atau merawat bangunan gedung sesuai standar teknis. Angka 18: SLF diberikan pemerintah daerah untuk menyatakan kelaikan fungsi bangunan gedung sebelum dapat dimanfaatkan.',
+   u:'https://peraturan.bpk.go.id/Details/161846/pp-no-16-tahun-2021', tag:'dipakai: PBG & SLF dalam daftar perizinan'},
+  {k:'pp21', t:'Peraturan Pemerintah Nomor 21 Tahun 2021 tentang Penyelenggaraan Penataan Ruang (LN 2021 No. 31; ditetapkan 2 Februari 2021).',
+   d:'Mengatur perencanaan tata ruang (RTRW, RDTR) dan pemanfaatan ruang melalui Kesesuaian Kegiatan Pemanfaatan Ruang (KKPR) sebagai persyaratan dasar.',
+   u:'https://peraturan.bpk.go.id/Details/161851/pp-no-21-tahun-2021', tag:'dipakai: KKPR dalam daftar perizinan'},
+  {k:'pp22', t:'Peraturan Pemerintah Nomor 22 Tahun 2021 tentang Penyelenggaraan Perlindungan dan Pengelolaan Lingkungan Hidup (LN 2021 No. 32; ditetapkan 2 Februari 2021).',
+   d:'Mengatur Persetujuan Lingkungan melalui Amdal, UKL-UPL, atau SPPL, serta pengelolaan limbah B3 dan nonB3. Mencabut PP 27/2012 tentang Izin Lingkungan.',
+   u:'https://peraturan.bpk.go.id/Details/161852/pp-no-22-tahun-2021', tag:'dipakai: persetujuan lingkungan'},
+  {k:'lhk4', t:'Peraturan Menteri Lingkungan Hidup dan Kehutanan Nomor 4 Tahun 2021 tentang Daftar Usaha dan/atau Kegiatan yang Wajib Memiliki Amdal, UKL-UPL, atau SPPL.',
+   d:'Lampiran I memuat jenis dan skala usaha/kegiatan yang wajib Amdal, UKL-UPL, atau SPPL. Aplikasi tidak menyalin lampiran; ambang di halaman P adalah isian yang harus dicocokkan pengguna dengan lampiran tersebut.',
+   u:'https://peraturan.bpk.go.id/Details/210998/', tag:'acuan jenis dokumen lingkungan'},
+  {k:'pp28', t:'Peraturan Pemerintah Nomor 28 Tahun 2025 tentang Penyelenggaraan Perizinan Berusaha Berbasis Risiko (ditetapkan 5 Juni 2025; mencabut PP 5/2021).',
+   d:'Perizinan berusaha diproses melalui OSS; persyaratan dasar meliputi antara lain KKPR dan persetujuan lingkungan.',
+   u:'https://peraturan.bpk.go.id/Details/319773/pp-no-28-tahun-2025', tag:'dipakai: NIB/OSS & urutan persyaratan dasar'},
+  {k:'uu22', t:'Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan, Pasal 99.',
+   d:'Pasal 99 ayat (1): setiap rencana pembangunan pusat kegiatan, permukiman, dan infrastruktur yang akan menimbulkan gangguan keamanan, keselamatan, ketertiban, dan kelancaran lalu lintas dan angkutan jalan wajib dilakukan analisis dampak lalu lintas.',
+   u:'https://pasal.id/peraturan/uu/uu-no-22-tahun-2009/pasal-99', tag:'dipakai: Andalalin'},
   {k:'bhumi', t:'Kementerian Agraria dan Tata Ruang/Badan Pertanahan Nasional. BHUMI — peta bidang tanah, zona nilai tanah, dan informasi spasial (layanan publik daring).',
    d:'Dipakai sebagai tautan pemeriksaan status bidang tanah pada koordinat lokasi proyek. Aplikasi tidak mengambil data BHUMI secara otomatis.',
    u:'https://bhumi.atrbpn.go.id/peta', tag:'sumber peta'},
@@ -210,6 +234,12 @@ const ASUMSI = [
   'Gambar kerja A2 (594 × 420 mm, ukuran kertas ISO 216) adalah pra-rencana otomatis: denah, tampak, potongan, dan rencana tapak skematik dengan skala standar; perabot, dimensi ruang, dan fasilitas lanskap bersifat indikatif. Wajib diperiksa dan dilengkapi perencana berwenang sebelum PBG/pelaksanaan.',
   'Zona komersial (ruko) di muka kawasan dihitung sebagai kavling komersial matang yang dijual per m² (harga isian, asumsi) selama 12 bulan sejak penjualan dimulai; bangunan rukonya tidak dihitung. Zona ini lazim pada kawasan besar yang berbatasan dengan jalan akses ramai — sesuaikan dengan peruntukan RDTR.',
   'Rumah susun/apartemen: contoh komposisi unit, harga per m², biaya bangun per m² (menara, podium, basement), efisiensi lantai, tinggi lantai, kenaikan harga per lantai, kebutuhan parkir per unit, luas per SRP, dan jumlah unit per lif adalah perkiraan pasar/praktik umum, bukan regulasi; ganti dengan data lokasi, Perda/RDTR, dan hasil perencanaan.',
+  'Kelas lokasi kota (metropolitan/besar/sedang/kecil) mengikuti besaran jumlah penduduk yang lazim dipakai dalam penataan ruang; nilai KDB, KLB, KDH, GSB, batas lantai, rasio parkir, harga tanah, indeks biaya, dan harga jual per kelas adalah asumsi praktik umum untuk studi awal, bukan ketentuan RDTR/Perda.',
+  'Biaya fasilitas lingkungan, utilitas (PV Rp15 jt/kWp, sistem smart, kabel tanam, panel kontrol, proteksi kebakaran Rp350 rb/m² GFA atau Rp2,5 jt/unit, panen air hujan) dan ukuran tapak fasilitas adalah perkiraan; penempatan otomatis bersifat skematik.',
+  'Skenario keputusan: komposisi tipe, harga jual, fasilitas, struktur pembiayaan, dan tata massa tiap skenario adalah contoh rancangan; kapasitas dibatasi aturan lokasi yang sedang dipakai. Bunga kredit konstruksi hunian vertikal disederhanakan (porsi pinjaman × bunga × masa bangun × 0,55).',
+  'Perizinan: urutan, lama proses, dan biaya (termasuk retribusi PBG % biaya konstruksi dan ambang Andalalin) adalah perkiraan; ketentuan resmi mengikuti OSS, Perda retribusi, dan dinas teknis setempat. Ambang Amdal/UKL-UPL di halaman P adalah isian awal, bukan kutipan lampiran Permen LHK 4/2021.',
+  'Pelaksanaan: durasi aktivitas, tumpang-tindih metode fast track/design & build/CM at risk, cadangan risiko, porsi biaya per pekerjaan, komposisi bahan/upah/alat, faktor kualitas bahan, overhead 8%, keuntungan 7%, upah harian, rasio regu kerja, timbulan sampah, kebutuhan air, limbah konstruksi, dan bobot skor lokasi adalah asumsi praktik umum; ganti dengan AHSP, harga satuan, dan data setempat.',
+  'Dokumen FS/DED/desain teknis disusun otomatis sebagai pra-rencana; bukan pengganti perhitungan struktur, MEP, dan RAB definitif yang disahkan tenaga ahli bersertifikat.',
   'Rumah susun: arus kas disederhanakan — tanah di bulan 0, konstruksi merata, penjualan merata; bagian harga yang diterima selama pembangunan sesuai persentase isian, sisanya saat serah terima. Biaya kewajiban rusun umum 20% memakai biaya per m² isian (asumsi); bentuk pemenuhannya mengikuti PP 13/2021 dan keputusan pemerintah daerah.'
 ];
 
@@ -648,6 +678,17 @@ function slotGrid(S){ const N=Math.ceil(S)+1, g=new Uint8Array(N*N), mark=(x,y,w
   place=(w,h,pref='back',mg=1)=>{ const ys=[]; for(let y=0;y<=S-h;y+=2) ys.push(y); if(pref==='back') ys.reverse(); const xs=[]; for(let x=0;x<=S-w;x+=2) xs.push(x); if(pref==='back') xs.reverse();
     for(const rot of [0,1]){ const ww=rot?h:w, hh=rot?w:h; for(const y of ys) for(const x of xs) if(free(x-mg,y-mg,ww+2*mg,hh+2*mg)&&x+ww<=S&&y+hh<=S){ mark(x-mg,y-mg,ww+2*mg,hh+2*mg); return [x,y,ww,hh]; } } return null; };
   return {mark,free,place}; }
+/* Kelas lokasi kota — nilai awal bila RDTR/Perda setempat belum diperoleh (ASUMSI, bukan regulasi) */
+const KOTA={
+  metro:{n:'Kota metropolitan (± ≥ 1 juta jiwa)',kdb:60,klbH:1.4,klbV:6,kdh:15,gsb:4,flV:40,park:{flat:.3,rusun:.2,apartemen:.5,kondominium:1.5},landH:7500000,landV:20000000,idx:1.15,price:1.35},
+  besar:{n:'Kota besar (± 500 ribu – 1 juta jiwa)',kdb:60,klbH:1.2,klbV:4.5,kdh:15,gsb:4,flV:25,park:{flat:.3,rusun:.15,apartemen:.4,kondominium:1.2},landH:4000000,landV:10000000,idx:1.05,price:1.1},
+  sedang:{n:'Kota sedang (± 100 – 500 ribu jiwa)',kdb:60,klbH:1.2,klbV:3,kdh:20,gsb:3,flV:12,park:{flat:.25,rusun:.1,apartemen:.35,kondominium:1},landH:2000000,landV:5000000,idx:1,price:1},
+  kecil:{n:'Kota kecil / ibu kota kabupaten (± < 100 ribu jiwa)',kdb:60,klbH:1,klbV:2,kdh:25,gsb:3,flV:8,park:{flat:.2,rusun:.1,apartemen:.3,kondominium:1},landH:900000,landV:2500000,idx:.92,price:.85}
+};
+function applyKota(k,scope){ const c=KOTA[k]; if(!c) return; P.kota=k;
+  if(scope!=='v'){ Object.assign(P.rules,{kdbMax:c.kdb,klbMax:c.klbH,kdhMin:c.kdh,gsb:c.gsb}); P.site.landPrice=c.landH; P.cost.buildM2=Math.round(3800000*c.idx/10000)*10000; }
+  if(scope!=='h'&&P.vert){ const V=P.vert, d=vertDefault(V.kind); Object.assign(V,{kdb:Math.min(c.kdb,d.kdb),klb:c.klbV,kdh:c.kdh,maxFl:c.flV,parkPer:c.park[V.kind]??V.parkPer,landPrice:c.landV,struM2:Math.round(d.struM2*c.idx/1e4)*1e4,podM2:Math.round(d.podM2*c.idx/1e4)*1e4,baseM2:Math.round(d.baseM2*c.idx/1e4)*1e4});
+    V.mix.forEach((m,i)=>{ const b=d.mix[i]; if(b) m.pm2=Math.round(b.pm2*c.price/1e5)*1e5; }); } }
 /* Fasilitas perumahan tapak: dikemas ke petak fasum (bangunan) & RTH (rekreasi); dipakai siteplan 2D & kawasan 3D */
 function estateFas(lay,F){ F=F||fasDefault('perumahan'); const on=F.on||{}, placed=[], miss=[], grids=new Map();
   const gridOf=r=>{ if(!grids.has(r)){ const n=Math.max(r.w,r.h), G=slotGrid(n); G.mark(r.w,0,n,n); G.mark(0,r.h,n,n); grids.set(r,G); } return grids.get(r); };
@@ -813,7 +854,7 @@ function defaultProject(){
       {name:'Tunggal 120/200',model:'tunggal',lotW:12.5,lotD:16,LB:120,floors:2,beds:4,baths:3,style:'japandi',price:1350000000,share:20,subsidi:false,sf:null}
     ],
     sarana:[{n:'Taman bermain',jiwa:0,luas:0},{n:'Posyandu / balai warga',jiwa:0,luas:0},{n:'Musala',jiwa:0,luas:0}],
-    fasH:fasDefault('perumahan'),
+    fasH:fasDefault('perumahan'), lak:lakDefault(), kota:'',
     cost:{landTxPct:5,prepM2:35000,roadM2:280000,drainM:450000,rthM2:120000,fasumM2:400000,makamM2:50000,utilUnit:9000000,buildM2:3800000,permitLump:350000000,certUnit:4500000,contPct:5,mktPct:3,ohPct:5},
     sales:{start:3,perMonth:6,buildMonths:4,dpPct:20,infraMonths:6,horizon:48},
     fin:{loanPct:40,loanRate:11,sweepPct:100,discPct:14},
@@ -835,7 +876,7 @@ const RU = {lahanMin:60,lahanMax:200,lebarMin:5,lantaiMin:21,lantaiMax:36,tenorM
 let P = load() || defaultProject();
 let cur = 'lahan', selType = 0;
 function load(){ try{ const s=localStorage.getItem('rp.project'); if(s){ const j=JSON.parse(s); if(j&&j.v===1) return migrate(j); } }catch(e){} return null; }
-function migrate(j){ const d=defaultProject(); for(const k of Object.keys(d)) if(j[k]==null) j[k]=d[k]; for(const k of ['site','plan','rules','cost','sales','fin','kpr','loc','gk']) j[k]=Object.assign({},d[k],j[k]); j.loc.rdtr=Object.assign({},d.loc.rdtr,j.loc.rdtr||{}); j.loc.addr=j.loc.addr||{}; j.loc.poly=Array.isArray(j.loc.poly)?j.loc.poly:[]; { const vd=vertDefault((j.vert&&VKIND[j.vert.kind])?j.vert.kind:'apartemen'); j.vert=Object.assign(vd,j.vert||{}); j.vert.sched=Object.assign({},vd.sched,j.vert.sched||{}); if(!Array.isArray(j.vert.mix)||!j.vert.mix.length) j.vert.mix=vd.mix; } return j; }
+function migrate(j){ const d=defaultProject(); for(const k of Object.keys(d)) if(j[k]==null) j[k]=d[k]; for(const k of ['site','plan','rules','cost','sales','fin','kpr','loc','gk','lak']) j[k]=Object.assign({},d[k],j[k]); j.lak.skor=Object.assign({},d.lak.skor,j.lak.skor||{}); j.loc.rdtr=Object.assign({},d.loc.rdtr,j.loc.rdtr||{}); j.loc.addr=j.loc.addr||{}; j.loc.poly=Array.isArray(j.loc.poly)?j.loc.poly:[]; { const vd=vertDefault((j.vert&&VKIND[j.vert.kind])?j.vert.kind:'apartemen'); j.vert=Object.assign(vd,j.vert||{}); j.vert.sched=Object.assign({},vd.sched,j.vert.sched||{}); if(!Array.isArray(j.vert.mix)||!j.vert.mix.length) j.vert.mix=vd.mix; } return j; }
 let saveT=0; function persist(){ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('rp.project',JSON.stringify(P)); }catch(e){} },300); }
 function toast(t){ const e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('on'),2200); }
 /* konfirmasi dua klik (tanpa confirm/alert) */
@@ -1335,6 +1376,8 @@ PAGES.lokasi = sec => {
 PAGES.lahan = sec => {
   sec.innerHTML = `<h1>1 · Proyek & lahan</h1>
   <p class="lede">Masukkan ukuran lahan, harga tanah, zona batas harga rumah umum, dan aturan bangunan setempat. Semua angka awal hanyalah contoh — sesuaikan dengan lokasi dan peraturan daerah proyek Anda.</p>
+  <div class="card"><h2>Kelas lokasi (bila RDTR/Perda belum diperoleh)</h2><div class="row">${Object.entries(KOTA).map(([k,c])=>`<button class="btn small" data-kota="${k}" aria-pressed="${P.kota===k}">${esc(c.n)}</button>`).join('')}</div>
+    <p class="note">Mengisi nilai awal KDB, KLB, KDH, GSB, batas lantai hunian vertikal, rasio parkir, harga tanah, indeks biaya bangun, dan harga jual menurut kelas kota. Semua nilai ini <b>asumsi</b> praktik umum, bukan peraturan — ganti dengan RDTR/Perda bangunan gedung kota/kabupaten lokasi begitu diperoleh (langkah Lokasi & peta).</p></div>
   <div class="grid g2">
     <div class="card"><h2>Lahan</h2><div class="form">
       ${F('site.W','Lebar lahan (arah muka)','m')}${F('site.D','Panjang lahan (dari pintu masuk)','m')}
@@ -1358,6 +1401,7 @@ PAGES.lahan = sec => {
       <div class="kpi"><span>Lahan PSU minimal</span><b>${fmt(A*(+P.site.psuMin||0)/100)} m²</b><span>${fmt(P.site.psuMin)}% dari luas</span></div>
       <div class="kpi"><span>Lahan efektif maksimal</span><b>${fmt(A*(100-(+P.site.psuMin||0))/100)} m²</b><span>untuk kavling</span></div></div>`; };
   bindInputs(sec, out); out();
+  $$("[data-kota]",sec).forEach(b=>b.onclick=()=>{ applyKota(b.dataset.kota); persist(); render("lahan"); toast("Nilai awal kelas lokasi diterapkan (asumsi) — tipe rumah & harga jual tidak diubah."); });
 };
 
 PAGES.tapak = sec => { if(!P.fasH) P.fasH=fasDefault('perumahan');
@@ -1586,6 +1630,7 @@ PAGES.rusun = sec => {
       ${FV('parkPer','Kebutuhan parkir','SRP mobil per unit (Perda)',{step:.05})}${FV('lotM2','Luas per SRP termasuk sirkulasi','m²')}${FV('liftPer','Satu lif melayani','unit (asumsi)')}
     </div></div>
   </div>
+  <div class="card"><h2>Kelas lokasi</h2><div class="row">${Object.entries(KOTA).map(([k,c])=>`<button class="btn small" data-kota="${k}" aria-pressed="${P.kota===k}">${esc(c.n)}</button>`).join('')}</div><p class="note">Bila RDTR/Perda setempat belum diperoleh: mengisi KDB, KLB, KDH, batas lantai, rasio parkir, harga tanah, biaya bangun, dan harga jual unit menurut kelas kota (asumsi, dapat diubah).</p></div>
   <div class="card"><h2>Tipe bangunan & tata massa</h2><div class="form">
       ${FV('btype','Tipe bangunan','',{sel:Object.entries(BTYPE).map(([k,b])=>[k,b.n])})}${FV('nMass','Jumlah massa bangunan','0 = otomatis (1–6)',{sel:[[0,'Otomatis'],[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5'],[6,'6']],num:1})}
       ${FV('pola','Pola tata massa','',{sel:Object.entries(POLA).map(([k,b])=>[k,b.n])})}</div>
@@ -1675,10 +1720,307 @@ PAGES.rusun = sec => {
   $('#vFromLahan',sec).onclick=()=>{ const r=P.loc&&P.loc.rdtr||{}, n=x=>x!==''&&x!=null&&isFinite(+x)? +x : null;
     V.A=Math.round((+P.site.W)*(+P.site.D)); V.landPrice=+P.site.landPrice||V.landPrice; V.landTxPct=+P.cost.landTxPct||V.landTxPct;
     V.kdb=n(r.kdb)??+P.rules.kdbMax; V.klb=n(r.klb)??+P.rules.klbMax; V.kdh=n(r.kdh)??+P.rules.kdhMin; if(n(r.lantai)) V.maxFl=n(r.lantai); V.fromLahan=true; persist(); PAGES.rusun(sec); toast('Diambil dari halaman Lahan & Lokasi.'); };
+  $$('[data-kota]',sec).forEach(b=>b.onclick=()=>{ applyKota(b.dataset.kota,'v'); persist(); PAGES.rusun(sec); toast('Nilai awal kelas lokasi diterapkan (asumsi).'); });
   $('#vAdd',sec).onclick=()=>{ V.mix.push({n:'Tipe baru',a:36,share:10,pm2:(V.mix[0]&&V.mix[0].pm2)||20000000}); persist(); mix(); out(); };
   $('#vCsv',sec).onclick=()=>{ const R=sec._R; download(csv([['Tipe','Luas m2','Unit','Harga rata-rata per unit','NPP per sarusun %','NPP total tipe %','Pendapatan'],...R.rows.map(r=>[r.n,r.a,r.units,Math.round(r.price),r.npp.toFixed(6),(r.npp*r.units).toFixed(4),Math.round(r.rev)])]),slug()+'-rusun-unit-npp.csv','csv'); };
 };
 
+/* ===================================================================
+   SKENARIO KEPUTUSAN · PERIZINAN · PELAKSANAAN & LINGKUNGAN · DOKUMEN FS/DED
+   Semua angka biaya, waktu, upah, produktivitas, timbulan limbah = ASUMSI (dapat diubah).
+   =================================================================== */
+const clone=o=>JSON.parse(JSON.stringify(o));
+const withP=(Q,f)=>{ const S0=P; P=Q; try{ return f(); } finally{ P=S0; } };
+const TT=(n,lotW,lotD,LB,floors,beds,baths,model,style,price,share,sub)=>({name:n,model,lotW,lotD,LB,floors,beds,baths,style,price,share,subsidi:!!sub,sf:null});
+const fasOn=(kind,list,util)=>{ const F=fasDefault(kind); for(const k in F.on) F.on[k]=list.includes(k); Object.assign(F.util,util||{}); return F; };
+/* lima skenario per kategori */
+const SKEN={
+  perumahan:[
+    {id:'subsidi',n:'A · Rumah umum/subsidi deret',d:'Deret 30/60 & 36/72, harga mengikuti batas zona, fasilitas dasar, KPR FLPP.',fin:'Kredit konstruksi 50% · KPR subsidi',
+      f:C=>{ const mx=(ZONES.find(z=>z.z===+C.site.zone)||ZONES[0]).max; C.types=[TT('Tipe 30/60',5,12,30,1,2,1,'deret','minimalis',mx,50,1),TT('Tipe 36/72',6,12,36,1,2,1,'deret','minimalis',mx,50,1)]; C.rules.simple=true; C.fasH=fasOn('perumahan',['pos','ibadah','bermain','taman','tps','sumur'],{fire:1,rwh:1}); C.fin.loanPct=50; C.plan.localW=6; }},
+    {id:'menengah',n:'B · Menengah campuran',d:'Deret 36/72, kopel 45/120, tunggal 70/150; taman, lapangan, musala.',fin:'Kredit konstruksi 40% · KPR komersial',
+      f:C=>{ C.types=[TT('Tipe 36/72',6,12,36,1,2,1,'deret','minimalis',360e6,40),TT('Kopel 45/120',10,12,45,1,2,1,'kopel','tropis',540e6,35),TT('Tunggal 70/150',10,15,70,1,3,2,'tunggal','japandi',880e6,25)]; C.fasH=fasOn('perumahan',['pos','ibadah','bermain','taman','lapangan','tps','sumur','balai'],{fire:1,rwh:1}); C.fin.loanPct=40; }},
+    {id:'townhouse',n:'C · Klaster townhouse',d:'Townhouse 3 lantai & kopel dalam klaster tertutup; smart system, kabel tanam, kolam & clubhouse.',fin:'Kredit konstruksi 45% · KPR komersial/KPA',
+      f:C=>{ C.types=[TT('Townhouse 100/72',6,12,100,3,3,3,'townhouse','industrial',1150e6,60),TT('Kopel 45/120',10,12,45,1,2,1,'kopel','tropis',560e6,40)]; C.fasH=fasOn('perumahan',['pos','ibadah','bermain','taman','kolam','klub','tps','ipal'],{smart:1,tanam:1,panel:1,fire:1,rwh:1,pv:1}); C.fin.loanPct=45; C.plan.localW=7; }},
+    {id:'premium',n:'D · Rumah tunggal premium',d:'Tunggal 120/200 & villa taman 180/360; kolam, clubhouse, jogging, tenis, PV 2 kWp, smart.',fin:'Kredit konstruksi 35% · KPR premium',
+      f:C=>{ C.types=[TT('Tunggal 120/200',12.5,16,120,2,4,3,'tunggal','japandi',1.6e9,60),TT('Villa 180/360',18,20,180,2,4,4,'villa','tropis',2.9e9,40)]; C.fasH=fasOn('perumahan',['pos','ibadah','taman','jogging','kolam','klub','tenis','bermain','tps','ipal','mee'],{pv:2,smart:1,tanam:1,panel:1,fire:1,rwh:1}); C.fin.loanPct=35; C.plan.rthPct=14; C.plan.localW=8; }},
+    {id:'terpadu',n:'E · Kawasan terpadu + komersial',d:'Campuran deret/kopel/tunggal, zona ruko 10% di muka, masjid, klinik, PAUD, minimarket, jogging, makam.',fin:'Kredit konstruksi 40% · penjualan ruko lebih awal',
+      f:C=>{ C.types=[TT('Tipe 36/72',6,12,36,1,2,1,'deret','minimalis',380e6,45),TT('Kopel 45/120',10,12,45,1,2,1,'kopel','tropis',560e6,30),TT('Tunggal 120/200',12.5,16,120,2,4,3,'tunggal','japandi',1.5e9,25)]; C.plan.komPct=10; C.plan.makamPct=2; C.fasH=fasOn('perumahan',['pos','ibadah','klinik','sekolah','belanja','bermain','taman','jogging','lapangan','tps','ipal','sumur','balai'],{fire:1,rwh:1,tanam:1}); C.fin.loanPct=40; }}
+  ],
+  rusun:[
+    {id:'walkup',n:'A · Rusunawa walk-up 5 lantai',d:'Flat tanpa lif, koridor tunggal (selasar), pola linear; laundry & area jemur bersama.',fin:'APBN/APBD atau KPR-FLPP sarusun',
+      f:V=>{ Object.assign(V,vertDefault('rusun'),{maxFl:5,btype:'tunggal',pola:'linear',nMass:0,plate:900,klb:2.5}); V.fas=fasOn('rusun',['pos','ibadah','bermain','taman','laundry','balai','kantor','tps','sumur','ipal','mee'],{fire:1,rwh:1,panel:1}); }},
+    {id:'ganda10',n:'B · Rusunami 10 lantai koridor ganda',d:'Koridor ganda, 2 massa sejajar, lif, lapangan & balai warga.',fin:'Kredit konstruksi 50% · KPR sarusun',
+      f:V=>{ Object.assign(V,vertDefault('rusun'),{maxFl:10,btype:'ganda',pola:'linear',nMass:2}); V.fas=fasOn('rusun',['pos','ibadah','bermain','taman','lapangan','laundry','balai','kantor','tps','sumur','ipal','mee'],{fire:1,rwh:1,panel:1}); }},
+    {id:'titik16',n:'C · Menara titik 16 lantai',d:'3 menara titik pola radial, lahan lebih luas, RTH besar.',fin:'Kredit konstruksi 50% · KPR sarusun',
+      f:V=>{ Object.assign(V,vertDefault('rusun'),{A:5000,maxFl:16,klb:3.5,btype:'titik',pola:'radial',nMass:3,plate:1200}); V.fas=fasOn('rusun',['pos','ibadah','bermain','taman','lapangan','laundry','balai','kantor','tps','ipal','mee'],{fire:1,rwh:1,panel:1,smart:1}); }},
+    {id:'tod',n:'D · Rusun TOD + podium komersial',d:'20 lantai di atas podium komersial 2 lantai (dekat simpul transit), 2 massa grid.',fin:'Kredit konstruksi 55% · sewa ruang komersial',
+      f:V=>{ Object.assign(V,vertDefault('rusun'),{A:4000,maxFl:22,klb:5,podFl:2,podUse:'komersial',btype:'ganda',pola:'grid',nMass:2,plate:1400,parkPer:.1}); V.fas=fasOn('rusun',['pos','ibadah','bermain','taman','laundry','balai','kantor','klinik','belanja','tps','ipal','mee'],{fire:1,rwh:1,panel:1,smart:1}); }},
+    {id:'court',n:'E · Klaster courtyard 8 lantai',d:'4 massa koridor tunggal mengelilingi halaman dalam (ventilasi silang, ruang sosial).',fin:'Kredit konstruksi 50% · KPR sarusun',
+      f:V=>{ Object.assign(V,vertDefault('rusun'),{A:6000,maxFl:8,klb:2.6,btype:'tunggal',pola:'courtyard',nMass:4,plate:1700}); V.fas=fasOn('rusun',['pos','ibadah','bermain','taman','lapangan','laundry','balai','kantor','tps','sumur','ipal','mee'],{fire:1,rwh:1,panel:1}); }}
+  ],
+  apartemen:[
+    {id:'studio',n:'A · Apartemen studio & 1 kamar',d:'Pasar mahasiswa/pekerja; koridor ganda 25 lantai, pola linear; minimarket & laundry.',fin:'Kredit konstruksi 50% · KPA 20 tahun',
+      f:V=>{ Object.assign(V,vertDefault('apartemen'),{maxFl:25,btype:'ganda',pola:'linear',nMass:1,mix:[{n:'Studio',a:24,share:55,pm2:28e6},{n:'1 kamar',a:36,share:45,pm2:27e6}]}); V.fas=fasOn('apartemen',['pos','ibadah','taman','kolam','belanja','laundry','kantor','tps','ipal','mee'],{pv:.3,smart:1,tanam:1,panel:1,fire:1,rwh:1}); }},
+    {id:'keluarga',n:'B · Apartemen keluarga 2–3 kamar',d:'Unit luas 58–82 m², 2 massa grid, kolam, jogging, area bermain, klinik.',fin:'Kredit konstruksi 45% · KPA',
+      f:V=>{ Object.assign(V,vertDefault('apartemen'),{A:6000,maxFl:24,btype:'ganda',pola:'grid',nMass:2,mix:[{n:'2 kamar',a:58,share:60,pm2:25e6},{n:'3 kamar',a:82,share:40,pm2:24.5e6}]}); V.fas=fasOn('apartemen',['pos','ibadah','taman','jogging','kolam','bermain','klinik','kantor','tps','ipal','mee','lapangan'],{pv:.5,smart:1,tanam:1,panel:1,fire:1,rwh:1}); }},
+    {id:'mixed',n:'C · Mixed-use podium komersial',d:'Podium komersial 3 lantai + 2 menara; ritel, resto, kantor pengelola di podium.',fin:'Kredit konstruksi 55% · sewa ritel',
+      f:V=>{ Object.assign(V,vertDefault('apartemen'),{A:5000,maxFl:32,klb:6,podFl:3,podUse:'komersial',btype:'ganda',pola:'linear',nMass:2}); V.fas=fasOn('apartemen',['pos','ibadah','taman','kolam','jogging','belanja','resto','klinik','kantor','tps','ipal','mee'],{pv:.5,smart:1,tanam:1,panel:1,fire:1,rwh:1}); }},
+    {id:'kondo',n:'D · Kondominium menara titik',d:'3 menara titik pola radial, unit 1–3 kamar + penthouse; clubhouse, tenis, kolam.',fin:'Kredit konstruksi 40% · pembayaran bertahap',
+      f:V=>{ Object.assign(V,vertDefault('kondominium'),{A:8000,maxFl:30,btype:'titik',pola:'radial',nMass:3,plate:1800}); V.fas=fasOn('kondominium',['pos','ibadah','taman','jogging','kolam','klub','tenis','resto','klinik','kantor','tps','ipal','mee'],{pv:1.5,smart:1,tanam:1,panel:1,fire:1,rwh:1}); }},
+    {id:'lowrise',n:'E · Kondominium low-rise courtyard',d:'8 lantai, 4 massa koridor tunggal mengelilingi taman & kolam; nuansa resor.',fin:'Kredit konstruksi 40% · pembayaran bertahap',
+      f:V=>{ Object.assign(V,vertDefault('kondominium'),{A:9000,maxFl:8,klb:2.2,podFl:0,baseFl:1,btype:'tunggal',pola:'courtyard',nMass:4,plate:2400}); V.fas=fasOn('kondominium',['pos','ibadah','taman','jogging','kolam','klub','bermain','resto','kantor','tps','ipal','mee'],{pv:2,smart:1,tanam:1,panel:1,fire:1,rwh:1}); }}
+  ]
+};
+/* perizinan: daftar menurut jenis & skala (dasar hukum = kunci CREDIT; waktu & biaya = asumsi) */
+function permitList(kind,s){ const L=P.lak||lakDefault(), vert=kind!=='perumahan', ha=(s.A||0)/1e4, gfa=s.gfa||0;
+  const envDoc=(vert? (ha>=+L.amdalGedungHa||gfa>=+L.amdalGedungM2) : ha>=+L.amdalPermHa)? 'Amdal' : (vert? (gfa>=+L.uklGedungM2||ha>=+L.uklHa) : ha>=+L.uklHa)? 'UKL-UPL' : 'SPPL';
+  const envT={Amdal:[8,850e6],'UKL-UPL':[3,120e6],SPPL:[.5,5e6]}[envDoc];
+  const it=[
+    ['NIB & KBLI melalui OSS','pp28',.25,0,'awal'],
+    ['KKPR — kesesuaian kegiatan pemanfaatan ruang','pp21',1.5,30e6,'awal'],
+    ['Persetujuan lingkungan: '+envDoc,'pp22',envT[0],envT[1],'awal'],
+    [(s.units>=+L.andalalinUnit||vert&&s.units>=+L.andalalinUnit/2)?'Andalalin (persetujuan analisis dampak lalu lintas)':'Rekomendasi lalu lintas (bila diminta Dinas Perhubungan)','uu22',2,(s.units>=+L.andalalinUnit?150e6:15e6),'awal'],
+    ['PBG (persetujuan bangunan gedung) + retribusi','pp16',2,Math.max(10e6,(s.cons||0)*(+L.retribusiPct||0)/100),'desain']
+  ];
+  if(!vert) it.push(['Pengesahan rencana tapak & penyediaan PSU (Perda PSU setempat)','permendagri15',1.5,25e6,'desain'],['Pemecahan sertifikat per kavling (BPN)','bhumi',4,(s.units||0)*2.5e6,'jual']);
+  else it.push(['Pertelaan, akta pemisahan, SHM sarusun/SKBG','pp13',4,(s.units||0)*3e6,'jual']);
+  it.push(['SLF (sertifikat laik fungsi) sebelum dihuni','pp16',1,Math.max(15e6,gfa*2000),'akhir']);
+  return {envDoc,items:it.map(q=>({n:q[0],ref:q[1],bln:q[2],biaya:q[3],tahap:q[4]})),pre:it.filter(q=>q[4]==='awal'||q[4]==='desain').reduce((m,q)=>q[4]==='awal'? Math.max(m,q[2]) : m,0)+it.filter(q=>q[4]==='desain').reduce((m,q)=>Math.max(m,q[2]),0),biaya:it.reduce((a,q)=>a+q[3],0)}; }
+/* ringkasan metrik per skenario */
+function evalPerumahan(C){ return withP(C,()=>{ const {lay,fe}=calc(); const lotA=lay.lots.reduce((a,l)=>a+l.w*l.h,0), bldA=lay.lots.reduce((a,l)=>{ const t=C.types[l.type]; return a+(t? (+t.LB)/(Math.max(1,+t.floors||1)) : 0); },0), gfa=lay.lots.reduce((a,l)=>a+(+(C.types[l.type]||{}).LB||0),0);
+  const pm=permitList('perumahan',{A:lay.A,units:fe.nU,gfa,cons:fe.cons});
+  return {units:fe.nU,dens:lay.density,kdb:lotA? bldA/lotA:0,klb:lay.A? gfa/lay.A:0,psu:lay.share.psu,rev:fe.revenue,cost:fe.total,profit:fe.profit,margin:fe.margin,irr:fe.irr,npv:fe.npv,peak:fe.peakFunding,loanPeak:fe.loan.peakDebt,interest:fe.loan.totInt,eqIrr:fe.loan.eqIrr,gfa,A:lay.A,pm,floors:Math.max(...C.types.map(t=>+t.floors||1))}; }); }
+function evalVert(V){ const R=vertCalc(V), lp=(+((P.fin||{}).loanPct)||40)/100, rate=(+((P.fin||{}).loanRate)||11)/100, bld=(V.sched||{}).build||24, loan=R.cons*lp, intr=loan*rate*bld/12*.55;
+  const pm=permitList(V.kind,{A:R.A,units:R.units,gfa:R.gfaAll,cons:R.cons}), ML=massLayout(R);
+  return {units:R.units,dens:R.A? R.units/(R.A/1e4):0,kdb:R.kdbUse,klb:R.klbUse,floors:R.twFl+R.podFl,rev:R.rev,cost:R.cost+intr,profit:R.profit-intr,margin:R.rev?(R.profit-intr)/R.rev:NaN,irr:R.irr,npv:R.npv,peak:-R.peak,loanPeak:loan,interest:intr,gfa:R.gfaAll,A:R.A,pm,mass:`${BTYPE[towerForm(R).bt].n.split(' (')[0]} · ${ML.n} massa · ${POLA[ML.pola].n.split(' (')[0]}`,fits:ML.fits,park:R.parkCap>=R.parkNeed}; }
+/* ---------- Pelaksanaan: metode, jadwal (CPM), RAB pelaksanaan, tenaga kerja, lokasi, limbah ---------- */
+function lakDefault(){ return {metode:'tradisional',mutu:'standar',upahTukang:165000,upahPekerja:130000,upahMandor:200000,upahTeknisi:220000,hariKerja:25,limbahM3:.05,sampahKg:.7,airL:150,jiwaUnit:4,
+  amdalPermHa:25,uklHa:3,amdalGedungHa:5,amdalGedungM2:10000,uklGedungM2:5000,andalalinUnit:150,retribusiPct:.4,
+  skor:{akses:4,banjir:4,lereng:4,utilitas:4,fasilitas:3,pasar:4,tanah:4,sosial:3}}; }
+const METODE={
+  tradisional:{n:'Tradisional (design–bid–build)',d:'Desain selesai → lelang → konstruksi; risiko biaya paling rendah, waktu paling panjang.',ov:0,cont:0},
+  fasttrack:{n:'Fast track (bertahap tumpang-tindih)',d:'Konstruksi pondasi/struktur dimulai saat desain ± 40–60%; waktu lebih cepat, risiko perubahan & biaya naik.',ov:.55,cont:3},
+  db:{n:'Design & build (rancang-bangun)',d:'Satu kontraktor merancang & membangun; koordinasi lebih ringkas, kendali desain pemilik berkurang.',ov:.4,cont:1.5},
+  cmr:{n:'Construction management at risk',d:'Manajer konstruksi sejak desain, paket pekerjaan dilelang bertahap dengan harga maksimum terjamin (GMP).',ov:.45,cont:2}
+};
+const MUTU={ekonomis:{n:'Ekonomis',f:.86},standar:{n:'Standar',f:1},premium:{n:'Premium',f:1.32}};
+/* pekerjaan: [nama, porsi biaya, %bahan, %upah, %alat, spesifikasi ekonomis | standar | premium] — porsi & komposisi = asumsi praktik umum */
+const WORK={
+  tapak:[['Persiapan & pembersihan',.03,.35,.45,.2,['Pagar seng, direksi keet sederhana','Pagar seng, direksi keet, uitzet bowplank','Pagar panel, kantor lapangan, survei total station']],
+    ['Tanah & pondasi',.12,.6,.32,.08,['Pondasi batu kali, sloof 15/20','Pondasi batu kali + footplat, sloof 20/25','Footplat/strauss pile, sloof 20/30']],
+    ['Struktur beton (kolom, balok, plat)',.15,.62,.3,.08,['Beton K-175 site mix','Beton K-225 site mix','Beton fc 25 MPa ready mix']],
+    ['Dinding & plester',.13,.55,.42,.03,['Batako/bata ringan, plester aci','Bata ringan, plester aci','Bata ringan + panel akustik, acian halus']],
+    ['Atap & rangka',.11,.65,.32,.03,['Rangka baja ringan, genteng metal','Baja ringan, genteng beton','Baja ringan/kayu, genteng keramik / dak beton']],
+    ['Kusen, pintu & jendela',.08,.75,.23,.02,['Kusen aluminium standar, pintu panel','Aluminium 4", kaca 5 mm','Aluminium powder coat / kayu solid, kaca low-E']],
+    ['Lantai & dinding keramik',.08,.68,.3,.02,['Keramik 40×40','Granit/keramik 60×60','Homogeneous tile 80×80 / marmer lokal']],
+    ['Plafon',.04,.62,.36,.02,['Gipsum rangka hollow','Gipsum rangka hollow + list','Gipsum drop-ceiling + lampu tersembunyi']],
+    ['Sanitasi & plumbing',.07,.7,.27,.03,['Kloset jongkok/duduk lokal, PVC','Kloset duduk, PVC AW, water heater opsi','Sanitary premium, PPR, water heater']],
+    ['Listrik & penerangan',.07,.7,.27,.03,['Instalasi NYM, 1.300 VA','NYM, 2.200 VA, titik lampu LED','NYM/NYY, 3.500–5.500 VA, smart switch']],
+    ['Pengecatan & finishing',.06,.55,.43,.02,['Cat tembok ekonomis','Cat tembok standar + weathershield','Cat premium, finishing tekstur']],
+    ['Prasarana lingkungan & lanskap',.06,.58,.3,.12,['Jalan paving, saluran U-ditch','Jalan aspal/paving, U-ditch, PJU','Aspal hotmix, box culvert, PJU tanam, lanskap lengkap']]],
+  vert:[['Persiapan, mobilisasi & dewatering',.03,.3,.35,.35,['Pagar seng, kantor lapangan','Pagar panel, dewatering','Pagar panel, dewatering, monitoring']],
+    ['Pondasi dalam & basement',.14,.6,.22,.18,['Tiang pancang mini','Tiang pancang / bored pile','Bored pile, diaphragm wall']],
+    ['Struktur atas (beton bertulang)',.27,.62,.26,.12,['fc 25 MPa, bekisting konvensional','fc 30 MPa, bekisting sistem','fc 35–40 MPa, bekisting sistem/climbing']],
+    ['Dinding, fasad & plester',.1,.6,.36,.04,['Bata ringan, cat','Bata ringan, ACP sebagian','Curtain wall/ACP, kaca low-E']],
+    ['Arsitektur interior & finishing',.12,.66,.31,.03,['Keramik 40×40, gipsum','Granit 60×60, gipsum','HT 80×80/marmer, plafon dekoratif']],
+    ['Mekanikal (lif, pompa, HVAC)',.11,.78,.18,.04,['Lif standar, pompa transfer','Lif + VRV/split, pompa booster','Lif kecepatan tinggi, VRF, BMS']],
+    ['Elektrikal (trafo, genset, panel)',.08,.75,.21,.04,['Trafo, genset sebagian','Trafo, genset 100%, ATS','Trafo, genset, PV, smart metering']],
+    ['Plumbing, sanitasi & STP',.06,.7,.26,.04,['PVC, STP sederhana','PPR/PVC, STP biologis','PPR, STP MBBR + daur ulang']],
+    ['Proteksi kebakaran',.04,.72,.24,.04,['Hidran, APAR, alarm','Hidran, sprinkler, alarm adresabel','Hidran, sprinkler, FA adresabel, pressurized fan']],
+    ['Prasarana & lanskap',.05,.58,.3,.12,['Paving, taman','Aspal/paving, lanskap, kolam','Lanskap lengkap, roof garden']]]
+};
+function rabLak(kind,consBase){ const L=P.lak||lakDefault(), M=MUTU[L.mutu]||MUTU.standar, W=WORK[kind==='perumahan'?'tapak':'vert'], ix=['ekonomis','standar','premium'].indexOf(L.mutu);
+  const rows=W.map(w=>{ const base=consBase*w[1], bahan=base*w[2]*M.f, upah=base*w[3], alat=base*w[4]; return {n:w[0],bahan,upah,alat,sub:bahan+upah+alat,spec:w[5][Math.max(0,ix)]}; });
+  const direct=rows.reduce((a,r)=>a+r.sub,0), oh=direct*.08, prof=direct*.07, ppn=(direct+oh+prof)*.11;
+  return {rows,direct,oh,prof,ppn,total:direct+oh+prof+ppn,bahan:rows.reduce((a,r)=>a+r.bahan,0),upah:rows.reduce((a,r)=>a+r.upah,0),alat:rows.reduce((a,r)=>a+r.alat,0)}; }
+function crew(rab,months){ const L=P.lak||lakDefault(), md=rab.upah/(.25*(+L.upahMandor)+.35*(+L.upahTukang)+.32*(+L.upahPekerja)+.08*(+L.upahTeknisi)), days=Math.max(1,months*(+L.hariKerja||25)), avg=md/days, peak=avg*1.6;
+  return {md,avg,peak,mandor:Math.max(1,Math.ceil(peak/20)),tukang:Math.ceil(peak*.38),pekerja:Math.ceil(peak*.5),teknisi:Math.max(1,Math.ceil(peak*.08))}; }
+/* jadwal: aktivitas {n,d (bulan),pre:[indeks],fs: mulai boleh tumpang-tindih (fraksi pendahulu)} → CPM maju/mundur */
+function schedule(kind,ctx){ const L=P.lak||lakDefault(), Mt=METODE[L.metode]||METODE.tradisional, vert=kind!=='perumahan', b=Math.max(4,ctx.build||12), pm=ctx.pm;
+  const A=[{n:'Studi kelayakan & akuisisi lahan',d:2,pre:[]},{n:'Perizinan dasar (KKPR, lingkungan, Andalalin)',d:Math.max(1,pm?Math.max(...pm.items.filter(i=>i.tahap==='awal').map(i=>i.bln)):3),pre:[0]},
+    {n:'Desain (DED) & RAB',d:vert?5:3,pre:[0]},{n:'PBG & pengesahan',d:2,pre:[1,2]},{n:'Pengadaan / lelang kontraktor',d:Mt===METODE.db?.5:1.5,pre:[3]},
+    {n:vert?'Pondasi & basement':'Pematangan lahan & prasarana',d:vert?b*.22:Math.max(2,b*.3),pre:[4]},{n:vert?'Struktur atas':'Konstruksi rumah tahap 1',d:vert?b*.42:b*.45,pre:[5]},
+    {n:vert?'Fasad, MEP & finishing':'Konstruksi rumah tahap 2 & finishing',d:vert?b*.36:b*.4,pre:[6]},{n:'Fasilitas, lanskap & utilitas',d:Math.max(2,b*.2),pre:[6]},{n:'Uji fungsi, SLF & serah terima',d:1.5,pre:[7,8]}];
+  // fast track / D&B / CMR: konstruksi awal dimulai saat desain baru sebagian (tumpang-tindih) — PBG bertahap
+  if(Mt.ov>0){ A[3].pre=[1]; A[4].pre=[1]; A[5].pre=[4]; A[5].lag={i:2,f:Mt.ov}; }
+  const es=[], ef=[]; A.forEach((a,i)=>{ let s=0; a.pre.forEach(j=>s=Math.max(s,ef[j])); if(a.lag) s=Math.max(s,es[a.lag.i]+A[a.lag.i].d*a.lag.f, es[3]+1); es[i]=s; ef[i]=s+a.d; });
+  const T=Math.max(...ef), lf=A.map(()=>T), ls=[]; for(let i=A.length-1;i>=0;i--){ A.forEach((a,k)=>{ if(a.pre.includes(i)) lf[i]=Math.min(lf[i],ls[k]); }); ls[i]=lf[i]-A[i].d; }
+  return {A:A.map((a,i)=>Object.assign({},a,{es:es[i],ef:ef[i],ls:ls[i],slack:ls[i]-es[i],crit:Math.abs(ls[i]-es[i])<1e-6})),T,Mt}; }
+function ganttSVG(S){ const W=760, rh=22, top=26, lw=250, H=top+S.A.length*rh+30, sc=(W-lw-20)/Math.max(1,S.T);
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Diagram Gantt" font-family="Arial, Helvetica, sans-serif"><rect width="${W}" height="${H}" fill="var(--paper)"/>`;
+  for(let m=0;m<=S.T;m+=Math.max(1,Math.round(S.T/16))){ const x=lw+m*sc; g+=`<line x1="${x}" x2="${x}" y1="${top-6}" y2="${H-24}" stroke="var(--line)" stroke-width=".6"/><text x="${x}" y="${top-10}" font-size="9" text-anchor="middle" fill="var(--muted)">${m}</text>`; }
+  S.A.forEach((a,i)=>{ const y=top+i*rh; g+=`<text x="6" y="${y+14}" font-size="10.5" fill="var(--ink)">${esc(a.n)}</text><rect x="${lw+a.es*sc}" y="${y+4}" width="${Math.max(2,a.d*sc)}" height="${rh-8}" rx="3" fill="${a.crit?'var(--warm)':'var(--accent)'}" opacity=".85"/>`;
+    if(a.slack>.05) g+=`<rect x="${lw+a.ef*sc}" y="${y+rh/2-1}" width="${a.slack*sc}" height="2" fill="var(--muted)" opacity=".5"/>`; });
+  g+=`<text x="${lw}" y="${H-8}" font-size="10" fill="var(--muted)">bulan · total ${fmt(S.T,1)} bulan · merah = jalur kritis (CPM), garis tipis = float</text>`;
+  return g+'</svg>'; }
+function scurveSVG(S,total){ const W=760,H=220,pl=50,pb=26, n=Math.ceil(S.T), cum=new Array(n+1).fill(0);
+  // bobot biaya per aktivitas konstruksi (indeks 5–9), sebaran beta sederhana
+  const wt={5:.25,6:.4,7:.25,8:.08,9:.02}; for(let m=1;m<=n;m++){ let v=0; for(const i in wt){ const a=S.A[i]; const s=a.es, e=a.ef; const f=t=>{ if(t<=s) return 0; if(t>=e) return 1; const u=(t-s)/(e-s); return u*u*(3-2*u); }; v+=wt[i]*f(m); } cum[m]=v; }
+  const X=m=>pl+m/(n||1)*(W-pl-10), Y=v=>H-pb-v*(H-pb-14);
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Kurva S" font-family="Arial, Helvetica, sans-serif"><rect width="${W}" height="${H}" fill="var(--paper)"/>`;
+  [0,.25,.5,.75,1].forEach(v=>g+=`<line x1="${pl}" x2="${W-10}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width=".6"/><text x="${pl-6}" y="${Y(v)+3}" font-size="9" text-anchor="end" fill="var(--muted)">${v*100}%</text>`);
+  g+=`<polyline fill="none" stroke="var(--accent)" stroke-width="2.2" points="${cum.map((v,m)=>X(m)+','+Y(v)).join(' ')}"/>`;
+  for(let m=0;m<=n;m+=Math.max(1,Math.round(n/12))) g+=`<text x="${X(m)}" y="${H-8}" font-size="9" text-anchor="middle" fill="var(--muted)">${m}</text>`;
+  g+=`<text x="${W-10}" y="14" font-size="10" text-anchor="end" fill="var(--ink)">Kurva S rencana progres biaya konstruksi · ${rp(total)}</text>`;
+  return {svg:g+'</svg>',cum}; }
+function envCalc(kind,s){ const L=P.lak||lakDefault(), jiwa=(s.units||0)*(+L.jiwaUnit||4), sampah=jiwa*(+L.sampahKg||0)/1000, air=jiwa*(+L.airL||0)/1000, limbahCair=air*.8, konstr=(s.gfa||0)*(+L.limbahM3||0);
+  const skor=L.skor||{}, w={akses:.18,banjir:.16,lereng:.1,utilitas:.14,fasilitas:.12,pasar:.14,tanah:.08,sosial:.08}, sk=Object.keys(w).reduce((a,k)=>a+w[k]*(+skor[k]||0),0)/5;
+  return {jiwa,sampah,air,limbahCair,konstr,tps:Math.max(6,sampah*3/.3),skor:sk}; }
+/* jalankan skenario dengan batas aturan lokasi saat ini (KDB/KLB/KDH/lantai tidak boleh melampaui) */
+function scenVert(s){ const B=P.vert, V=clone(B); s.f(V); Object.assign(V,{A:B.A,landPrice:B.landPrice,landTxPct:B.landTxPct,fromLahan:B.fromLahan});
+  V.kdb=Math.min(+V.kdb,+B.kdb); V.klb=Math.min(+V.klb,+B.klb); V.maxFl=Math.min(+V.maxFl,+B.maxFl); V.kdh=Math.max(+V.kdh,+B.kdh); return V; }
+function scenPerum(s){ const C=clone(P); s.f(C); return C; }
+function scenRows(cat){ return SKEN[cat].map(s=>{ try{ const r=cat==='perumahan'? evalPerumahan(scenPerum(s)) : evalVert(scenVert(s)); return Object.assign({s},r); }catch(e){ console.warn('skenario',s.id,e); return {s,err:String(e.message||e)}; } }); }
+function lakCtx(kind){ if(kind==='perumahan'){ const {lay,fe}=calc(), gfa=lay.lots.reduce((a,l)=>a+(+(P.types[l.type]||{}).LB||0),0), b=Math.min(48,(+P.sales.infraMonths||6)+Math.ceil(fe.nU/Math.max(1,+P.sales.perMonth||6)));
+    const pm=permitList('perumahan',{A:lay.A,units:fe.nU,gfa,cons:fe.cons}); return {kind,cons:fe.cons+fe.infra,units:fe.nU,gfa,A:lay.A,build:b,pm,lay,fe}; }
+  const V=P.vert, R=vertCalc(V), pm=permitList(V.kind,{A:R.A,units:R.units,gfa:R.gfaAll,cons:R.cons}); return {kind:V.kind,cons:R.cons+R.fasT,units:R.units,gfa:R.gfaAll,A:R.A,build:+(V.sched||{}).build||24,pm,R,V}; }
+
+PAGES.skenario = sec => { const cat=sec._cat||'perumahan';
+  const rows=scenRows(cat), best=rows.filter(r=>!r.err).reduce((b,r)=>!b||r.irr>b.irr?r:b,null), cur=cat==='perumahan'? evalPerumahan(P) : evalVert(P.vert);
+  const col=(r,k)=>r.err?'–':k(r);
+  const defs=[['Model / tata massa',r=>esc(r.mass||r.s.d.split(';')[0])],['Jumlah unit',r=>fmt(r.units)],['Lantai maks.',r=>fmt(r.floors)],['Kepadatan',r=>fmt(r.dens,0)+' unit/ha'],['KDB / KLB terpakai',r=>pct(r.kdb,0)+' / '+fmt(r.klb,2)],
+    ['Luas lantai total',r=>fmt(r.gfa)+' m²'],['Pendapatan',r=>rp(r.rev)],['Biaya total (+bunga)',r=>rp(r.cost)],['Laba',r=>`<b style="color:${r.profit>=0?'var(--ok)':'var(--bad)'}">${rp(r.profit)}</b>`],['Marjin',r=>pct(r.margin)],['IRR proyek',r=>pct(r.irr)],
+    ['NPV',r=>rp(r.npv)],['Dana puncak',r=>rp(r.peak)],['Pinjaman puncak · bunga',r=>rp(r.loanPeak)+' · '+rp(r.interest)],['Pembiayaan',r=>esc(r.s.fin||'')],['Dokumen lingkungan',r=>esc(r.pm.envDoc)],['Perizinan (± bulan · biaya)',r=>fmt(r.pm.pre,1)+' bln · '+rp(r.pm.biaya)],['Catatan',r=>(r.fits===false?'<span style="color:var(--bad)">massa tidak muat — ubah lahan/pola</span> ':'')+(r.park===false?'<span style="color:var(--bad)">parkir kurang</span>':'')||'✓']];
+  sec.innerHTML=`<h1>S · Skenario desain keputusan</h1>
+  <p class="lede">Lima alternatif desain untuk tiap jenis hunian — model, kapasitas & intensitas (dibatasi aturan KDB/KLB/KDH/lantai lokasi saat ini), biaya, laba, IRR, pembiayaan, dan perizinan — dibandingkan berdampingan. Klik <b>Terapkan</b> untuk menjadikan satu skenario sebagai rancangan kerja; semua angka tetap dapat diubah di langkah masing-masing.</p>
+  <div class="tabs">${[['perumahan','Perumahan tapak'],['rusun','Rumah susun'],['apartemen','Apartemen & kondominium']].map(c=>`<button data-cat="${c[0]}" aria-pressed="${cat===c[0]}">${c[1]}</button>`).join('')}</div>
+  <div class="card"><div class="tbl"><table class="skn"><tr><th>Indikator</th><th>Rancangan saat ini</th>${rows.map(r=>`<th${r===best?' style="background:var(--ok-soft)"':''}>${esc(r.s.n)}${r===best?' ★':''}</th>`).join('')}</tr>
+    <tr><td>Uraian</td><td class="note">${cat==='perumahan'?esc(P.types.map(t=>t.name).join(', ')):esc((VKIND[P.vert.kind]||{}).n||'')}</td>${rows.map(r=>`<td class="note">${esc(r.s.d)}</td>`).join('')}</tr>
+    ${defs.map(d=>`<tr><td>${d[0]}</td><td>${col(Object.assign({s:{d:'',fin:'—'}},cur),d[1])}</td>${rows.map(r=>`<td>${col(r,d[1])}</td>`).join('')}</tr>`).join('')}
+    <tr><td></td><td></td>${rows.map((r,i)=>`<td><button class="btn small" data-ap="${i}" ${r.err?'disabled':''}>Terapkan</button></td>`).join('')}</tr></table></div>
+    <p class="note">★ = IRR proyek tertinggi. Lahan, harga tanah, dan aturan lokasi diambil dari rancangan saat ini${cat==='perumahan'?' (langkah 1)':' (halaman R)'}; skenario tidak melampaui KDB/KLB/batas lantai lokasi. Biaya fasilitas, waktu & biaya perizinan, bunga, dan harga jual = asumsi. Jenis dokumen lingkungan dari ambang isian di halaman P (verifikasi ke Lampiran I Permen LHK 4/2021).</p></div>
+  <div class="card"><h2>Perizinan skenario terbaik — ${best?esc(best.s.n):'–'}</h2>${best?permTable(best.pm):''}</div>`;
+  $$('[data-cat]',sec).forEach(b=>b.onclick=()=>{ sec._cat=b.dataset.cat; PAGES.skenario(sec); });
+  $$('[data-ap]',sec).forEach(b=>b.onclick=e=>confirmArm(e.currentTarget,()=>{ const s=SKEN[cat][+b.dataset.ap]; if(cat==='perumahan'){ s.f(P); } else { P.vert=scenVert(s); } persist(); toast(s.n+' diterapkan.'); PAGES.skenario(sec); },'Klik lagi: ganti rancangan'));
+};
+function permTable(pm){ const C=Object.fromEntries(CREDIT.map(c=>[c.k,c]));
+  return `<table><tr><th>Perizinan / persetujuan</th><th>Dasar</th><th>Tahap</th><th class="n">± Waktu</th><th class="n">± Biaya (asumsi)</th></tr>${pm.items.map(i=>`<tr><td>${esc(i.n)}</td><td class="note">${C[i.ref]?`<a href="${esc(C[i.ref].u)}" target="_blank" rel="noopener">${esc(i.ref==='bhumi'?'Layanan pertanahan ATR/BPN':C[i.ref].t.split(' tentang')[0].replace(/^Peraturan Pemerintah/,'PP').replace(/^Undang-Undang/,'UU').replace(/^Peraturan Menteri Dalam Negeri/,'Permendagri'))}</a>`:'—'}</td><td>${esc(i.tahap)}</td><td class="n">${fmt(i.bln,1)} bln</td><td class="n">${rp(i.biaya)}</td></tr>`).join('')}<tr><th>Jumlah</th><th></th><th></th><th class="n">± ${fmt(pm.pre,1)} bln pra-konstruksi</th><th class="n">${rp(pm.biaya)}</th></tr></table>`; }
+
+PAGES.laksana = sec => { if(!P.lak) P.lak=lakDefault(); const L=P.lak, kind=sec._kind||'perumahan', ctx=lakCtx(kind==='perumahan'?'perumahan':'v');
+  const S=schedule(ctx.kind,ctx), rab=rabLak(ctx.kind,ctx.cons*(1+(S.Mt.cont||0)/100)), cr=crew(rab,ctx.build), en=envCalc(ctx.kind,ctx), sc=scurveSVG(S,rab.total);
+  const cmp=Object.entries(METODE).map(([k,m])=>{ const o=L.metode; L.metode=k; const s2=schedule(ctx.kind,ctx); L.metode=o; return [m.n,s2.T,ctx.cons*(m.cont||0)/100,m.d,k]; });
+  const SK=[['akses','Aksesibilitas & jalan'],['banjir','Bebas banjir/genangan'],['lereng','Topografi & kemiringan'],['utilitas','Air, listrik, telekomunikasi'],['fasilitas','Fasilitas sekitar (sekolah, pasar, RS)'],['pasar','Permintaan pasar & daya beli'],['tanah','Daya dukung tanah'],['sosial','Penerimaan sosial / tidak sengketa']];
+  sec.innerHTML=`<h1>P · Pelaksanaan, manajemen proyek & lingkungan</h1>
+  <p class="lede">Simulasi metode pengadaan & pelaksanaan (tradisional, fast track, design & build, CM at risk), jadwal dengan jalur kritis, kurva S, RAB pelaksanaan (bahan, upah, alat) menurut kualitas bahan, kebutuhan tenaga kerja & teknisi, perizinan, analisis lokasi, serta limbah dan dokumen lingkungan. Semua produktivitas, upah, porsi biaya, dan timbulan limbah adalah asumsi yang dapat diubah.</p>
+  <div class="tabs">${[['perumahan','Perumahan tapak'],['vertikal','Hunian vertikal (halaman R)']].map(c=>`<button data-kd="${c[0]}" aria-pressed="${kind===c[0]}">${c[1]}</button>`).join('')}</div>
+  <div class="grid g2"><div class="card"><h2>Metode & kualitas</h2><div class="form">${F('lak.metode','Metode pelaksanaan','',{sel:Object.entries(METODE).map(([k,m])=>[k,m.n])})}${F('lak.mutu','Kualitas bahan','',{sel:Object.entries(MUTU).map(([k,m])=>[k,m.n+' (×'+fmt(m.f,2)+' bahan)'])})}</div><p class="note">${esc(S.Mt.d)}</p>
+    <table><tr><th>Metode</th><th class="n">Durasi total</th><th class="n">Tambahan cadangan risiko</th></tr>${cmp.map(c=>`<tr${c[4]===L.metode?' style="background:var(--accent-soft)"':''}><td>${esc(c[0])}</td><td class="n">${fmt(c[1],1)} bln</td><td class="n">${rp(c[2])}</td></tr>`).join('')}</table></div>
+    <div class="card"><h2>Upah & produktivitas (asumsi)</h2><div class="form">${F('lak.upahMandor','Upah mandor','Rp/hari',{step:5000})}${F('lak.upahTukang','Upah tukang','Rp/hari',{step:5000})}${F('lak.upahPekerja','Upah pekerja','Rp/hari',{step:5000})}${F('lak.upahTeknisi','Upah teknisi MEP','Rp/hari',{step:5000})}${F('lak.hariKerja','Hari kerja','hari/bulan')}</div>
+    <div class="kpis" style="margin-top:8px"><div class="kpi"><span>Tenaga kerja puncak</span><b>${fmt(cr.peak)} orang</b><span>rata-rata ${fmt(cr.avg)} · ${fmt(cr.md)} orang-hari</span></div><div class="kpi"><span>Komposisi puncak</span><b style="font-size:15px">${cr.mandor} mandor · ${cr.tukang} tukang</b><span>${cr.pekerja} pekerja · ${cr.teknisi} teknisi</span></div><div class="kpi"><span>Masa konstruksi</span><b>${fmt(ctx.build)} bln</b><span>${kind==='perumahan'?'prasarana + pembangunan bertahap':'jadwal halaman R'}</span></div></div></div></div>
+  <div class="card"><h2>Jadwal pelaksanaan & jalur kritis</h2><div class="svgbox">${ganttSVG(S)}</div></div>
+  <div class="card"><h2>Kurva S</h2><div class="svgbox">${sc.svg}</div></div>
+  <div class="card"><h2>RAB pelaksanaan — kualitas ${esc((MUTU[L.mutu]||MUTU.standar).n)}</h2><div class="tbl"><table><tr><th>Pekerjaan</th><th>Spesifikasi bahan</th><th class="n">Bahan</th><th class="n">Upah</th><th class="n">Alat</th><th class="n">Jumlah</th></tr>
+    ${rab.rows.map(r=>`<tr><td>${esc(r.n)}</td><td class="note">${esc(r.spec)}</td><td class="n">${rp(r.bahan)}</td><td class="n">${rp(r.upah)}</td><td class="n">${rp(r.alat)}</td><td class="n">${rp(r.sub)}</td></tr>`).join('')}
+    <tr><th colspan="2">Biaya langsung</th><th class="n">${rp(rab.bahan)}</th><th class="n">${rp(rab.upah)}</th><th class="n">${rp(rab.alat)}</th><th class="n">${rp(rab.direct)}</th></tr>
+    <tr><td colspan="5">Overhead kontraktor 8% · keuntungan 7% (asumsi)</td><td class="n">${rp(rab.oh+rab.prof)}</td></tr><tr><td colspan="5">PPN 11% (sesuaikan ketentuan perpajakan yang berlaku)</td><td class="n">${rp(rab.ppn)}</td></tr><tr><th colspan="5">Total RAB pelaksanaan</th><th class="n">${rp(rab.total)}</th></tr>
+    <tr><td colspan="5">Perizinan (lihat di bawah)</td><td class="n">${rp(ctx.pm.biaya)}</td></tr></table></div>
+    <p class="note">Basis: biaya konstruksi & prasarana dari langkah RAB/halaman R ${S.Mt.cont?`+ cadangan risiko ${fmt(S.Mt.cont,1)}% metode ${esc(S.Mt.n)}`:''}, dibagi per pekerjaan dengan porsi & komposisi bahan/upah/alat praktik umum (asumsi); faktor kualitas memengaruhi komponen bahan. Ganti dengan analisa harga satuan (AHSP) & harga setempat untuk RAB definitif.</p></div>
+  <div class="card"><h2>Perizinan & persetujuan</h2>${permTable(ctx.pm)}<div class="form" style="margin-top:8px">${F('lak.andalalinUnit','Ambang Andalalin (asumsi)','unit hunian')}${F('lak.retribusiPct','Retribusi PBG (asumsi)','% biaya konstruksi',{step:.05})}</div></div>
+  <div class="grid g2"><div class="card"><h2>Analisis lokasi</h2><p class="note">Nilai 1 (buruk) – 5 (sangat baik), bobot asumsi.</p><div class="form">${SK.map(s=>F('lak.skor.'+s[0],s[1],'1–5',{step:1})).join('')}</div>
+    <div class="kpis" style="margin-top:8px"><div class="kpi ${en.skor>=.7?'ok':en.skor>=.55?'':'bad'}"><span>Skor kelayakan lokasi</span><b>${fmt(en.skor*100,0)} / 100</b><span>${en.skor>=.7?'layak':en.skor>=.55?'layak bersyarat':'perlu kajian / mitigasi'}</span></div></div></div>
+    <div class="card"><h2>Limbah & dokumen lingkungan</h2><table><tr><th>Uraian</th><th class="n">Nilai</th></tr>
+      <tr><td>Penghuni (± ${fmt(L.jiwaUnit)} jiwa/unit)</td><td class="n">${fmt(en.jiwa)} jiwa</td></tr><tr><td>Timbulan sampah (${fmt(L.sampahKg,2)} kg/orang/hari)</td><td class="n">${fmt(en.sampah,2)} ton/hari</td></tr>
+      <tr><td>Kebutuhan air bersih (${fmt(L.airL)} L/orang/hari)</td><td class="n">${fmt(en.air,1)} m³/hari</td></tr><tr><td>Air limbah ke IPAL (80%)</td><td class="n">${fmt(en.limbahCair,1)} m³/hari</td></tr>
+      <tr><td>Limbah konstruksi (${fmt(L.limbahM3,3)} m³/m² lantai)</td><td class="n">${fmt(en.konstr)} m³</td></tr><tr><td>Luas TPS 3R indikatif (3 hari, 0,3 t/m²)</td><td class="n">${fmt(en.tps)} m²</td></tr>
+      <tr><th>Dokumen lingkungan (ambang isian)</th><th class="n">${esc(ctx.pm.envDoc)}</th></tr></table>
+      <div class="form" style="margin-top:8px">${F('lak.sampahKg','Timbulan sampah','kg/orang/hari',{step:.05})}${F('lak.airL','Kebutuhan air','L/orang/hari')}${F('lak.limbahM3','Limbah konstruksi','m³/m² lantai',{step:.005})}
+        ${F('lak.uklHa','Ambang UKL-UPL (isian)','ha luas lahan',{step:.5})}${F('lak.amdalPermHa','Ambang Amdal perumahan (isian)','ha',{step:1})}${F('lak.uklGedungM2','Ambang UKL-UPL gedung (isian)','m² lantai',{step:500})}${F('lak.amdalGedungM2','Ambang Amdal gedung (isian)','m² lantai',{step:1000})}${F('lak.amdalGedungHa','Ambang Amdal gedung — lahan (isian)','ha',{step:.5})}</div>
+      <p class="note">Jenis dokumen (Amdal / UKL-UPL / SPPL) ditetapkan menurut Lampiran I Permen LHK 4/2021 dan dinilai melalui OSS (PP 22/2021; PP 28/2025). Ambang di atas hanya isian awal — cocokkan dengan lampiran tersebut dan arahan dinas lingkungan hidup setempat.</p></div></div>`;
+  $$('[data-kd]',sec).forEach(b=>b.onclick=()=>{ sec._kind=b.dataset.kd; PAGES.laksana(sec); });
+  bindInputs(sec,()=>{ clearTimeout(sec._t); sec._t=setTimeout(()=>{ const y=window.scrollY; PAGES.laksana(sec); window.scrollTo(0,y); },500); });
+};
+/* ---------- Dokumen lengkap: FS + DED + desain teknis (PDF) ---------- */
+/* halaman A4 (210×297 mm) dari blok: {h1},{h},{p},{t:{w:[mm..],r:[[..]]}},{fig:svg,hh},{img:url,hh,cap},{br} */
+function docPages(blocks,K){ const W=210,H=297,ml=20,mr=18,mt=22,mb=20,cw=W-ml-mr, pages=[]; let g='', y=mt, n=0;
+  const head=()=>{ n++; g=`<rect width="${W}" height="${H}" fill="#fff"/><text x="${ml}" y="12" font-size="2.8" fill="#5f6670">${gkEsc(K.proyek)} · ${gkEsc(K.judul||'Dokumen proyek')}</text><line x1="${ml}" x2="${W-mr}" y1="14" y2="14" stroke="#1d232b" stroke-width=".25"/>`; y=mt; };
+  const foot=()=>{ g+=`<line x1="${ml}" x2="${W-mr}" y1="${H-14}" y2="${H-14}" stroke="#cfc9bd" stroke-width=".25"/><text x="${ml}" y="${H-9}" font-size="2.6" fill="#5f6670">Dibuat oleh Pindo Tutuko · aplikasi Rancang Perumahan · pra-rencana, wajib diperiksa tenaga ahli bersertifikat</text><text x="${W-mr}" y="${H-9}" font-size="2.8" text-anchor="end" fill="#1d232b">${n}</text>`;
+    pages.push(`<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 210 297" font-family="Arial, Helvetica, sans-serif">${g.replace(/&(?!(?:[a-zA-Z]+|#\d+|#x[0-9a-fA-F]+);)/g,'&amp;')}</svg>`); };
+  const need=h=>{ if(y+h>H-mb){ foot(); head(); } };
+  head();
+  blocks.forEach(b=>{
+    if(b.br){ foot(); head(); return; }
+    if(b.h1){ need(16); g+=`<text x="${ml}" y="${y+7}" font-size="6.2" font-weight="700" fill="#0f766e">${gkEsc(b.h1)}</text><line x1="${ml}" x2="${W-mr}" y1="${y+10}" y2="${y+10}" stroke="#0f766e" stroke-width=".5"/>`; y+=15; return; }
+    if(b.h){ need(26); g+=`<text x="${ml}" y="${y+5}" font-size="4.2" font-weight="700" fill="#1d232b">${gkEsc(b.h)}</text>`; y+=8; return; }
+    if(b.p!=null){ gkWrap(b.p,104).forEach(l=>{ need(5); g+=`<text x="${ml}" y="${y+3.6}" font-size="3.4" fill="#1d232b">${gkEsc(l)}</text>`; y+=4.9; }); y+=2; return; }
+    if(b.t){ const ws=b.t.w, sc=cw/ws.reduce((a,c)=>a+c,0), rh=5.4; b.t.r.forEach((r,i)=>{ need(rh+(i===0?0:0)); if(i===0||y===mt){ } let x=ml; if(i===0) g+=`<rect x="${ml}" y="${y}" width="${cw}" height="${rh}" fill="#ece8df"/>`;
+        r.forEach((c,j)=>{ const w=ws[j]*sc, num=j>0&&ws.length<=3&&j===ws.length-1||j>0&&/^(Rp|[\d±−-])/.test(String(c))&&!/[a-z]{4,}.*[a-z]{4,}/i.test(String(c)), cap=Math.floor(w/1.75), s=String(c==null?'':c), t=s.length>cap? s.slice(0,cap-1)+'…' : s;
+          g+=`<text x="${num?x+w-1.2:x+1.2}" y="${y+rh*.7}" font-size="3" ${num?'text-anchor="end"':''} fill="#1d232b" ${i===0||b.t.bold&&b.t.bold.includes(i)?'font-weight="700"':''}>${gkEsc(t)}</text>`; x+=w; });
+        y+=rh; g+=`<line x1="${ml}" x2="${W-mr}" y1="${y}" y2="${y}" stroke="#cfc9bd" stroke-width=".2"/>`; }); y+=4; return; }
+    if(b.fig||b.img){ const hh=Math.min(b.hh||90,H-mt-mb-8); need(hh+8); if(b.fig) g+=gkNest(b.fig,ml,y,cw,hh); else g+=`<image href="${b.img}" x="${ml}" y="${y}" width="${cw}" height="${hh}" preserveAspectRatio="xMidYMid meet"/>`; y+=hh+1; if(b.cap) g+=`<text x="${ml}" y="${y+3.4}" font-size="3" fill="#5f6670">${gkEsc(b.cap)}</text>`; y+=7; return; }
+  });
+  foot(); return pages; }
+/* jaringan utilitas skematik (perumahan): air bersih, air kotor → IPAL, listrik, hidran pada sumbu jalan */
+function utilPlanSVG(lay){ const base=sitePlanSVG(lay,{}), v=gkVB(base); const m=/<svg[^>]*>/.exec(base)[0], big=Math.max(lay.W,lay.D), lw=big/700;
+  const pad=+((/translate|x="([\d.]+)"/.exec(base)||[])[1]||0);
+  // ambil offset dari fungsi siteplan: X(x)=x+pad, Y(y)=y+top → hitung dari rect batas tapak (stroke c0392b)
+  const r=/<rect x="([\d.]+)" y="([\d.]+)" width="[\d.]+" height="[\d.]+" fill="none" stroke="#c0392b"/.exec(base), ox=r?+r[1]:0, oy=r?+r[2]:0;
+  let o='<g>'; lay.roads.forEach(q=>{ const hz=q.w>q.h, cx=q.x+q.w/2, cy=q.y+q.h/2;
+    const L=(dx,dy,c,da)=>o+=hz? `<line x1="${(q.x+ox).toFixed(2)}" x2="${(q.x+q.w+ox).toFixed(2)}" y1="${(cy+dy+oy).toFixed(2)}" y2="${(cy+dy+oy).toFixed(2)}" stroke="${c}" stroke-width="${(lw*2.2).toFixed(2)}" ${da?`stroke-dasharray="${lw*8} ${lw*5}"`:''}/>` : `<line y1="${(q.y+oy).toFixed(2)}" y2="${(q.y+q.h+oy).toFixed(2)}" x1="${(cx+dx+ox).toFixed(2)}" x2="${(cx+dx+ox).toFixed(2)}" stroke="${c}" stroke-width="${(lw*2.2).toFixed(2)}" ${da?`stroke-dasharray="${lw*8} ${lw*5}"`:''}/>`;
+    L(-1.4,-1.4,'#2f7fd1'); L(1.4,1.4,'#8a5a2b'); L(0,0,'#f2a516',1);
+    const len=hz?q.w:q.h; for(let s=20;s<len;s+=80){ const hx=hz? q.x+s : cx+2.6, hy=hz? cy+2.6 : q.y+s; o+=`<circle cx="${(hx+ox).toFixed(2)}" cy="${(hy+oy).toFixed(2)}" r="${(lw*4).toFixed(2)}" fill="#d63a2f" stroke="#fff" stroke-width="${lw}"/>`; } });
+  o+='</g>'; const lg=[['#2f7fd1','Pipa air bersih (distribusi)'],['#8a5a2b','Pipa air limbah → IPAL / STP komunal'],['#f2a516','Kabel listrik (tanam/udara)'],['#d63a2f','Hidran halaman (± 80 m)']];
+  const ly=v[3]-big*.02; o+=lg.map((q,i)=>`<rect x="${(v[2]*.42+i*v[2]*.15).toFixed(2)}" y="${(ly-big*.012).toFixed(2)}" width="${(big*.02).toFixed(2)}" height="${(big*.008).toFixed(2)}" fill="${q[0]}"/><text x="${(v[2]*.42+i*v[2]*.15+big*.024).toFixed(2)}" y="${ly.toFixed(2)}" font-size="${(big*.011).toFixed(2)}" fill="#1d232b">${q[1]}</text>`).join('');
+  return base.replace(/<\/svg>\s*$/,o+'</svg>'); }
+async function buildDossier(kind,opt,progress){ const K=gkMeta(), D=[], isV=kind!=='perumahan', ctx=lakCtx(isV?'v':'perumahan'), S=schedule(ctx.kind,ctx), rab=rabLak(ctx.kind,ctx.cons*(1+(S.Mt.cont||0)/100)), cr=crew(rab,ctx.build), en=envCalc(ctx.kind,ctx), cat=isV?(P.vert.kind==='rusun'||P.vert.kind==='flat'?'rusun':'apartemen'):'perumahan';
+  K.judul='Studi Kelayakan, DED & Desain Teknis'; const today=K.tanggal;
+  D.push({h1:'STUDI KELAYAKAN (FS), DED & DESAIN TEKNIS PELAKSANAAN'},{h:K.proyek},{p:`Lokasi: ${K.lokasi||'—'}. Pemilik/pengembang: ${K.pemilik||'—'}. Perencana: ${K.perencana||'—'}. Tanggal: ${today}.`},
+    {p:'Dokumen ini disusun otomatis oleh aplikasi Rancang Perumahan dari data rancangan. Isinya pra-rencana untuk pengambilan keputusan; gambar struktur, MEP, perhitungan, dan RAB definitif wajib diperiksa, dilengkapi, dan disahkan tenaga ahli bersertifikat sebelum dipakai untuk PBG, tender, atau pelaksanaan. Angka non-regulasi adalah asumsi yang tercantum di menu Sumber & Referensi.'},
+    {h:'Lembar pengesahan'},{t:{w:[50,60,60],r:[['Peran','Nama','Tanda tangan / tanggal'],['Digambar / disusun',K.digambar||'',''],['Diperiksa',K.diperiksa||'',''],['Disetujui',K.disetujui||'','']]}},
+    {h:'Daftar isi'},{t:{w:[20,150],r:[['Bagian','Isi'],['A','Studi kelayakan (FS): lokasi, aturan & kapasitas, konsep desain, biaya, kelayakan, pembiayaan, perizinan, lingkungan, skenario'],['B','Desain teknis pelaksanaan: metode, jadwal & kurva S, spesifikasi bahan, RAB pelaksanaan, tenaga kerja, K3 & limbah'],['C','DED: lembar gambar kerja A2 (siteplan, denah, tampak, potongan, utilitas, perspektif 3D)']]}},{br:1});
+  // A. FS
+  D.push({h1:'A. STUDI KELAYAKAN'},{h:'A.1 Lokasi & kelas kota'},{p:`Koordinat ${fmt(P.loc.lat,5)}, ${fmt(P.loc.lon,5)}. Kelas lokasi: ${(KOTA[P.kota]||{}).n||'belum dipilih (memakai isian aturan langsung)'}. Skor kelayakan lokasi ${fmt(en.skor*100,0)}/100 (${en.skor>=.7?'layak':en.skor>=.55?'layak bersyarat':'perlu kajian/mitigasi'}).`});
+  if(!isV){ const {lay,fe}=ctx; D.push({h:'A.2 Aturan & kapasitas'},{t:{w:[90,80],r:[['Uraian','Nilai'],['Luas lahan',fmt(lay.A)+' m²'],['KDB / KLB / KDH maks.',`${fmt(P.rules.kdbMax)}% / ${fmt(P.rules.klbMax,2)} / ${fmt(P.rules.kdhMin)}%`],['GSB / jarak samping',`${fmt(P.rules.gsb,1)} m / ${fmt(P.rules.sideSet,1)} m`],['Jumlah kavling',fmt(lay.units)+' unit'],['Kepadatan',fmt(lay.density,1)+' unit/ha'],['PSU (jalan, RTH, fasum, makam)',pct(lay.share.psu)]]}},
+      {h:'A.3 Konsep desain & tipe'},{t:{w:[50,45,25,25,25],r:[['Tipe','Model','Kavling','LB','Unit']].concat(P.types.map((t,i)=>[t.name,(HMODEL[t.model||'deret']||{}).n.split(' (')[0],`${fmt(t.lotW,1)}×${fmt(t.lotD,1)}`,fmt(t.LB)+' m²',fmt(fe.units[i])]))}},
+      {p:'Fasilitas: '+Object.keys((P.fasH||fasDefault('perumahan')).on).filter(k=>(P.fasH||fasDefault('perumahan')).on[k]&&FAS[k].h).map(k=>FAS[k].n).join(', ')+'. Lanskap: '+((LANS[(P.fasH||{}).lans]||LANS.tropis).n)+'; vegetasi: '+((VEG[(P.fasH||{}).veg]||VEG.campuran).n)+'.'},
+      {h:'A.4 Biaya & pendapatan'},{t:{w:[120,50],r:[['Komponen','Nilai']].concat(fe.items.filter(r=>r[1]).map(r=>[r[0],rp(r[1])])).concat([['Biaya total',rp(fe.total)],['Pendapatan',rp(fe.revenue)],['Laba sebelum pajak badan',rp(fe.profit)]]),bold:[fe.items.filter(r=>r[1]).length+1,fe.items.filter(r=>r[1]).length+3]}},
+      {h:'A.5 Kelayakan & pembiayaan'},{t:{w:[90,80],r:[['Indikator','Nilai'],['Marjin laba',pct(fe.margin)],['IRR proyek',pct(fe.irr)],['NPV @ '+fmt(P.fin.discPct)+'%',rp(fe.npv)],['Dana puncak (tanpa pinjaman)',rp(fe.peakFunding)],['Kredit konstruksi puncak',rp(fe.loan.peakDebt)],['Total bunga',rp(fe.loan.totInt)],['IRR ekuitas',pct(fe.loan.eqIrr)],['Periode pengembalian',fe.payback!=null?fe.payback+' bulan':'—']]}},
+      {fig:cashSVG(fe),hh:70,cap:'Arus kas proyek bulanan & kumulatif'}); }
+  else { const R=ctx.R, V=ctx.V, ML=massLayout(R); D.push({h:'A.2 Aturan & kapasitas'},{t:{w:[90,80],r:[['Uraian','Nilai'],['Jenis',(VKIND[V.kind]||{}).n],['Luas lahan',fmt(R.A)+' m²'],['KDB / KLB / KDH',`${fmt(V.kdb)}% / ${fmt(V.klb,2)} / ${fmt(V.kdh)}%`],['Batas lantai',fmt(V.maxFl)+' lantai'],['Jumlah lantai',`${R.podFl+R.twFl} (podium ${R.podFl}, menara ${R.twFl}, basement ${R.baseFl})`],['Luas lantai (KLB) / seluruh',`${fmt(R.gfa)} / ${fmt(R.gfaAll)} m²`],['Jumlah unit',fmt(R.units)],['Parkir tersedia / perlu',`${fmt(R.parkCap)} / ${fmt(R.parkNeed)} SRP`],['Kewajiban rusun umum 20%',R.komersial?fmt(R.hbArea)+' m²':'tidak berlaku']]}},
+      {h:'A.3 Konsep desain'},{p:`${BTYPE[ML.Fm.bt].n}; ${ML.n} massa bangunan dengan pola ${POLA[ML.pola].n.toLowerCase()}${ML.fits?'':' (perhatian: tata massa melampaui ruang terbangun)'}. Fasilitas: ${Object.keys((V.fas||{}).on||{}).filter(k=>V.fas.on[k]&&FAS[k].v).map(k=>FAS[k].n).join(', ')}. Lanskap: ${(LANS[(V.fas||{}).lans]||LANS.tropis).n}.`},
+      {t:{w:[40,25,20,35,25,25],r:[['Tipe unit','Luas','Unit','Harga/unit','NPP/sarusun','Pendapatan']].concat(R.rows.map(r=>[r.n,fmt(r.a)+' m²',fmt(r.units),rp(r.price),fmt(r.npp,4)+'%',rp(r.rev)]))}},
+      {h:'A.4 Biaya, pendapatan & kelayakan'},{t:{w:[120,50],r:[['Komponen','Nilai'],['Tanah + peralihan',rp(R.land+R.landTx)],['Konstruksi',rp(R.cons)],['Perencanaan, izin, pengawasan',rp(R.soft)],['Cadangan',rp(R.cont)],['Pemasaran',rp(R.mkt)],['PPh final',rp(R.pph)],['Kewajiban rusun umum',rp(R.hbCost)],['Fasilitas & utilitas',rp(R.fasT)],['Biaya total',rp(R.cost)],['Pendapatan',rp(R.rev)],['Laba',rp(R.profit)],['IRR proyek',pct(R.irr)],['NPV',rp(R.npv)],['Dana puncak',rp(-R.peak)]]}},
+      {fig:cashSVG({flow:R.flow}),hh:70,cap:'Arus kas proyek bulanan & kumulatif'}); }
+  D.push({h:'A.6 Sensitivitas'},{t:{w:[70,50,50],r:[['Perubahan','Laba','Marjin']].concat([[-.1,0],[.1,0],[0,-.1],[0,.1]].map(q=>{ const rev=(isV?ctx.R.rev:ctx.fe.revenue)*(1+q[0]), cost=(isV?ctx.R.cost:ctx.fe.total)*(1+q[1]); return [q[0]?`Harga jual ${q[0]>0?'+':''}${q[0]*100}%`:`Biaya ${q[1]>0?'+':''}${q[1]*100}%`,rp(rev-cost),pct((rev-cost)/rev)]; }))}});
+  D.push({h:'A.7 Perizinan'},{t:{w:[82,22,22,44],r:[['Perizinan / persetujuan','Tahap','± bln','± biaya (asumsi)']].concat(ctx.pm.items.map(i=>[i.n,i.tahap,fmt(i.bln,1),rp(i.biaya)]))}},{p:'Dasar hukum: PP 28/2025 (perizinan berusaha berbasis risiko, OSS), PP 21/2021 (KKPR), PP 22/2021 & Permen LHK 4/2021 (persetujuan lingkungan), UU 22/2009 Pasal 99 (Andalalin), PP 16/2021 (PBG & SLF)'+(isV?', UU 20/2011 & PP 13/2021 (rumah susun).':', Permendagri 15/2026 (PSU).')});
+  D.push({h:'A.8 Lingkungan'},{t:{w:[110,60],r:[['Uraian','Nilai'],['Dokumen lingkungan (ambang isian)',ctx.pm.envDoc],['Penghuni',fmt(en.jiwa)+' jiwa'],['Sampah',fmt(en.sampah,2)+' ton/hari'],['Air bersih',fmt(en.air,1)+' m³/hari'],['Air limbah ke IPAL',fmt(en.limbahCair,1)+' m³/hari'],['Limbah konstruksi',fmt(en.konstr)+' m³'],['TPS 3R indikatif',fmt(en.tps)+' m²']]}});
+  progress&&progress('Menghitung skenario…'); const sr=scenRows(cat);
+  D.push({h:'A.9 Perbandingan 5 skenario desain'},{t:{w:[52,18,22,30,26,22],r:[['Skenario','Unit','Lantai','Laba','IRR','Lingk.']].concat(sr.map(r=>r.err?[r.s.n,'–','–','–','–','–']:[r.s.n,fmt(r.units),fmt(r.floors),rp(r.profit),pct(r.irr),r.pm.envDoc]))}},
+    {h:'A.10 Kesimpulan'},{p:(()=>{ const pr=isV?ctx.R.profit:ctx.fe.profit, irr=isV?ctx.R.irr:ctx.fe.irr, b=sr.filter(r=>!r.err).sort((a,c)=>c.irr-a.irr)[0]; return `Rancangan saat ini menghasilkan laba ${rp(pr)} dengan IRR ${pct(irr)} — ${irr>=(+P.fin.discPct||14)/100?'di atas':'di bawah'} tingkat diskonto ${fmt(P.fin.discPct)}%. Skenario dengan IRR tertinggi: ${b?b.s.n+' ('+pct(b.irr)+')':'—'}. Keputusan akhir mempertimbangkan pasar, risiko pelaksanaan, dan ketentuan RDTR/Perda setempat.`; })()},{br:1});
+  // B. teknis
+  D.push({h1:'B. DESAIN TEKNIS PELAKSANAAN'},{h:'B.1 Metode pelaksanaan'},{p:`${S.Mt.n}: ${S.Mt.d} Durasi total ± ${fmt(S.T,1)} bulan; masa konstruksi ± ${fmt(ctx.build)} bulan.`},{fig:ganttSVG(S),hh:95,cap:'Jadwal & jalur kritis (CPM)'},{fig:scurveSVG(S,rab.total).svg,hh:60,cap:'Kurva S rencana'},
+    {h:'B.2 Spesifikasi bahan — kualitas '+((MUTU[P.lak.mutu]||MUTU.standar).n)},{t:{w:[60,110],r:[['Pekerjaan','Spesifikasi']].concat(rab.rows.map(r=>[r.n,r.spec]))}},
+    {h:'B.3 RAB pelaksanaan'},{t:{w:[58,28,28,26,30],r:[['Pekerjaan','Bahan','Upah','Alat','Jumlah']].concat(rab.rows.map(r=>[r.n,rp(r.bahan),rp(r.upah),rp(r.alat),rp(r.sub)])).concat([['Biaya langsung',rp(rab.bahan),rp(rab.upah),rp(rab.alat),rp(rab.direct)],['Overhead & keuntungan (15%)','','','',rp(rab.oh+rab.prof)],['PPN 11%','','','',rp(rab.ppn)],['Total',' ',' ',' ',rp(rab.total)]]),bold:[rab.rows.length+1,rab.rows.length+4]}},
+    {h:'B.4 Tenaga kerja & teknisi'},{t:{w:[100,70],r:[['Uraian','Nilai'],['Total kebutuhan',fmt(cr.md)+' orang-hari'],['Rata-rata harian',fmt(cr.avg)+' orang'],['Puncak',fmt(cr.peak)+' orang'],['Mandor / tukang / pekerja / teknisi MEP',`${cr.mandor} / ${cr.tukang} / ${cr.pekerja} / ${cr.teknisi}`],['Tenaga ahli inti','Manajer proyek, site engineer sipil & MEP, quantity surveyor, petugas K3, pengawas lapangan']]}},
+    {h:'B.5 K3, mutu & pengelolaan limbah'},{p:'Rencana keselamatan konstruksi (RKK) dan rencana mutu kontrak disusun kontraktor sesuai ketentuan jasa konstruksi. Limbah konstruksi dipilah (beton/bata → urug, logam & kayu → daur ulang, B3 seperti sisa cat/oli → pengangkut berizin). Air limpasan dikendalikan dengan kolam sedimentasi sementara; jalan kerja dibersihkan dari lumpur; jam kerja bising dibatasi.'},
+    {p:`Operasional: TPS 3R ± ${fmt(en.tps)} m², IPAL kapasitas ± ${fmt(en.limbahCair,1)} m³/hari, sumur resapan/panen air hujan, ruang terbuka hijau dan vegetasi peneduh sesuai rencana lanskap.`},{br:1});
+  // C. DED (lembar A2)
+  D.push({h1:'C. DED — GAMBAR KERJA'},{p:'Lembar gambar kerja A2 berikut memuat kop gambar, skala, dan legenda: sampul, rencana tapak & lanskap, rencana utilitas & proteksi kebakaran (skematik), denah terukur berperabot, tampak, potongan, dan perspektif kawasan 3D dengan lingkungan sekitar.'});
+  progress&&progress('Menyusun halaman A4…'); const A4=docPages(D,K);
+  progress&&progress('Menyusun lembar gambar A2…'); const KK=Object.assign({},K,{kind:isV?'vertikal':'tapak'}); const sheets=await gkBuild(KK,progress);
+  if(!isV){ const {lay}=calc(), us=utilPlanSVG(lay), S1=gkScaled(us,GK.da.x,GK.da.y+4,GK.da.w,GK.da.h-30); sheets.splice(2,0,{code:'U-01',title:'RENCANA UTILITAS & PROTEKSI KEBAKARAN (SKEMATIK)',body:S1.s+gkLabel(GK.da.x,GK.da.y+GK.da.h-18,1,'RENCANA UTILITAS',S1.den),scale:'1 : '+fmt(S1.den),legend:[['Air bersih','#2f7fd1'],['Air limbah','#8a5a2b'],['Listrik','#f2a516'],['Hidran','#d63a2f']],notes:['Jaringan skematik pada sumbu jalan; dimensi pipa/kabel ditetapkan perencana MEP.']}); }
+  return {A4,sheets,K:KK}; }
+function gkMeta(){ const G=P.gk||{}, ad=(P.loc&&P.loc.addr)||{}; return Object.assign({},G,{proyek:G.proyek||P.title||'Proyek Perumahan',lokasi:G.lokasi||[ad.road,ad.village||ad.suburb,ad.city||ad.county,ad.state].filter(Boolean).join(', '),tanggal:new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}); }
+
+PAGES.dokumen = sec => { const isV=sec._k==='vertikal';
+  sec.innerHTML=`<h1>D · Dokumen lengkap: FS, DED & desain teknis</h1>
+  <p class="lede">Satu tombol menyusun PDF berisi: (A) studi kelayakan — lokasi, aturan & kapasitas, konsep, biaya, kelayakan, sensitivitas, pembiayaan, perizinan, lingkungan, 5 skenario; (B) desain teknis pelaksanaan — metode, jadwal & kurva S, spesifikasi bahan, RAB pelaksanaan, tenaga kerja, K3 & limbah; (C) DED — lembar gambar kerja A2 berkop (siteplan, utilitas, denah, tampak, potongan, 3D kawasan).</p>
+  <div class="card"><div class="tabs">${[['tapak','Perumahan tapak'],['vertikal','Hunian vertikal (halaman R)']].map(c=>`<button data-dk="${c[0]}" aria-pressed="${(c[0]==='vertikal')===isV}">${c[1]}</button>`).join('')}</div>
+    <div class="form" style="margin-top:10px">${F('gk.proyek','Nama proyek','')}${F('gk.pemilik','Pemilik / pengembang','')}${F('gk.perencana','Konsultan perencana','')}${F('gk.dpi','Resolusi','',{sel:[[100,'100 dpi (cepat)'],[150,'150 dpi'],[200,'200 dpi (tajam)']],num:1})}</div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="dosGo">⤓ Susun dokumen lengkap (PDF)</button><span class="note" id="dosSt"></span></div>
+    <p class="note">Identitas kop (digambar, diperiksa, disetujui, nomor proyek) diisi di menu G. Dokumen adalah pra-rencana — wajib diperiksa & disahkan tenaga ahli bersertifikat sebelum dipakai untuk PBG, tender, atau pelaksanaan.</p></div>`;
+  $$('[data-dk]',sec).forEach(b=>b.onclick=()=>{ sec._k=b.dataset.dk; PAGES.dokumen(sec); });
+  $$('[data-k^="gk."]',sec).forEach(el=>{ if(el.type!=='number'&&el.tagName==='INPUT') el.type='text'; });
+  bindInputs(sec,()=>{});
+  $('#dosGo',sec).onclick=async e=>{ const btn=e.currentTarget, st=$('#dosSt',sec), dpi=+P.gk.dpi||150; btn.disabled=true; const pr=s=>{ st.textContent=s; };
+    try{ const R=await buildDossier(isV?'vertikal':'perumahan',{},pr), pages=[];
+      for(let i=0;i<R.A4.length;i++){ pr(`Merender halaman ${i+1}/${R.A4.length}…`); pages.push(Object.assign(await gkJpeg(R.A4[i],dpi,210,297),{mw:210,mh:297})); }
+      for(let i=0;i<R.sheets.length;i++){ pr(`Merender lembar ${R.sheets[i].code}…`); pages.push(await gkJpeg(gkSheetSVG(R.K,R.sheets[i],i,R.sheets.length),dpi)); }
+      pr('Menyusun PDF…'); await gkSaveBlob(gkPDF(pages,R.K.proyek+' — FS, DED & desain teknis'),slug()+'-dokumen-lengkap.pdf'); pr(`Selesai: ${R.A4.length} halaman A4 + ${R.sheets.length} lembar A2.`);
+    }catch(err){ console.error(err); pr('Gagal: '+(err.message||err)); } finally{ btn.disabled=false; } };
+};
+
+Object.assign(window,{FAS,UTIL,KOTA,SKEN,METODE,MUTU,BTYPE,POLA,HMODEL,LANS,VEG,bldW});
 /* ===================================================================
    GAMBAR KERJA A2 (594 × 420 mm, ISO 216) + PDF
    Lembar berbingkai dengan kop gambar; gambar terukur pada skala standar; render 3D kawasan & lingkungan.
@@ -1767,17 +2109,17 @@ async function gkBuild(K,progress){ const R3=await load3D(); const sheets=[], hd
   const list=sheets.map((s,i)=>[s.code,s.title,s.scale||'']); sheets[0].body+=gkTable(GK.da.x+(K.kind==='vertikal'?250:240),GK.da.y+230,[18,(K.kind==='vertikal'?120:130)-18-26,26].map(v=>Math.max(14,v)),[['KODE','DAFTAR GAMBAR','SKALA']].concat(list),2.8,5.6);
   return sheets; }
 /* rasterisasi lembar → JPEG, lalu PDF A2 */
-async function gkJpeg(svg,dpi){ const W=Math.round(594/25.4*dpi), H=Math.round(420/25.4*dpi), u=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
+async function gkJpeg(svg,dpi,mw=594,mh=420){ const W=Math.round(mw/25.4*dpi), H=Math.round(mh/25.4*dpi), u=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
   try{ const img=new Image(); img.decoding='sync'; await new Promise((ok,er)=>{ img.onload=ok; img.onerror=()=>er(new Error('lembar gagal dirender')); img.src=u; });
     const c=document.createElement('canvas'); c.width=W; c.height=H; const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,W,H); g.drawImage(img,0,0,W,H);
-    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.9)); return {bytes:new Uint8Array(await b.arrayBuffer()),w:W,h:H}; } finally{ URL.revokeObjectURL(u); } }
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.9)); return {bytes:new Uint8Array(await b.arrayBuffer()),w:W,h:H,mw,mh}; } finally{ URL.revokeObjectURL(u); } }
 function gkPDF(pages,title){ const enc=new TextEncoder(), parts=[], off=[]; let pos=0; const put=x=>{ const b=typeof x==='string'?enc.encode(x):x; parts.push(b); pos+=b.length; };
   const pw=(594/25.4*72).toFixed(2), ph=(420/25.4*72).toFixed(2), ascii=s=>String(s).normalize('NFKD').replace(/[^\x20-\x7e]/g,'').replace(/[()\\]/g,'\\$&');
   const obj=(n,f)=>{ off[n]=pos; put(n+' 0 obj\n'); f(); put('\nendobj\n'); };
   put('%PDF-1.4\n%âã\n'); obj(1,()=>put('<< /Type /Catalog /Pages 2 0 R >>'));
   obj(2,()=>put(`<< /Type /Pages /Kids [${pages.map((_,i)=>(4+3*i)+' 0 R').join(' ')}] /Count ${pages.length} >>`));
   obj(3,()=>put(`<< /Title (${ascii(title)}) /Author (Pindo Tutuko) /Creator (Rancang Perumahan) /Producer (Rancang Perumahan) >>`));
-  pages.forEach((p,i)=>{ const n=4+3*i, cs=`q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`;
+  pages.forEach((p,i)=>{ const n=4+3*i, pw=((p.mw||594)/25.4*72).toFixed(2), ph=((p.mh||420)/25.4*72).toFixed(2), cs=`q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`;
     obj(n,()=>put(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 ${n+2} 0 R >> >> /Contents ${n+1} 0 R >>`));
     obj(n+1,()=>put(`<< /Length ${cs.length} >>\nstream\n${cs}\nendstream`));
     obj(n+2,()=>{ put(`<< /Type /XObject /Subtype /Image /Width ${p.w} /Height ${p.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.bytes.length} >>\nstream\n`); put(p.bytes); put('\nendstream'); }); });
@@ -2175,7 +2517,7 @@ function make3D(THREE, RoomEnvironment, FX){
     if(SP.F.on&&SP.F.on.pos) box(G,4,3,3.5,flat('#e9e2d4',.85),WX(SP.ex-SP.dW/2-5),0,WZ(SP.kb+4));
     box(G,6,.045,Math.max(2,SP.fy-6),texMat('asphalt','',{roughness:.95}),WX(SP.ex-3),0,WZ(Math.max(2,SP.fy-6)));
     if(T.ctx) context(G,-side/2,side/2,-side/2,side/2);
-    S.dims={L,D:Fm.span,podL,podD,H:y0+R.twFl*fh,y0,side};
+    S.dims={L:Math.max(L,ML.bbox[2]-ML.bbox[0]),D:Math.max(Fm.span,ML.bbox[3]-ML.bbox[1]),podL,podD,H:y0+R.twFl*fh,y0,side};
     G.traverse(m=>{ if(m.isMesh&&m!==gr){ m.castShadow=!m.userData.noShadow; m.receiveShadow=true; } }); gr.receiveShadow=true;
     const hs=Math.max(side*(T.ctx?1.2:.8),H*.9,40); Object.assign(S.sun.shadow.camera,{left:-hs,right:hs,top:hs,bottom:-hs,far:Math.max(200,H*3)}); S.sun.shadow.camera.updateProjectionMatrix();
     S.target.set(0,(y0+H)*.42,0); S.fit=Math.max(side*1.45,(y0+H)*1.95,34); }
@@ -2272,8 +2614,8 @@ function make3D(THREE, RoomEnvironment, FX){
       const wF=fp.w+5, hF=.35+3.2*fl+5.5, hpx=Math.round(w*hF/wF); out.front=oshot(S,w,hpx,V(0,hF/2-1,0),V(0,0,1),wF); out.frontW=wF; out.frontH=hF;
       const zc=(Math.max(.6,fp.gsb)-fp.bd)/2, wS=fp.bd+Math.max(.6,fp.gsb)+5, hpx2=Math.round(w*hF/wS); out.side=oshot(S,w,hpx2,V(0,hF/2-1,zc),V(1,0,0),wS); out.sideW=wS; out.sideH=hF; return out; },
     tower(T,opt={}){ const S=snapStage(); buildTower(S,Object.assign({},T,{ctx:true})); setSun(S,opt.hour||9.5); const w=opt.w||2400, h=opt.h||1450, d=S.dims, out={};
-      S.target.set(0,d.H*.35,0); Object.assign(S.view,{th:.6,ph:.42,r:Math.max(d.side*1.9,d.H*2.3)}); out.aerial=shot(S,w,h);
-      S.target.set(0,d.H*.45,0); Object.assign(S.view,{th:.25,ph:.06,r:Math.max(d.side*1.3,d.H*1.8)}); out.street=shot(S,w,h);
+      S.target.set(0,d.H*.35,0); Object.assign(S.view,{th:.6,ph:.42,r:Math.max(d.side*2.2,d.H*2.9)}); out.aerial=shot(S,w,h);
+      S.target.set(0,d.H*.45,0); Object.assign(S.view,{th:.25,ph:.06,r:Math.max(d.side*1.4,d.H*2.2)}); out.street=shot(S,w,h);
       const wF=Math.max(d.podL,d.L)+12, hF=d.H+10, hpx=Math.min(3000,Math.round(w*hF/wF)); out.front=oshot(S,Math.round(hpx*wF/hF),hpx,V(0,hF/2-1,0),V(0,0,1),wF); out.frontW=wF; out.frontH=hF; out.dims=d; return out; }
   };
   /* tampilan utama */
