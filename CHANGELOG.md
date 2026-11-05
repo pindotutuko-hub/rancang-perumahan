@@ -1,5 +1,12 @@
 # Catatan perubahan
 
+## 0.8.1 — 2026-11-05
+- **Alur kerja proyek** di langkah 0: jenis proyek (perumahan tapak, flat, rusun, apartemen, kondominium), daftar langkah 0 → D dengan status terisi, dan tombol langsung ke tiap langkah.
+- **Bar "Lanjut"** di bawah setiap halaman mengikuti urutan langkah menurut jenis proyek.
+- **Satu proyek terhubung**: luas lahan & harga tanah (langkah 1) serta KDB/KLB/KDH/lantai RDTR (langkah 0) otomatis dipakai halaman hunian vertikal (dapat dimatikan); menu S, P, D membuka jenis proyek aktif.
+- **Contoh proyek lengkap**: Perumahan tapak Jatimulyo, Apartemen Tlogomas, Rusun MBR (nilai RDTR & harga ditandai CONTOH).
+- Kop gambar memakai alamat hasil peta.
+
 ## 0.8.0 — 2026-11-05
 - **Model rumah tapak**: deret, kopel (semi-detached), tunggal (detached), townhouse, rumah taman/villa — jarak bebas samping di denah, rencana tapak, kawasan 3D, dan indikator; 5 tipe populer baru.
 - **Modul unit hunian vertikal berbeda**: rusun (ringkas, jemuran, tanpa AC), apartemen (unit lebih luas, AC indoor/outdoor, meja makan, KM dalam kamar utama), kondominium (KM dalam tiap kamar, walk-in closet, bathtub, kamar ART). Unit mengisi penuh kedua sayap.

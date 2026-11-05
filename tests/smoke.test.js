@@ -138,6 +138,17 @@ ok(!/NaN|undefined/.test(w.document.querySelector('section[data-sec="ringkas"]')
   ['skenario', 'laksana', 'dokumen', 'tapak', 'rusun'].forEach(p => { w.RPrender(p); const el = w.document.querySelector(`section[data-sec="${p}"]`); ok(el.innerHTML.length > 500 && !/NaN|undefined/.test(el.textContent), 'halaman ' + p + ' tanpa NaN'); });
   w.RPrender('sumber'); const src = w.document.querySelector('section[data-sec="sumber"]').textContent; ['Nomor 16 Tahun 2021', 'Nomor 21 Tahun 2021', 'Nomor 22 Tahun 2021', 'Nomor 28 Tahun 2025', 'Nomor 22 Tahun 2009', 'Nomor 4 Tahun 2021'].forEach(k => ok(src.includes(k), 'rujukan ' + k));
 }
+
+// 12) alur kerja: contoh proyek lengkap & keterhubungan semua menu
+{ const keep = JSON.stringify(w.RPstate());
+  ['perum', 'apt', 'rusun'].forEach(k => { w.loadContoh(k); const st = w.RPstate();
+    ok(st.loc.poly.length >= 3 && st.jenis && st.gk.proyek, 'contoh ' + k + ': lokasi, batas, jenis, kop terisi');
+    if (st.jenis !== 'perumahan') { near(st.vert.A, st.site.W * st.site.D, 1, 'contoh ' + k + ': lahan hunian vertikal terhubung ke langkah 1'); ok(st.vert.kind === st.jenis, 'jenis hunian vertikal = jenis proyek'); }
+    const steps = w.flowSteps().S; ok(steps.length >= 8 && steps[0].ok, 'alur kerja ' + k + ' (' + steps.map(s => s.k).join('') + ')');
+    steps.forEach(s => { w.RPrender(s.id); const el = w.document.querySelector(`section[data-sec="${s.id}"]`); ok(el.innerHTML.length > 300 && !/NaN|undefined/.test(el.textContent), `contoh ${k} → halaman ${s.id}`); });
+    ok(/Lanjut/.test(w.document.querySelector('#nextbar').textContent) || steps[steps.length - 1].id === 'ringkas', 'bar langkah berikutnya'); });
+  const ctx = w.lakCtx('v'); ok(ctx.units > 0 && ctx.pm.items.length > 5, 'pelaksanaan memakai proyek aktif');
+}
 // 8) rujukan memuat Kepmen PKP 1722
 ok(w.document.querySelector('section[data-sec="sumber"]').textContent.includes('1722/KPTS/M/2026'), 'rujukan Kepmen 1722');
 ok(errors.length === 0, 'galat skrip: ' + errors.join(' | '));
