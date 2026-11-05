@@ -130,6 +130,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
     <button data-s="rumah"><span class="n">3</span><span class="t">Tipe & desain rumah</span><span class="s">Gaya terkini, denah, tampak</span></button>
     <button data-s="rab"><span class="n">4</span><span class="t">RAB & kelayakan</span><span class="s">Biaya, harga jual, laba, IRR</span></button>
     <button data-s="biaya"><span class="n">5</span><span class="t">Pembiayaan & KPR</span><span class="s">Kredit konstruksi, cicilan</span></button>
+    <button data-s="rusun"><span class="n">R</span><span class="t">Rumah susun & apartemen</span><span class="s">Flat, rusun, kondominium</span></button>
     <button data-s="ringkas"><span class="n">6</span><span class="t">Ringkasan & laporan</span><span class="s">Indikator, ekspor</span></button>
     <div class="sep"></div>
     <button data-s="sumber"><span class="n">§</span><span class="t">Sumber & Referensi</span><span class="s">Regulasi & asumsi</span></button>
@@ -142,6 +143,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
     <section data-sec="rumah" hidden></section>
     <section data-sec="rab" hidden></section>
     <section data-sec="biaya" hidden></section>
+    <section data-sec="rusun" hidden></section>
     <section data-sec="ringkas" hidden></section>
     <section data-sec="sumber" hidden></section>
   </main>
@@ -158,6 +160,12 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 
 /* ---------- Rujukan (wajib dapat diverifikasi) ---------- */
 const CREDIT = [
+  {k:'uu20', t:'Undang-Undang Nomor 20 Tahun 2011 tentang Rumah Susun (sebagaimana telah diubah dengan Undang-Undang Cipta Kerja).',
+   d:'Pasal 1 angka 13: NPP adalah angka perbandingan sarusun terhadap hak atas bagian bersama, benda bersama, dan tanah bersama, dihitung berdasarkan nilai sarusun terhadap jumlah nilai rumah susun. Pasal 46 ayat (2): hak atas bagian, benda, dan tanah bersama dihitung berdasarkan NPP. Pasal 16 ayat (2): pelaku pembangunan rumah susun komersial wajib menyediakan rumah susun umum sekurang-kurangnya 20% dari total luas lantai rumah susun komersial yang dibangun; ayat (3): dapat di luar lokasi pada kabupaten/kota yang sama.',
+   u:'https://peraturan.bpk.go.id/Details/39256/uu-no-20-tahun-2011', tag:'dipakai: NPP, kewajiban rusun umum 20%'},
+  {k:'pp13', t:'Peraturan Pemerintah Nomor 13 Tahun 2021 tentang Penyelenggaraan Rumah Susun.',
+   d:'Peraturan pelaksana UU Rumah Susun (mencabut PP 4/1988), antara lain mengatur pembangunan, pemisahan (pertelaan & NPP), SHM/SKBG sarusun, pengelolaan, dan penyediaan rumah susun umum oleh pelaku pembangunan rumah susun komersial.',
+   u:'https://peraturan.bpk.go.id/Details/161843/pp-no-13-tahun-2021', tag:'rujukan: penyelenggaraan rumah susun'},
   {k:'kepmen1722', t:'Keputusan Menteri Perumahan dan Kawasan Permukiman Nomor 1722/KPTS/M/2026 tentang Kriteria Rumah Umum Tapak dalam Fasilitasi Pemerintah Pusat (ditetapkan 6 Agustus 2026).',
    d:'Luas lahan efektif 60–200 m², lebar muka kaveling paling kecil 5 m, luas lantai 21–36 m², jangka waktu KPR paling lama 40 tahun, suku bunga 5% per tahun (atau berjenjang sesuai kebijakan), batas harga jual per wilayah, bantuan uang muka Rp4 juta (Papua Rp10 juta). Mencabut Kepmen PUPR 689/KPTS/M/2023 dan 995/KPTS/M/2021.',
    u:'https://jdih.pkp.go.id/produk-hukum/file/2026kptsmpkp1722_1786327915.pdf', tag:'dipakai: cek rumah umum, preset KPR subsidi'},
@@ -196,7 +204,9 @@ const ASUMSI = [
   'Tampak 3D dibuat secara prosedural dari ukuran tipe (lebar kavling, kedalaman bangunan, jumlah lantai) untuk studi massa, material, dan bayangan; bukan gambar kerja atau visual pemasaran yang mengikat.',
   'Biaya per m² (konstruksi, jalan, saluran, RTH) dan faktor biaya gaya fasad adalah perkiraan awal; ganti dengan harga satuan setempat atau hasil RAB rinci.',
   'Cicilan KPR memakai rumus anuitas bulanan; bank dapat memakai metode lain (efektif/berjenjang). Uang muka KPR subsidi mengikuti ketentuan program dan bank penyalur.',
-  'Batas cicilan terhadap penghasilan (rasio angsuran) adalah kebijakan bank; nilai awal 30% hanya asumsi.'
+  'Batas cicilan terhadap penghasilan (rasio angsuran) adalah kebijakan bank; nilai awal 30% hanya asumsi.',
+  'Rumah susun/apartemen: contoh komposisi unit, harga per m², biaya bangun per m² (menara, podium, basement), efisiensi lantai, tinggi lantai, kenaikan harga per lantai, kebutuhan parkir per unit, luas per SRP, dan jumlah unit per lif adalah perkiraan pasar/praktik umum, bukan regulasi; ganti dengan data lokasi, Perda/RDTR, dan hasil perencanaan.',
+  'Rumah susun: arus kas disederhanakan — tanah di bulan 0, konstruksi merata, penjualan merata; bagian harga yang diterima selama pembangunan sesuai persentase isian, sisanya saat serah terima. Biaya kewajiban rusun umum 20% memakai biaya per m² isian (asumsi); bentuk pemenuhannya mengikuti PP 13/2021 dan keputusan pemerintah daerah.'
 ];
 
 /* ---------- Utilitas ---------- */
@@ -447,6 +457,102 @@ const TIPE = [
 ];
 
 /* ---------- Proyek default (nilai contoh, dapat diubah semua) ---------- */
+/* -------- Rumah susun / flat / apartemen / kondominium (bangunan gedung bertingkat) --------
+   Kapasitas dari KDB/KLB/batas lantai → luas lantai kotor (GFA), luas bersih terjual (NSA), jumlah unit per tipe,
+   parkir, NPP per sarusun (UU 20/2011 Ps. 1 angka 13), kewajiban rusun umum 20% (UU 20/2011 Ps. 16 ayat (2)),
+   biaya, pendapatan, laba, arus kas bulanan, IRR, NPV. Semua angka pasar/biaya = asumsi yang dapat diubah. */
+const VKIND = {
+  flat:{n:'Flat (walk-up, tanpa lif)',d:'4–5 lantai, tangga saja, unit keluarga.',komersial:true,sederhana:false,
+    v:{A:2000,landPrice:3000000,kdb:60,klb:3,maxFl:5,podFl:0,podUse:'parkir',baseFl:0,plate:600,eff:80,floorH:3.0,parkPer:0.3,priceUp:0.5,mix:[['2 kamar',45,60,15000000],['3 kamar',60,40,14500000]],struM2:5500000,podM2:4500000,baseM2:8000000}},
+  rusun:{n:'Rusun umum (milik) — MBR',d:'Rumah susun umum untuk masyarakat berpenghasilan rendah; PPh final 1% bila memenuhi kriteria Rusun Sederhana.',komersial:false,sederhana:true,
+    v:{A:3000,landPrice:2000000,kdb:50,klb:3,maxFl:10,podFl:0,podUse:'parkir',baseFl:0,plate:850,eff:80,floorH:3.0,parkPer:0.15,priceUp:0,mix:[['Tipe 24',24,40,10500000],['Tipe 36',36,60,10000000]],struM2:5500000,podM2:4500000,baseM2:8000000}},
+  apartemen:{n:'Apartemen menengah',d:'Menara hunian dengan podium parkir/komersial, studio–3 kamar.',komersial:true,sederhana:false,
+    v:{A:4000,landPrice:6000000,kdb:50,klb:5,maxFl:30,podFl:2,podUse:'parkir',baseFl:1,plate:1100,eff:78,floorH:3.1,parkPer:0.4,priceUp:0.4,mix:[['Studio',24,35,27000000],['1 kamar',33,35,26000000],['2 kamar',45,25,25000000],['3 kamar',65,5,24500000]],struM2:7800000,podM2:5000000,baseM2:8500000}},
+  kondominium:{n:'Kondominium / apartemen mewah',d:'Unit luas, plat lantai lebih sedikit unit, rasio parkir tinggi.',komersial:true,sederhana:false,
+    v:{A:5000,landPrice:15000000,kdb:45,klb:6,maxFl:35,podFl:3,podUse:'parkir',baseFl:2,plate:1300,eff:75,floorH:3.4,parkPer:1.5,priceUp:0.6,mix:[['1 kamar',60,20,52000000],['2 kamar',110,45,50000000],['3 kamar',160,30,49000000],['Penthouse',300,5,58000000]],struM2:13000000,podM2:7500000,baseM2:10500000}}
+};
+function vertDefault(kind='apartemen'){ const K=VKIND[kind]||VKIND.apartemen, v=K.v;
+  return {kind, A:v.A, landPrice:v.landPrice, kdb:v.kdb, klb:v.klb, kdh:20, maxFl:v.maxFl, podFl:v.podFl, podUse:v.podUse, podPlate:0, baseFl:v.baseFl, basePlate:0, baseInKLB:false,
+    plate:v.plate, eff:v.eff, floorH:v.floorH, parkPer:v.parkPer, lotM2:30, liftPer:80,
+    mix:v.mix.map(m=>({n:m[0],a:m[1],share:m[2],pm2:m[3]})), priceUp:v.priceUp,
+    struM2:v.struM2, podM2:v.podM2, baseM2:v.baseM2, softPct:9, contPct:5, mktPct:3, landTxPct:5, pphPct:K.sederhana?1:2.5,
+    hb:K.komersial, hbMode:'luar', hbM2:5500000, nppBasis:'nilai',
+    sched:{pre:6, build:v.maxFl<=5?14:v.maxFl<=12?22:30, salesStart:3, salesMonths:v.maxFl<=5?12:24, dpPct:40}};
+}
+function vertCalc(V){
+  const A=+V.A||0, fpMax=A*(+V.kdb||0)/100, gfaMax=A*(+V.klb||0), maxFl=Math.max(1,Math.round(+V.maxFl||1));
+  const podFl=Math.max(0,Math.round(+V.podFl||0)), podPlate=Math.min(fpMax, +V.podPlate>0? +V.podPlate : fpMax), podGFA=podFl*podPlate;
+  const baseFl=Math.max(0,Math.round(+V.baseFl||0)), basePlate=Math.min(A*.95, +V.basePlate>0? +V.basePlate : A*.8), baseGFA=baseFl*basePlate;
+  const plate=Math.max(50,Math.min(+V.plate||0, fpMax||1e9)), room=gfaMax-podGFA-(V.baseInKLB?baseGFA:0);
+  const twFl=Math.max(0,Math.min(maxFl-podFl, Math.floor(room/plate+1e-9))), twGFA=twFl*plate, gfa=twGFA+podGFA+(V.baseInKLB?baseGFA:0), gfaAll=twGFA+podGFA+baseGFA;
+  const nsa=twGFA*(+V.eff||0)/100, mix=(V.mix||[]).filter(m=>+m.a>0&&+m.share>0), sh=mix.reduce((s,m)=>s+(+m.share),0)||1;
+  const avgA=mix.reduce((s,m)=>s+(+m.share)/sh*(+m.a),0)||1, N=nsa/avgA;
+  const rows=mix.map(m=>{ const n=Math.max(0,Math.round(N*(+m.share)/sh)); return {n:m.n,a:+m.a,pm2:+m.pm2,units:n,area:n*(+m.a)}; });
+  // kenaikan harga per lantai (premium ketinggian): rata-rata sederhana atas seluruh lantai menara
+  const up=(+V.priceUp||0)/100, avgUp=twFl>1? up*(twFl-1)/2 : 0;
+  rows.forEach(r=>{ r.price=r.a*r.pm2*(1+avgUp); r.rev=r.units*r.price; });
+  const units=rows.reduce((s,r)=>s+r.units,0), sold=rows.reduce((s,r)=>s+r.area,0), rev=rows.reduce((s,r)=>s+r.rev,0);
+  const perFloor=twFl? units/twFl : 0, height=(podFl+twFl)*(+V.floorH||3)+1.5;
+  // NPP: berbanding nilai sarusun terhadap jumlah nilai (UU 20/2011 Ps. 1 angka 13) — atau luas, sesuai pilihan
+  const basis=V.nppBasis==='luas'? r=>r.a : r=>r.price, tot=rows.reduce((s,r)=>s+r.units*basis(r),0)||1;
+  rows.forEach(r=>{ r.npp=basis(r)/tot*100; });
+  // parkir
+  const parkNeed=Math.ceil(units*(+V.parkPer||0)), lot=Math.max(12,+V.lotM2||30), surf=Math.max(0,A-Math.max(podFl?podPlate:0,plate)-A*(+V.kdh||0)/100)*.6, parkCap=Math.floor((V.podUse==='parkir'?podGFA*.85:0)/lot + baseGFA*.85/lot + surf/lot);
+  const lifts=twFl+podFl>5 ? Math.max(2,Math.ceil(units/Math.max(20,+V.liftPer||80))) : 0;
+  // kewajiban rusun umum 20% luas lantai rusun komersial (UU 20/2011 Ps. 16 ayat (2))
+  const K=VKIND[V.kind]||VKIND.apartemen, hbArea=K.komersial? .2*(twGFA+podGFA) : 0, hbCost=V.hb&&K.komersial? hbArea*(+V.hbM2||0) : 0;
+  // biaya
+  const land=A*(+V.landPrice||0), landTx=land*(+V.landTxPct||0)/100, cons=twGFA*(+V.struM2||0)+podGFA*(+V.podM2||0)+baseGFA*(+V.baseM2||0);
+  const soft=cons*(+V.softPct||0)/100, cont=cons*(+V.contPct||0)/100, mkt=rev*(+V.mktPct||0)/100, pph=rev*(+V.pphPct||0)/100;
+  const cost=land+landTx+cons+soft+cont+mkt+pph+hbCost, profit=rev-cost;
+  // arus kas bulanan: tanah bulan 0; perencanaan/izin selama 'pre'; konstruksi linear 'build' bulan; penjualan merata 'salesMonths' mulai 'salesStart';
+  // penerimaan = uang muka/cicilan selama pembangunan (dp%), sisa saat serah terima (akhir konstruksi) atau saat terjual bila sesudahnya
+  const S=V.sched||{}, pre=Math.max(0,Math.round(+S.pre||0)), bld=Math.max(1,Math.round(+S.build||1)), s0=Math.max(0,Math.round(+S.salesStart||0)), sm=Math.max(1,Math.round(+S.salesMonths||1)), dp=clamp((+S.dpPct||0)/100,0,1);
+  const end=pre+bld, H=Math.max(end, s0+sm)+2, fl=new Array(H+1).fill(0);
+  fl[0]-=land+landTx; for(let m=0;m<Math.max(1,pre);m++) fl[m]-=soft*.35/Math.max(1,pre);
+  for(let m=pre;m<end;m++) fl[m+1]-=(cons+cont+hbCost)/bld + soft*.65/bld;
+  for(let m=s0;m<s0+sm;m++){ const r=rev/sm; fl[m+1]-=(mkt+pph)/sm; if(m+1<end){ fl[m+1]+=r*dp; fl[end]+=r*(1-dp); } else fl[m+1]+=r; }
+  let cum=0, peak=0; fl.forEach(v=>{ cum+=v; peak=Math.min(peak,cum); });
+  const disc=(+((typeof P!=='undefined'&&P.fin)?P.fin.discPct:14)||0)/100;
+  return {A,fpMax,gfaMax,podFl,podPlate,podGFA,baseFl,basePlate,baseGFA,plate,twFl,twGFA,gfa,gfaAll,nsa,eff:+V.eff,rows,units,sold,rev,perFloor,height,parkNeed,parkCap,lifts,
+    hbArea,hbCost,komersial:K.komersial,land,landTx,cons,soft,cont,mkt,pph,cost,profit,margin:rev?profit/rev:NaN,roi:cost?profit/cost:NaN,
+    flow:fl,peak,surf,irr:RP.irr(fl),npv:RP.npv(fl,disc),kdbUse:A?Math.max(podPlate*(podFl?1:0),plate)/A:0,klbUse:A?gfa/A:0, limitedBy: twFl>=maxFl-podFl? 'lantai' : 'KLB'};
+}
+/* Potongan massa: basement, podium, menara (skala tinggi) */
+function vertSecSVG(R,V){
+  const fh=+V.floorH||3, W=360, H=300, gY=230, tw=Math.sqrt(R.plate)*1.05, pw=Math.sqrt(Math.max(R.podPlate,R.plate))*1.3, bw=Math.sqrt(Math.max(R.basePlate,1))*1.3;
+  const totH=(R.podFl+R.twFl)*fh+R.baseFl*3.2, sc=Math.min((gY-20)/Math.max(1,(R.podFl+R.twFl)*fh), (H-gY-10)/Math.max(1,R.baseFl*3.2+0.01), 200/Math.max(pw,bw,tw,1));
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Potongan massa"><rect x="0" y="${gY}" width="${W}" height="${H-gY}" fill="var(--paper)"/><line x1="0" x2="${W}" y1="${gY}" y2="${gY}" stroke="var(--ink)" stroke-width="1.5"/>`;
+  const cx=W/2-70;
+  for(let i=0;i<R.baseFl;i++){ const y=gY+i*3.2*sc; g+=`<rect x="${cx-bw*sc/2}" y="${y}" width="${bw*sc}" height="${3.2*sc}" fill="var(--road)" opacity=".55" stroke="var(--ink)" stroke-width=".6"/>`; }
+  for(let i=0;i<R.podFl;i++){ const y=gY-(i+1)*fh*sc; g+=`<rect x="${cx-pw*sc/2}" y="${y}" width="${pw*sc}" height="${fh*sc}" fill="${V.podUse==='parkir'?'var(--road)':'var(--fasum)'}" opacity=".6" stroke="var(--ink)" stroke-width=".6"/>`; }
+  for(let i=0;i<R.twFl;i++){ const y=gY-(R.podFl+i+1)*fh*sc; g+=`<rect x="${cx-tw*sc/2}" y="${y}" width="${tw*sc}" height="${fh*sc}" fill="var(--lot)" opacity=".75" stroke="var(--ink)" stroke-width="${R.twFl>25?.25:.5}"/>`; }
+  const lx=cx+Math.max(pw,tw)*sc/2+10, t=(y,s,c='var(--muted)')=>`<text x="${lx}" y="${y}" font-size="10.5" fill="${c}">${s}</text>`;
+  if(R.twFl) g+=t(gY-(R.podFl+R.twFl/2)*fh*sc,`Menara ${R.twFl} lt · ${fmt(R.twGFA)} m²`,'var(--ink)');
+  let yP=gY-R.podFl*fh*sc/2+4, yB=gY+R.baseFl*3.2*sc/2+4; if(R.podFl&&R.baseFl&&yB-yP<14){ yP=gY-4; yB=gY+14; }
+  if(R.podFl) g+=t(yP,`Podium ${R.podFl} lt (${V.podUse})`);
+  if(R.baseFl) g+=t(yB,`Basement ${R.baseFl} lt`);
+  g+=t(16,`± ${fmt(R.height,1)} m di atas tanah`,'var(--ink)');
+  return g+'</svg>';
+}
+/* Denah lantai tipikal: koridor ganda, inti (lif + tangga) di tengah, unit dibagi menurut komposisi */
+function vertPlanSVG(R,V){
+  const ud=Math.min(10,Math.max(6,Math.sqrt(R.rows.reduce((s,r)=>s+r.a*r.units,0)/Math.max(1,R.units))*1.15)), cor=1.8, D=2*ud+cor, L=Math.max(D,R.plate/D);
+  const per=R.rows.map(r=>({n:r.n,a:r.a,k:R.twFl? r.units/R.twFl : 0})), W=760, sc=(W-40)/L, Hh=D*sc+70;
+  let g=`<svg viewBox="0 0 ${W} ${Hh.toFixed(0)}" role="img" aria-label="Denah lantai tipikal"><rect x="20" y="30" width="${(L*sc).toFixed(1)}" height="${(D*sc).toFixed(1)}" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2"/>`;
+  g+=`<rect x="20" y="${(30+ud*sc).toFixed(1)}" width="${(L*sc).toFixed(1)}" height="${(cor*sc).toFixed(1)}" fill="var(--paper)"/>`;
+  const coreW=Math.min(L*.2,Math.max(6,(R.lifts||1)*2.2+5)), cx=20+(L/2-coreW/2)*sc;
+  g+=`<rect x="${cx.toFixed(1)}" y="${(30+ud*sc*0.25).toFixed(1)}" width="${(coreW*sc).toFixed(1)}" height="${((ud*0.75+cor+ud*0.75)*sc).toFixed(1)}" fill="var(--road)" opacity=".55" stroke="var(--ink)"/><text x="${(cx+coreW*sc/2).toFixed(1)}" y="${(30+D*sc/2+4).toFixed(1)}" font-size="11" text-anchor="middle" fill="var(--ink)">Inti: ${R.lifts?R.lifts+' lif + ':''}2 tangga</text>`;
+  // urutan unit per lantai (dibulatkan), dibagi rata dua sisi, melewati inti
+  const list=[]; per.forEach((p,i)=>{ for(let k=0;k<Math.round(p.k);k++) list.push(i); }); const cols=['var(--lot)','var(--rth)','var(--fasum)','var(--warm-soft)','var(--accent-soft)'];
+  [0,1].forEach(side=>{ const items=list.filter((_,j)=>j%2===side), tot=items.reduce((s,i)=>s+per[i].a,0)||1, avail=(L-coreW); let x=0;
+    const c0=L/2-coreW/2, c1=L/2+coreW/2; items.forEach(i=>{ let w=per[i].a/tot*avail; if(x<c0&&x+w>c0+.01) x=c1; else if(x>=c0&&x<c1) x=c1; w=Math.min(w,L-x); if(w<=.05) return; const px=20+x*sc, py=side? 30+(ud+cor)*sc : 30;
+      g+=`<rect x="${px.toFixed(1)}" y="${py.toFixed(1)}" width="${(w*sc).toFixed(1)}" height="${(ud*sc).toFixed(1)}" fill="${cols[i%cols.length]}" opacity=".7" stroke="var(--ink)" stroke-width=".8"/>`;
+      if(w*sc>34) g+=`<text x="${(px+w*sc/2).toFixed(1)}" y="${(py+ud*sc/2+4).toFixed(1)}" font-size="${Math.min(11,w*sc/5).toFixed(1)}" text-anchor="middle" fill="var(--ink)">${esc(per[i].n)}</text>`; x+=w; }); });
+  g+=`<text x="20" y="20" font-size="12" fill="var(--muted)">Lantai tipikal ± ${fmt(L,1)} × ${fmt(D,1)} m (${fmt(R.plate)} m²) · ± ${fmt(R.perFloor,1)} unit/lantai · koridor ${fmt(cor,1)} m</text>`;
+  return g+'</svg>';
+}
+
 function defaultProject(){
   return {
     v:1, title:'Proyek perumahan baru',
@@ -463,7 +569,8 @@ function defaultProject(){
     cost:{landTxPct:5,prepM2:35000,roadM2:280000,drainM:450000,rthM2:120000,fasumM2:2500000,makamM2:50000,utilUnit:9000000,buildM2:3800000,permitLump:350000000,certUnit:4500000,contPct:5,mktPct:3,ohPct:5},
     sales:{start:3,perMonth:6,buildMonths:4,dpPct:20,infraMonths:6,horizon:48},
     fin:{loanPct:40,loanRate:11,sweepPct:100,discPct:14},
-    kpr:{price:330000000,dpPct:10,rate:7.5,years:20,fixY:3,rateFloat:11,income:12000000,dsr:30,subsidy:0}
+    kpr:{price:330000000,dpPct:10,rate:7.5,years:20,fixY:3,rateFloat:11,income:12000000,dsr:30,subsidy:0},
+    vert:vertDefault('apartemen')
   };
 }
 const ZONES = [
@@ -479,7 +586,7 @@ const RU = {lahanMin:60,lahanMax:200,lebarMin:5,lantaiMin:21,lantaiMax:36,tenorM
 let P = load() || defaultProject();
 let cur = 'lahan', selType = 0;
 function load(){ try{ const s=localStorage.getItem('rp.project'); if(s){ const j=JSON.parse(s); if(j&&j.v===1) return migrate(j); } }catch(e){} return null; }
-function migrate(j){ const d=defaultProject(); for(const k of Object.keys(d)) if(j[k]==null) j[k]=d[k]; for(const k of ['site','plan','rules','cost','sales','fin','kpr','loc']) j[k]=Object.assign({},d[k],j[k]); j.loc.rdtr=Object.assign({},d.loc.rdtr,j.loc.rdtr||{}); j.loc.addr=j.loc.addr||{}; j.loc.poly=Array.isArray(j.loc.poly)?j.loc.poly:[]; return j; }
+function migrate(j){ const d=defaultProject(); for(const k of Object.keys(d)) if(j[k]==null) j[k]=d[k]; for(const k of ['site','plan','rules','cost','sales','fin','kpr','loc']) j[k]=Object.assign({},d[k],j[k]); j.loc.rdtr=Object.assign({},d.loc.rdtr,j.loc.rdtr||{}); j.loc.addr=j.loc.addr||{}; j.loc.poly=Array.isArray(j.loc.poly)?j.loc.poly:[]; { const vd=vertDefault((j.vert&&VKIND[j.vert.kind])?j.vert.kind:'apartemen'); j.vert=Object.assign(vd,j.vert||{}); j.vert.sched=Object.assign({},vd.sched,j.vert.sched||{}); if(!Array.isArray(j.vert.mix)||!j.vert.mix.length) j.vert.mix=vd.mix; } return j; }
 let saveT=0; function persist(){ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('rp.project',JSON.stringify(P)); }catch(e){} },300); }
 function toast(t){ const e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('on'),2200); }
 /* konfirmasi dua klik (tanpa confirm/alert) */
@@ -1012,6 +1119,91 @@ PAGES.biaya = sec => {
   $('#presetCom',sec).onclick=()=>setK({rate:7.5,fixY:3,rateFloat:11,years:20,subsidy:0,dpPct:10});
   $('#pickType',sec).onchange=e=>{ const i=e.target.value; if(i!=='') setK({price:+P.types[+i].price}); };
   draw();
+};
+
+PAGES.rusun = sec => {
+  const V=P.vert, K=VKIND[V.kind]||VKIND.apartemen, FV=(k,l,u,o)=>F('vert.'+k,l,u,o);
+  sec.innerHTML = `<h1>R · Rumah susun, flat, apartemen & kondominium</h1>
+  <p class="lede">Hitung kapasitas bangunan bertingkat dari KDB, KLB, dan batas ketinggian setempat: jumlah lantai, luas lantai kotor (GFA) dan luas bersih terjual, jumlah unit per tipe, parkir, NPP tiap sarusun, kewajiban rumah susun umum, biaya, pendapatan, laba, dan IRR. Angka pasar dan biaya hanya contoh awal — ganti dengan data lokasi Anda.</p>
+  <div class="card"><h2>Jenis hunian vertikal</h2><div class="row" id="vk">${Object.entries(VKIND).map(([k,x])=>`<button class="btn small" data-vk="${k}" aria-pressed="${V.kind===k}" title="${esc(x.d)}">${esc(x.n)}</button>`).join('')}</div>
+    <p class="note">${esc(K.d)} Memilih jenis mengisi contoh lahan, komposisi unit, harga, dan biaya untuk jenis itu (lahan & aturan dipertahankan bila sudah diambil dari halaman Lahan & Lokasi). <button class="btn small" id="vReset">Isi ulang contoh jenis ini</button></p></div>
+  <div class="grid g2">
+    <div class="card"><h2>Lahan & aturan (RDTR/zonasi, KKOP)</h2><div class="form">
+      ${FV('A','Luas lahan','m²')}${FV('landPrice','Harga tanah','Rp/m²',{step:100000})}${FV('landTxPct','Biaya peralihan & notaris','% harga tanah')}
+      ${FV('kdb','KDB maksimal','%')}${FV('klb','KLB maksimal','kali luas lahan',{step:.1})}${FV('kdh','KDH minimal','%')}
+      ${FV('maxFl','Batas jumlah lantai','lantai (RDTR/KKOP)')}${FV('baseInKLB','Basement dihitung dalam KLB','',{chk:1})}
+    </div><p class="note"><button class="btn small" id="vFromLahan">Ambil dari halaman Lahan & Lokasi</button> — memakai luas lahan, harga tanah, dan aturan RDTR yang sudah diisi.</p></div>
+    <div class="card"><h2>Massa bangunan</h2><div class="form">
+      ${FV('plate','Luas lantai tipikal menara','m² kotor')}${FV('eff','Efisiensi lantai (bersih/kotor)','%')}${FV('floorH','Tinggi lantai','m',{step:.1})}
+      ${FV('podFl','Lantai podium','lantai')}${FV('podUse','Fungsi podium','',{sel:[['parkir','Parkir'],['komersial','Komersial/fasilitas']]})}${FV('podPlate','Luas lantai podium','m² (0 = sebesar KDB)')}
+      ${FV('baseFl','Lantai basement','lantai')}${FV('basePlate','Luas lantai basement','m² (0 = 80% lahan)')}
+      ${FV('parkPer','Kebutuhan parkir','SRP mobil per unit (Perda)',{step:.05})}${FV('lotM2','Luas per SRP termasuk sirkulasi','m²')}${FV('liftPer','Satu lif melayani','unit (asumsi)')}
+    </div></div>
+  </div>
+  <div class="card"><h2>Komposisi unit & harga</h2><div id="vMix"></div>
+    <div class="row" style="margin-top:8px"><button class="btn small" id="vAdd">+ Tipe unit</button></div>
+    <div class="form" style="margin-top:10px">${FV('priceUp','Kenaikan harga per lantai','% per lantai',{step:.1})}${FV('nppBasis','Dasar NPP','UU 20/2011 Ps. 1 angka 13',{sel:[['nilai','Nilai sarusun (harga)'],['luas','Luas sarusun']]})}</div></div>
+  <div class="grid g2">
+    <div class="card"><h2>Biaya</h2><div class="form">
+      ${FV('struM2','Biaya bangun menara','Rp/m² GFA',{step:100000})}${FV('podM2','Biaya bangun podium','Rp/m² GFA',{step:100000})}${FV('baseM2','Biaya bangun basement','Rp/m² GFA',{step:100000})}
+      ${FV('softPct','Perencanaan, izin, pengawasan','% biaya konstruksi')}${FV('contPct','Cadangan tak terduga','% biaya konstruksi')}${FV('mktPct','Pemasaran & penjualan','% pendapatan')}
+      ${FV('pphPct','PPh final pengalihan','% pendapatan (PP 34/2016)',{step:.5})}
+    </div></div>
+    <div class="card"><h2>Jadwal & penerimaan</h2><div class="form">
+      ${FV('sched.pre','Perencanaan & perizinan','bulan')}${FV('sched.build','Masa konstruksi','bulan')}
+      ${FV('sched.salesStart','Mulai pemasaran','bulan ke-')}${FV('sched.salesMonths','Lama penjualan','bulan')}${FV('sched.dpPct','Diterima selama pembangunan','% harga (uang muka/cicilan)')}
+    </div>${K.komersial? `<div class="chk info" style="margin-top:10px"><i>§</i><span>Rumah susun komersial wajib menyediakan rumah susun umum paling sedikit 20% dari total luas lantai rumah susun komersial yang dibangun (UU 20/2011 Pasal 16 ayat (2)); dapat dipenuhi di luar lokasi pada kabupaten/kota yang sama. Perkiraan luas kewajiban: <b id="vHbA">–</b>.</span></div>
+      <div class="form" style="margin-top:8px">${FV('hb','Masukkan biaya kewajiban ke kelayakan','',{chk:1})}${FV('hbM2','Biaya penyediaan rusun umum','Rp/m² (asumsi)',{step:100000})}</div>` : '<p class="note" style="margin-top:10px">Rumah susun umum tidak terkena kewajiban 20%; kewajiban itu berlaku bagi pelaku pembangunan rumah susun komersial.</p>'}</div>
+  </div>
+  <div class="card" id="vOut"></div>
+  <div class="grid g2"><div class="card"><h2>Potongan massa</h2><div class="svgbox" id="vSec"></div></div><div class="card"><h2>Pemeriksaan</h2><div id="vChk"></div></div></div>
+  <div class="card"><h2>Denah lantai tipikal (skema)</h2><div class="svgbox" id="vPlan"></div><p class="note">Skema koridor ganda dengan inti lif & tangga di tengah; lebar unit sebanding luasnya. Untuk studi kapasitas, bukan gambar kerja — jumlah & jarak tangga kebakaran, lebar koridor, dan ketentuan keselamatan mengikuti peraturan bangunan gedung dan persetujuan bangunan gedung (PBG).</p></div>
+  <div class="card"><h2>Unit, NPP & pendapatan</h2><div id="vTab"></div><div class="row noprint" style="margin-top:8px"><button class="btn small" id="vCsv">⤓ Unduh tabel (CSV)</button></div></div>
+  <div class="card"><h2>Arus kas proyek (bulanan & kumulatif)</h2><div class="svgbox" id="vCash"></div></div>`;
+  const mix=()=>{ $('#vMix',sec).innerHTML=`<table><tr><th>Tipe</th><th class="n">Luas (m²)</th><th class="n">Porsi unit (%)</th><th class="n">Harga (Rp/m²)</th><th></th></tr>${V.mix.map((m,i)=>`<tr>
+      <td><input data-m="${i}.n" value="${esc(m.n)}" style="width:100%"></td><td class="n"><input type="number" step="any" min="0" data-m="${i}.a" value="${m.a}" style="width:90px"></td>
+      <td class="n"><input type="number" step="any" min="0" data-m="${i}.share" value="${m.share}" style="width:80px"></td><td class="n"><input type="number" step="100000" min="0" data-m="${i}.pm2" value="${m.pm2}" style="width:130px"></td>
+      <td><button class="btn small" data-mdel="${i}" ${V.mix.length<2?'disabled':''}>Hapus</button></td></tr>`).join('')}</table>`;
+    $$('[data-m]',sec).forEach(el=>el.addEventListener('input',()=>{ const [i,k]=el.dataset.m.split('.'); V.mix[+i][k]=k==='n'? el.value : (el.value===''?'':+el.value); persist(); out(); }));
+    $$('[data-mdel]',sec).forEach(b=>b.onclick=()=>{ V.mix.splice(+b.dataset.mdel,1); persist(); mix(); out(); }); };
+  const out=()=>{ const R=vertCalc(V), chk=[];
+    $('#vOut',sec).innerHTML=`<h2>Hasil kapasitas & kelayakan</h2><div class="kpis">
+      <div class="kpi"><span>Jumlah lantai</span><b>${R.podFl+R.twFl} lt</b><span>menara ${R.twFl} + podium ${R.podFl}${R.baseFl?` · basement ${R.baseFl}`:''}</span></div>
+      <div class="kpi"><span>Luas lantai kotor (dihitung KLB)</span><b>${fmt(R.gfa)} m²</b><span>maks. ${fmt(R.gfaMax)} m² · KLB terpakai ${fmt(R.klbUse,2)}</span></div>
+      <div class="kpi"><span>Luas bersih terjual</span><b>${fmt(R.sold)} m²</b><span>efisiensi ${fmt(R.eff)}% dari ${fmt(R.twGFA)} m²</span></div>
+      <div class="kpi"><span>Jumlah unit</span><b>${fmt(R.units)}</b><span>± ${fmt(R.perFloor,1)} unit/lantai</span></div>
+      <div class="kpi ${R.parkCap>=R.parkNeed?'ok':'bad'}"><span>Parkir mobil</span><b>${fmt(R.parkCap)} / ${fmt(R.parkNeed)}</b><span>tersedia / dibutuhkan</span></div>
+      <div class="kpi"><span>Pendapatan</span><b>${rp(R.rev)}</b><span>rata-rata ${rp(R.sold?R.rev/R.sold:0)}/m²</span></div>
+      <div class="kpi"><span>Biaya total</span><b>${rp(R.cost)}</b><span>konstruksi ${rp(R.cons)}</span></div>
+      <div class="kpi ${R.profit>=0?'ok':'bad'}"><span>Laba sebelum pajak badan</span><b>${rp(R.profit)}</b><span>marjin ${pct(R.margin)} · ROI ${pct(R.roi)}</span></div>
+      <div class="kpi ${R.irr>=(+P.fin.discPct||0)/100?'ok':'bad'}"><span>IRR proyek</span><b>${pct(R.irr)}</b><span>NPV @ ${fmt(P.fin.discPct)}%: ${rp(R.npv)}</span></div>
+      <div class="kpi"><span>Kebutuhan dana puncak</span><b>${rp(-R.peak)}</b><span>arus kas kumulatif terendah</span></div></div>
+      <table style="margin-top:10px"><tr><th>Komponen biaya</th><th class="n">Nilai</th></tr>${[['Tanah + peralihan',R.land+R.landTx],['Konstruksi menara',R.twGFA*(+V.struM2||0)],['Konstruksi podium',R.podGFA*(+V.podM2||0)],['Konstruksi basement',R.baseGFA*(+V.baseM2||0)],['Perencanaan, izin, pengawasan',R.soft],['Cadangan tak terduga',R.cont],['Pemasaran',R.mkt],['PPh final',R.pph],['Kewajiban rusun umum 20%',R.hbCost]].filter(r=>r[1]).map(r=>`<tr><td>${r[0]}</td><td class="n">${rp(r[1])}</td></tr>`).join('')}</table>`;
+    $('#vSec',sec).innerHTML=vertSecSVG(R,V); $('#vPlan',sec).innerHTML=R.twFl? vertPlanSVG(R,V) : '<p class="note" style="padding:12px">Belum ada lantai menara — periksa KLB, KDB, dan luas lantai tipikal.</p>';
+    $('#vCash',sec).innerHTML=cashSVG({flow:R.flow});
+    $('#vTab',sec).innerHTML=`<table><tr><th>Tipe</th><th class="n">Luas</th><th class="n">Unit</th><th class="n">Harga rata-rata/unit</th><th class="n">NPP per sarusun</th><th class="n">NPP total tipe</th><th class="n">Pendapatan</th></tr>${R.rows.map(r=>`<tr><td>${esc(r.n)}</td><td class="n">${fmt(r.a)} m²</td><td class="n">${fmt(r.units)}</td><td class="n">${rp(r.price)}</td><td class="n">${fmt(r.npp,4)}%</td><td class="n">${fmt(r.npp*r.units,2)}%</td><td class="n">${rp(r.rev)}</td></tr>`).join('')}<tr><th>Jumlah</th><th class="n">${fmt(R.sold)} m²</th><th class="n">${fmt(R.units)}</th><th></th><th></th><th class="n">${fmt(R.rows.reduce((s,r)=>s+r.npp*r.units,0),2)}%</th><th class="n">${rp(R.rev)}</th></tr></table>
+      <p class="note">NPP (nilai perbandingan proporsional) menentukan bagian hak atas bagian bersama, benda bersama, dan tanah bersama tiap sarusun (UU 20/2011 Pasal 46 ayat (2)); NPP resmi ditetapkan dalam pertelaan yang disahkan pemerintah daerah.</p>`;
+    if($('#vHbA',sec)) $('#vHbA',sec).textContent=fmt(R.hbArea)+' m²';
+    if(R.twFl+R.podFl>=+V.maxFl) chk.push(['info',`Jumlah lantai dibatasi ketentuan ketinggian (${fmt(V.maxFl)} lantai); sisa KLB ${fmt(Math.max(0,R.gfaMax-R.gfa))} m² tidak terpakai.`]);
+    else chk.push(['ok',`Jumlah lantai dibatasi KLB; sisa KLB ${fmt(Math.max(0,R.gfaMax-R.gfa))} m² (kurang dari satu lantai tipikal).`]);
+    if(+V.plate>R.fpMax) chk.push(['bad',`Luas lantai tipikal ${fmt(V.plate)} m² melebihi tapak bangunan maksimal KDB ${fmt(R.fpMax)} m²; dihitung ${fmt(R.plate)} m².`]);
+    else chk.push(['ok',`Tapak bangunan terbesar ${fmt(Math.max(R.plate,R.podFl?R.podPlate:0))} m² ≤ batas KDB ${fmt(R.fpMax)} m².`]);
+    const open=R.A-Math.max(R.plate,R.podFl?R.podPlate:0), kdhA=R.A*(+V.kdh||0)/100; chk.push([open>=kdhA?'ok':'bad',`Lahan di luar tapak ${fmt(open)} m² ${open>=kdhA?'cukup':'kurang'} untuk KDH ${fmt(V.kdh)}% (${fmt(kdhA)} m²) — basement di bawah area hijau dapat mengurangi daya resap; periksa ketentuan setempat.`]);
+    chk.push([R.parkCap>=R.parkNeed?'ok':'bad',`Parkir: kapasitas ${fmt(R.parkCap)} SRP (termasuk ± ${fmt(R.surf/Math.max(12,+V.lotM2||30))} di halaman), kebutuhan ${fmt(R.parkNeed)} SRP (${fmt(V.parkPer,2)} per unit — sesuaikan dengan Perda/RDTR).`]);
+    if(R.twFl+R.podFl>5) chk.push(['info',`Bangunan > 5 lantai: perkiraan ${fmt(R.lifts)} lif penumpang (1 lif per ${fmt(V.liftPer)} unit, asumsi) — hitung ulang dengan analisis lalu lintas vertikal.`]);
+    else chk.push(['info','Bangunan ≤ 5 lantai: dapat dirancang tanpa lif (walk-up); pertimbangkan aksesibilitas bagi penyandang disabilitas dan lansia.']);
+    if(R.margin<.15) chk.push(['bad',`Marjin laba ${pct(R.margin)} rendah untuk proyek bertingkat (risiko biaya & waktu tinggi).`]);
+    $('#vChk',sec).innerHTML=chk.map(c=>`<div class="chk ${c[0]}"><i>${c[0]==='ok'?'✓':c[0]==='info'?'i':'!'}</i><span>${c[1]}</span></div>`).join('');
+    sec._R=R; };
+  bindInputs(sec, out); mix(); out();
+  const keepLand=()=>V.fromLahan? {A:V.A,landPrice:V.landPrice,landTxPct:V.landTxPct,kdb:V.kdb,klb:V.klb,kdh:V.kdh,maxFl:V.maxFl,fromLahan:true} : {};
+  $$('[data-vk]',sec).forEach(b=>b.onclick=()=>{ P.vert=Object.assign(vertDefault(b.dataset.vk),keepLand()); persist(); PAGES.rusun(sec); });
+  $('#vReset',sec).onclick=e=>confirmArm(e.currentTarget,()=>{ P.vert=Object.assign(vertDefault(V.kind),keepLand()); persist(); PAGES.rusun(sec); },'Klik lagi: isi ulang contoh');
+  $('#vFromLahan',sec).onclick=()=>{ const r=P.loc&&P.loc.rdtr||{}, n=x=>x!==''&&x!=null&&isFinite(+x)? +x : null;
+    V.A=Math.round((+P.site.W)*(+P.site.D)); V.landPrice=+P.site.landPrice||V.landPrice; V.landTxPct=+P.cost.landTxPct||V.landTxPct;
+    V.kdb=n(r.kdb)??+P.rules.kdbMax; V.klb=n(r.klb)??+P.rules.klbMax; V.kdh=n(r.kdh)??+P.rules.kdhMin; if(n(r.lantai)) V.maxFl=n(r.lantai); V.fromLahan=true; persist(); PAGES.rusun(sec); toast('Diambil dari halaman Lahan & Lokasi.'); };
+  $('#vAdd',sec).onclick=()=>{ V.mix.push({n:'Tipe baru',a:36,share:10,pm2:(V.mix[0]&&V.mix[0].pm2)||20000000}); persist(); mix(); out(); };
+  $('#vCsv',sec).onclick=()=>{ const R=sec._R; download(csv([['Tipe','Luas m2','Unit','Harga rata-rata per unit','NPP per sarusun %','NPP total tipe %','Pendapatan'],...R.rows.map(r=>[r.n,r.a,r.units,Math.round(r.price),r.npp.toFixed(6),(r.npp*r.units).toFixed(4),Math.round(r.rev)])]),slug()+'-rusun-unit-npp.csv','csv'); };
 };
 
 PAGES.ringkas = sec => {

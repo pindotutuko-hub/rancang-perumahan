@@ -73,6 +73,20 @@ ok(w.document.body.innerHTML.includes('Pindo Tutuko'), 'kredit');
   const st2 = w.RPstate(); st2.loc.rdtr.kdb = 65; st2.loc.rdtr.gsb = 4; sec.querySelector('#rdApply').click(); ok(+st2.rules.kdbMax === 65 && +st2.rules.gsb === 4, 'terapkan RDTR ke aturan');
   ok(/img-src[^;]*tile\.openstreetmap\.org/.test(html) && /connect-src[^;]*nominatim\.openstreetmap\.org/.test(html), 'CSP peta OSM'); }
 ok(!/NaN|undefined/.test(w.document.querySelector('section[data-sec="ringkas"]').textContent), 'ringkasan tanpa NaN/undefined');
+// 9) rumah susun/apartemen: kapasitas dari KDB/KLB, NPP, kewajiban 20%
+{ const V = w.vertDefault('apartemen'); Object.assign(V, { A: 4000, kdb: 50, klb: 5, maxFl: 30, podFl: 3, podPlate: 0, baseFl: 1, baseInKLB: false, plate: 1100, eff: 78 });
+  const R = w.vertCalc(V);
+  near(R.fpMax, 2000, 1e-9, 'tapak maks KDB'); near(R.gfaMax, 20000, 1e-9, 'GFA maks KLB'); near(R.podGFA, 6000, 1e-9, 'podium = 3 × tapak KDB');
+  ok(R.twFl === 12, 'lantai menara = floor((20000−6000)/1100) = 12'); near(R.twGFA, 13200, 1e-9, 'GFA menara'); near(R.nsa, 13200 * 0.78, 1e-6, 'NSA = efisiensi × GFA menara');
+  ok(R.gfa <= R.gfaMax && R.gfaMax - R.gfa < V.plate, 'sisa KLB < satu lantai tipikal');
+  near(R.rows.reduce((s, r) => s + r.npp * r.units, 0), 100, 1e-6, 'jumlah NPP seluruh sarusun = 100%');
+  near(R.hbArea, 0.2 * (13200 + 6000), 1e-6, 'kewajiban rusun umum 20% luas lantai komersial');
+  near(R.rev, R.rows.reduce((s, r) => s + r.units * r.a * r.pm2 * (1 + V.priceUp / 100 * (R.twFl - 1) / 2), 0), 1, 'pendapatan = Σ unit × luas × harga × premium lantai');
+  near(R.flow.reduce((a, b) => a + b, 0), R.profit, 1, 'arus kas total = laba');
+  const V2 = Object.assign(w.vertDefault('apartemen'), { A: 4000, kdb: 50, klb: 20, maxFl: 10, podFl: 2 }); const R2 = w.vertCalc(V2); ok(R2.twFl === 8 && R2.limitedBy === 'lantai', 'dibatasi jumlah lantai');
+  const Ru = w.vertCalc(Object.assign(w.vertDefault('rusun'), { A: 3000 })); ok(Ru.hbArea === 0 && w.vertDefault('rusun').pphPct === 1, 'rusun umum: tanpa kewajiban 20%, PPh 1%');
+  w.RPrender('rusun'); const sv = w.document.querySelector('section[data-sec="rusun"]'); ok(sv.querySelector('#vSec svg') && sv.querySelector('#vPlan svg') && !/NaN|undefined/.test(sv.textContent), 'halaman rumah susun tanpa NaN');
+  ok(w.document.querySelector('section[data-sec="sumber"]').textContent.includes('Nomor 20 Tahun 2011'), 'rujukan UU Rumah Susun'); }
 // 8) rujukan memuat Kepmen PKP 1722
 ok(w.document.querySelector('section[data-sec="sumber"]').textContent.includes('1722/KPTS/M/2026'), 'rujukan Kepmen 1722');
 ok(errors.length === 0, 'galat skrip: ' + errors.join(' | '));

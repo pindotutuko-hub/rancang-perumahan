@@ -1,5 +1,16 @@
 # Catatan perubahan
 
+## 0.5.0 — 2026-11-05
+- Menu baru **R · Rumah susun & apartemen** untuk flat (walk-up), rusun umum (MBR), apartemen menengah, dan kondominium.
+  - Kapasitas dihitung dari KDB, KLB, dan batas jumlah lantai: lantai menara/podium/basement, luas lantai kotor (GFA), dan luas bersih terjual (efisiensi).
+  - Jumlah unit dihitung per tipe menurut komposisi, beserta parkir (podium, basement, halaman) dan perkiraan jumlah lif.
+  - NPP per sarusun dihitung menurut nilai atau luas (UU 20/2011 Pasal 1 angka 13, Pasal 46 ayat (2)).
+  - Kewajiban rumah susun umum paling sedikit 20% luas lantai untuk rumah susun komersial (UU 20/2011 Pasal 16 ayat (2)), dengan pilihan memasukkan biayanya ke kelayakan.
+  - Kelayakan: biaya, pendapatan dengan premium ketinggian, laba, marjin, IRR, NPV, kebutuhan dana puncak, dan arus kas bulanan.
+  - Gambar potongan massa dan denah lantai tipikal (koridor ganda + inti), pemeriksaan KDB/KDH/parkir/lif, serta ekspor CSV unit & NPP.
+  - Tombol "Ambil dari halaman Lahan & Lokasi" memakai luas lahan dan aturan RDTR proyek.
+- Rujukan baru: UU 20/2011 tentang Rumah Susun dan PP 13/2021 tentang Penyelenggaraan Rumah Susun. Angka pasar/biaya ditandai sebagai asumsi.
+
 ## 0.4.0 — 2026-11-05
 - Tampak 3D lebih realistis:
   - Langit fisik (model Preetham, addon Sky three.js) dirender ke cubemap. Langit ini menjadi latar sekaligus cahaya pantul lingkungan, dan berubah mengikuti jam matahari, termasuk warna senja.
