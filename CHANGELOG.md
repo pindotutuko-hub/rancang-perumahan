@@ -1,5 +1,8 @@
 # Catatan perubahan
 
+## 0.6.2 — 2026-11-05
+- Perbaikan: tampak 3D gagal dimuat ("vendor three.js tidak ada") bila aplikasi langsung terbuka di halaman yang memuat 3D (halaman terakhir yang tersimpan). Pemuat kini menunggu dokumen selesai diurai, dan kegagalan tidak disimpan sehingga dapat dicoba ulang.
+
 ## 0.6.1 — 2026-11-05
 - Kredit di sudut kiri bawah menu: "Dikembangkan oleh: Pindo Tutuko".
 

@@ -1268,6 +1268,8 @@ const V3={hour:9.5, nb:true, view:'34', q:(()=>{ const d=(window.matchMedia&&mat
 function load3D(){
   if(rp3dP) return rp3dP;
   rp3dP=(async()=>{
+    /* skrip vendor disisipkan sesudah skrip aplikasi: tunggu dokumen selesai diurai bila halaman pertama langsung membuka tampak 3D */
+    if(!document.getElementById('vx-three-core') && document.readyState==='loading') await new Promise(r=>document.addEventListener('DOMContentLoaded',r,{once:true}));
     const src=id=>{ const e=document.getElementById(id); return e? e.textContent : ''; };
     const core=src('vx-three-core'), mod=src('vx-three'), env=src('vx-three-env'), fx=src('vx-three-fx');
     if(!core||!mod||!env) throw new Error('vendor three.js tidak ada');
@@ -1277,7 +1279,7 @@ function load3D(){
     let F=null; if(fx){ try{ F=await import(url(fx.replace(/from\s*['"]three['"]/g,`from"${mu}"`))); }catch(e){ F=null; } }
     RP3D=make3D(THREE,E.RoomEnvironment,F); return RP3D;
   })();
-  rp3dP.catch(()=>{});
+  rp3dP.catch(()=>{ rp3dP=null; }); /* jangan simpan kegagalan: percobaan berikutnya memuat ulang */
   return rp3dP;
 }
 function make3D(THREE, RoomEnvironment, FX){
