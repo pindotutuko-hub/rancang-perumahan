@@ -1,5 +1,8 @@
 # Catatan perubahan
 
+## 0.7.1 — 2026-11-05
+- Kartu "Tampak isometrik (skema)" diganti **Perspektif realistis (render)**: dua foto dari model 3D (perspektif 3/4 dan pandangan dari jalan setinggi mata) dengan deret tetangga, langit fisik, bayangan sore, oklusi ambien, dan tanaman. Isometrik hanya dipakai bila WebGL tidak tersedia.
+
 ## 0.7.0 — 2026-11-05
 - **Menu baru G · Gambar kerja A2** (594 × 420 mm) dengan kop gambar lengkap: nama proyek, lokasi, pemilik, perencana, catatan, arah utara & legenda, revisi, judul, skala, kolom digambar/diperiksa/disetujui, tanggal, kode/nomor lembar, dan kredit.
   - Lembar perumahan tapak: sampul & data proyek & daftar gambar, rencana tapak berskala, perspektif kawasan & lingkungan sekitar (3D), serta untuk tiap tipe: denah, tampak, potongan, dan 3D.

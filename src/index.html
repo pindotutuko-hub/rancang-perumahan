@@ -1281,8 +1281,8 @@ PAGES.rumah = sec => {
         <p class="note">Seret untuk memutar, gulir/cubit untuk zoom. Render prosedural untuk studi awal (massa, proporsi, material, bayangan matahari, langit fisik, oklusi ambien), bukan gambar kerja. Jam ≥ 17.00 memperlihatkan lampu dalam rumah.</p></div>
       <div class="card"><h2>Denah lantai terukur</h2><div class="grid g2" id="fpWrap"><div class="svgbox" id="fp"></div><div class="svgbox" id="fp2"></div></div><p class="note" id="fpNote"></p></div>
       <div class="grid g2"><div class="card"><h2>Tampak depan terukur</h2><div class="svgbox" id="elev"></div></div><div class="card"><h2>Potongan A–A</h2><div class="svgbox" id="sec"></div></div></div>
-      <div class="grid g2">
-      <div class="card"><h2>Tampak isometrik (skema)</h2><div class="svgbox" id="iso"></div></div></div>`;
+      <div class="card"><h2>Perspektif realistis (render)</h2><div class="grid g2" id="rnd"><figure class="rnd"><div class="note" style="padding:16px">Menyiapkan render…</div></figure><figure class="rnd"></figure></div>
+        <p class="note">Render foto dari model 3D: langit fisik, bayangan matahari sore, oklusi ambien, material berelief, dan tanaman. Gambar dapat diunduh dengan klik kanan/ketuk lama, atau dari menu Gambar kerja A2.</p><div id="iso" hidden></div></div>`;
     const upd=()=>{ const h=RP.house(t,P.rules), sf=styleFactor(t), cost=(+t.LB)*(+P.cost.buildM2)*sf;
       $('#hStat',sec).innerHTML=`<h2>Indikator tipe</h2><div class="kpis">
         <div class="kpi"><span>Luas kavling</span><b>${fmt(h.LT,1)} m²</b><span>${fmt(t.lotW,1)} × ${fmt(t.lotD,1)} m</span></div>
@@ -1291,12 +1291,15 @@ PAGES.rumah = sec => {
         <div class="kpi"><span>Biaya konstruksi</span><b>${rp(cost)}</b><span>${rp(+P.cost.buildM2*sf)}/m² × ${fmt(t.LB)} m²</span></div>
         <div class="kpi"><span>Harga jual per m² bangunan</span><b>${rp((+t.price)/(+t.LB||1))}</b></div>
         <div class="kpi"><span>Selisih harga − konstruksi</span><b>${rp(+t.price-cost)}</b><span>belum termasuk tanah & PSU</span></div></div>`;
-      $('#iso',sec).innerHTML=isoSVG(t); $('#fp',sec).innerHTML=archPlanSVG(t,1); const two=+t.floors>1; $('#fp2',sec).innerHTML=two? archPlanSVG(t,2) : ''; $('#fp2',sec).style.display=two?'':'none'; $('#fpWrap',sec).classList.toggle('g2',two); $('#sec',sec).innerHTML=sectionSVG(t); $('#elev',sec).innerHTML=elevationSVG(t); sched3D();
+      schedRnd(); $('#fp',sec).innerHTML=archPlanSVG(t,1); const two=+t.floors>1; $('#fp2',sec).innerHTML=two? archPlanSVG(t,2) : ''; $('#fp2',sec).style.display=two?'':'none'; $('#fpWrap',sec).classList.toggle('g2',two); $('#sec',sec).innerHTML=sectionSVG(t); $('#elev',sec).innerHTML=elevationSVG(t); sched3D();
       const fp=floorPlan(t); $('#fpNote',sec).textContent = (+t.floors>1? `Lantai 2: ${fp.upBeds} kamar tidur + ${fp.upBaths} kamar mandi. `:'')+`Lebar bangunan mengikuti lebar kavling (rumah deret/kopel); kedalaman bangunan ±${fmt(fp.bd,1)} m.`; };
     $$('[data-tf]',$('#tbody',sec)).forEach(el=>el.addEventListener(el.type==='checkbox'?'change':'input',()=>{ const f=el.dataset.tf; t[f]= el.type==='checkbox'? el.checked : el.type==='number'? (el.value===''? null : +el.value) : el.value; if(f==='name') $('#ttabs',sec).innerHTML=tabs(), bindTabs(); persist(); upd(); if(['lotW','lotD','LB','floors'].includes(f)) refreshStyles(); }));
     const o3=()=>({t,st:STYLES[t.style]||STYLES.minimalis,fp:floorPlan(t),neighbors:V3.nb});
     const fallback3=e=>{ const h=$('#v3d',sec); if(h) h.innerHTML=`<div class="svgbox">${isoSVG(t)}</div><p class="note">Tampak 3D (WebGL) tidak dapat dimuat di perangkat ini — ditampilkan tampak isometrik.${e&&e.message?` <small>(${esc(String(e.message).slice(0,140))})</small>`:''}</p>`; };
     let mounted=false, t3=0;
+    let rT=0; const schedRnd=()=>{ clearTimeout(rT); rT=setTimeout(()=>{ load3D().then(R=>{ const box=$('#rnd',sec); if(!box||!box.isConnected) return; try{ const o={t,st:STYLES[t.style]||STYLES.minimalis,fp:floorPlan(t),neighbors:false}, im=R.snaps.house(o,{w:1500,hour:15.5,eye:true});
+        const fig=(u,c)=>`<figure class="rnd"><img src="${u}" alt="${esc(c)}" style="width:100%;display:block;border-radius:10px"><figcaption class="note">${esc(c)}</figcaption></figure>`;
+        box.innerHTML=fig(im.persp,`Perspektif 3/4 — ${(STYLES[t.style]||STYLES.minimalis).n}`)+fig(im.eye,'Pandangan dari jalan (setinggi mata)'); }catch(e){ box.innerHTML=`<div class="svgbox">${isoSVG(t)}</div>`; } }).catch(()=>{ const box=$('#rnd',sec); if(box) box.innerHTML=`<div class="svgbox">${isoSVG(t)}</div>`; }); },350); };
     const sched3D=()=>{ if(!mounted) return; clearTimeout(t3); t3=setTimeout(()=>{ if(RP3D&&$('#v3d',sec)&&$('#v3d',sec).isConnected) RP3D.update(o3()); thumbs(); },220); };
     const thumbs=()=>{ if(!RP3D) return; RP3D.thumbs(Object.keys(STYLES).map(k=>({id:k,key:[k,t.lotW,t.lotD,t.LB,t.floors,P.rules.gsb].join('|'),o:{t,st:STYLES[k],fp:floorPlan(Object.assign({},t,{style:k}))}})),(k,u)=>{ const b=$(`[data-st="${k}"]`,sec); if(b&&b.isConnected) b.firstElementChild.outerHTML=`<img src="${u}" alt="${esc(STYLES[k].n)}" loading="lazy">`; }); };
     const refreshStyles=()=>{ if(RP3D) return; $$('[data-st]',sec).forEach(b=>{ b.firstElementChild.outerHTML=isoSVG(Object.assign({},t,{style:b.dataset.st}),{small:1}); }); };
@@ -1905,7 +1908,7 @@ function make3D(THREE, RoomEnvironment, FX){
     const lotBack=-(fp.d-gsb); box(G,(2*nb+1)*w,1.8,.12,wallMat({wallT:'plaster',wall:'#c9c5bd'}),-(2*nb+1)*w/2,0,lotBack-.12);
     box(G,L,.06,.5,flat('#9d9a93',.9),-L/2,0,gsb); box(G,L,.065,.26,flat('#26282a',.95),-L/2,0,gsb+.12);
     box(G,L,.04,6,texMat('asphalt','',{roughness:.95,bumpScale:1.5}),-L/2,0,gsb+.5); box(G,L,.16,.15,flat('#b3afa7',.85),-L/2,0,gsb+6.5);
-    if(!o.bare) for(let x=-L/2+4;x<L/2;x+=7.5) tree(G,x+rnd()*1.5,gsb+8.2+rnd()*1.2,.9+rnd()*.35);
+    if(!o.bare&&!o.noStreet) for(let x=-L/2+4;x<L/2;x+=7.5) tree(G,x+rnd()*1.5,gsb+8.2+rnd()*1.2,.9+rnd()*.35);
     /* latar: sabuk pohon di belakang kavling & seberang jalan (lebih jarang, memberi kedalaman) */
     if(!o.bare&&(S.hq||nb)){ for(let x=-L/2-20;x<L/2+20;x+=5+rnd()*5){ const s2=1+rnd()*.7; tree(G,x,lotBack-4-rnd()*14,s2); if(rnd()<.55) tree(G,x+rnd()*3,gsb+16+rnd()*16,s2); } }
     const pm=flat('#2a2c2e',.5,.6); if(!o.bare) for(let k=-nb;k<=nb;k+=2){ const x=k*w-w/2+.15; box(G,.08,4.2,.08,pm,x,0,gsb+.3); box(G,.6,.08,.16,pm,x,4.15,gsb+.3); box(G,.34,.04,.12,LAMP,x+.24,4.11,gsb+.32); }
@@ -2057,7 +2060,8 @@ function make3D(THREE, RoomEnvironment, FX){
       Object.assign(S.view,{th:-.8,ph:.38,r:big*1.15}); out.aerial2=shot(S,w,h);
       S.target.set(S.entX||0,2.2,E.lay.D/2-30); Object.assign(S.view,{th:.18,ph:.07,r:58}); out.street=shot(S,w,h); return out; },
     house(o,opt={}){ const S=snapStage(); const fp=o.fp, fl=Math.max(1,+o.t.floors||1), w=opt.w||1800, out={};
-      build(S,Object.assign({},o,{neighbors:false,bare:true})); setSun(S,opt.hour||10); setView(S,'34'); S.view.r*=.92; out.persp=shot(S,w,Math.round(w*.66));
+      build(S,Object.assign({},o,{neighbors:!!opt.eye,nb:1,bare:!opt.eye,noStreet:true})); setSun(S,opt.hour||10); setView(S,'34'); S.view.r*=.92; out.persp=shot(S,w,Math.round(w*.66));
+      if(opt.eye){ const t0=S.target.clone(); S.target.set(t0.x,t0.y*.9,t0.z); Object.assign(S.view,{th:-.32,ph:.05,r:S.fit*.95}); out.eye=shot(S,w,Math.round(w*.66)); S.target.copy(t0); build(S,Object.assign({},o,{neighbors:false,bare:true})); setSun(S,opt.hour||10); }
       const wF=fp.w+5, hF=.35+3.2*fl+5.5, hpx=Math.round(w*hF/wF); out.front=oshot(S,w,hpx,V(0,hF/2-1,0),V(0,0,1),wF); out.frontW=wF; out.frontH=hF;
       const zc=(Math.max(.6,fp.gsb)-fp.bd)/2, wS=fp.bd+Math.max(.6,fp.gsb)+5, hpx2=Math.round(w*hF/wS); out.side=oshot(S,w,hpx2,V(0,hF/2-1,zc),V(1,0,0),wS); out.sideW=wS; out.sideH=hF; return out; },
     tower(T,opt={}){ const S=snapStage(); buildTower(S,Object.assign({},T,{ctx:true})); setSun(S,opt.hour||9.5); const w=opt.w||2400, h=opt.h||1450, d=S.dims, out={};
